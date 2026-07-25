@@ -1,9 +1,11 @@
-# Keep this workflow explicit in forks so GitHub can register manual dispatches.
+# Keep this workflow on the default branch so GitHub can register scheduled runs.
 name: Daily Horizon Summary
 
 on:
-  # schedule:
-  #   - cron: '0 0 */2 * *'  # Runs every 2 days at 00:00 UTC
+  schedule:
+    # Daily at 23:15 UTC = 07:15 Asia/Shanghai on the next calendar day.
+    # GitHub may delay scheduled runs during periods of high load.
+    - cron: '15 23 * * *'
   workflow_dispatch:      # Allow manual trigger
 
 jobs:
@@ -15,6 +17,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          # The default branch registers the schedule; this validated branch
+          # supplies the executable code and deployment configuration.
+          ref: deploy/qwen-daily
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -22,20 +28,21 @@ jobs:
           python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.26"
 
       - name: Install dependencies
         run: uv sync
 
+      - name: Prepare GitHub Actions config
+        run: cp data/config.github.json data/config.json
+
       - name: Run Horizon
         env:
-          # Map secrets to environment variables expected by config.json
-          # Modify these based on your config.json provider settings
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          LWN_KEY: ${{ secrets.LWN_KEY }}
-        run: uv run horizon --hours 48
+          # This deployment uses Aliyun DashScope only.
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+        run: uv run horizon --hours 24
 
       - name: Set current date as environment variable
         run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
