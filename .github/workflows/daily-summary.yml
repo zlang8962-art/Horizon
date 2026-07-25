@@ -1,3 +1,4 @@
+# Keep this workflow explicit in forks so GitHub can register manual dispatches.
 name: Daily Horizon Summary
 
 on:
