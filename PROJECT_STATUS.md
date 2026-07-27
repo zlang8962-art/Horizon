@@ -2,7 +2,7 @@
 
 > 维护对象：[`zlang8962-art/Horizon`](https://github.com/zlang8962-art/Horizon)
 > 上游仓库：[`Thysrael/Horizon`](https://github.com/Thysrael/Horizon)
-> 最后现场核实：2026-07-27 11:35（Asia/Shanghai）
+> 最后现场核实：2026-07-27 11:41（Asia/Shanghai）
 > 当前生产分支：`deploy/qwen-daily`
 
 以后接手本项目时，请先完整阅读本文件，再查看 `README_zh.md`、
@@ -327,6 +327,9 @@ README.md
 - 最终来源：GitHub 3 条、Hacker News 2 条、Reddit 2 条、RSS 1 条、
   Telegram 2 条；
 - 10 条均完成背景增强，生成中英文简报；
+- 中文第 8 条医学模型资讯的正文尾句不完整，发布后的原始 Markdown 确认停在
+  “作者还展示了 S-GRPO 论文中的”；工作流成功只证明流水线完成，不能替代
+  内容完整性检查；英文同一条正文完整；
 - Token：189,217（输入 75,909，输出 113,308）。相较上一轮定时运行的
   71,945 Token，本次约为 2.63 倍；但信息源扩充和 5 维评分同时生效，不能把
   增幅只归因于其中一项。
@@ -338,7 +341,8 @@ Pages 验证：
   `_posts/2026-07-27-summary-en.md`；
 - Pages 构建状态：`built`，完成于 2026-07-27 03:30:55Z；
 - [2026-07-27 中文简报](https://zlang8962-art.github.io/Horizon/2026/07/27/summary-zh.html)
-  已在应用内浏览器打开并核对：标题、37→10 统计和 10 条正文均正常显示；
+  已在应用内浏览器打开并核对：页面、标题、37→10 统计和 10 条内容结构均可
+  显示；第 8 条正文存在上述生成截断；
 - [2026-07-27 英文简报](https://zlang8962-art.github.io/Horizon/2026/07/27/summary-en.html)
   的远程 Markdown 和 Pages 提交已验证，未单独做浏览器视觉复核。
 
@@ -608,8 +612,10 @@ gh workflow run daily-summary.yml `
    它们未提交，也未删除。清理前必须核对精确路径并获得明确批准。
 9. 上游 PR #141 当前为 Draft 且没有 CI checks；不能因为 `MERGEABLE` 就认为
    已获得上游审阅或合并许可。
-10. 2026-07-27 中文页面已由应用内浏览器复核标题、统计和正文；英文页面已验证
-    远程 Markdown 与 Pages 提交，但未单独做视觉复核。
+10. 2026-07-27 中文页面已由应用内浏览器复核；第 8 条医学模型资讯在原始
+    Markdown 中即存在尾句截断，说明这是生成内容质量问题，不是 Pages 渲染问题。
+    英文同一条正文完整；英文页面已验证远程 Markdown 与 Pages 提交，但未单独
+    做视觉复核。
 11. 信息源扩充和 5 维评分同时生效后，本次使用 189,217 Token，是上一轮定时
     运行的约 2.63 倍；OSS Insight 已限制为最多 12 条且本次返回 0 条，高流量且
     无配置上限的 arXiv RSS 仍未启用。一次样本不能代表长期成本。
