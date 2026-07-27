@@ -2,7 +2,7 @@
 
 > 维护对象：[`zlang8962-art/Horizon`](https://github.com/zlang8962-art/Horizon)
 > 上游仓库：[`Thysrael/Horizon`](https://github.com/Thysrael/Horizon)
-> 最后现场核实：2026-07-27 11:15（Asia/Shanghai）
+> 最后现场核实：2026-07-27 11:35（Asia/Shanghai）
 > 当前生产分支：`deploy/qwen-daily`
 
 以后接手本项目时，请先完整阅读本文件，再查看 `README_zh.md`、
@@ -19,7 +19,7 @@ Secret 名称。
 |---|---|---|
 | 每日简报工作流 | `active` | [Daily Horizon Summary](https://github.com/zlang8962-art/Horizon/actions/workflows/daily-summary.yml) |
 | 自动运行时间 | 每天 23:15 UTC，即北京时间次日 07:15 | `origin/main:.github/workflows/daily-summary.yml` |
-| 实际运行代码 | `deploy/qwen-daily`；个性化筛选配置提交 `a817bc3085630cfb31a3c285a7da344fbb3f0bbe` | 工作流显式 `checkout` 该分支 |
+| 实际运行代码 | `deploy/qwen-daily`；本次真实运行检出 `d937393a9fb0f2a046f325a30bf27583031fb54f` | run #30234414815 的 Checkout 日志 |
 | 模型服务 | Aliyun DashScope，`qwen3.7-plus` | `data/config.github.json` |
 | 用户 Secret | `DASHSCOPE_API_KEY` | GitHub Actions repository secret，仅核实名称 |
 | 信息源规模 | GitHub 10 项；RSS 13 项（启用 12）；另有 HN、Reddit、Telegram、OSS Insight | `data/config.github.json -> sources` |
@@ -28,6 +28,7 @@ Secret 名称。
 | Webhook | 关闭 | `data/config.github.json -> webhook.enabled: false` |
 | LWN 订阅源 | 关闭 | `data/config.github.json -> sources.rss[name=LWN.net].enabled: false` |
 | Pages | `built`，HTTPS 开启 | [简报首页](https://zlang8962-art.github.io/Horizon/) |
+| 最近手动运行 | 2026-07-27 成功；37 条候选、22 条命中、最终 10 条、189,217 Token | [run #30234414815](https://github.com/zlang8962-art/Horizon/actions/runs/30234414815) |
 | Issue #103 功能 | 已实现，等待上游审阅 | [上游 Draft PR #141](https://github.com/Thysrael/Horizon/pull/141) |
 | 最近自动定时运行 | 2026-07-26、2026-07-27 均成功 | [run #30180747028](https://github.com/zlang8962-art/Horizon/actions/runs/30180747028)、[run #30226855537](https://github.com/zlang8962-art/Horizon/actions/runs/30226855537) |
 
@@ -53,8 +54,8 @@ flowchart LR
 | 分支 | 作用 | 核实提交 |
 |---|---|---|
 | `origin/main` | GitHub 默认分支；登记自动定时工作流 | `f03016c72c6e826e5bc37cdf2cb0d00cced2e98c` |
-| `origin/deploy/qwen-daily` | 实际运行代码、Qwen 配置、个性化筛选与 Pages 部署逻辑 | 个性化配置提交 `a817bc3085630cfb31a3c285a7da344fbb3f0bbe` |
-| `origin/gh-pages` | Actions 自动生成的站点产物；不要手工编辑 | `0568c2608038f8465040b2b820dc2a7428c20923` |
+| `origin/deploy/qwen-daily` | 实际运行代码、Qwen 配置、个性化筛选与 Pages 部署逻辑 | 本次运行检出 `d937393a9fb0f2a046f325a30bf27583031fb54f`；配置提交 `a817bc3085630cfb31a3c285a7da344fbb3f0bbe` |
+| `origin/gh-pages` | Actions 自动生成的站点产物；不要手工编辑 | `2d5df98ab08fee290b0f5218a69d188ba7d6159e` |
 | `origin/feat/configurable-scoring-criteria` | Issue #103 功能开发与上游 PR 来源 | `0bc408ae314b35fd3b84da94e3e9c363f2a96b78` |
 | `origin/agent/enable-daily-summary` | 已合并 PR #2 的审计分支 | `7afd981b30d0823df9ab237aeed7b85fa8aee9a0` |
 
@@ -293,6 +294,54 @@ README.md
 
 ## 6. 已验证的真实运行
 
+### 个性化筛选首次真实运行
+
+- Actions：
+  [run #30234414815](https://github.com/zlang8962-art/Horizon/actions/runs/30234414815)
+- 事件：`workflow_dispatch`；仅手动触发 1 次，没有重复运行；
+- 触发入口：默认分支 `main@f03016c72c6e826e5bc37cdf2cb0d00cced2e98c`；
+- 实际检出：`deploy/qwen-daily@d937393a9fb0f2a046f325a30bf27583031fb54f`；
+- 时间：2026-07-27 03:21:30Z 至 03:30:26Z；
+- 结论：`success`，Horizon 生成和 Pages 部署步骤均成功。
+
+真实抓取结果：
+
+| 顶层来源 | 候选数 | 现场情况 |
+|---|---:|---|
+| GitHub | 4 | 成功 |
+| Hacker News | 11 | 成功 |
+| RSS | 1 | 其余启用源在 24 小时窗内无内容或未入库；PyTorch Blog 返回 403 |
+| Reddit | 7 | `MachineLearning` 通过 RSS 降级取得内容；两个旧版 HTML 请求 403，`LocalLLaMA` RSS 429 |
+| Telegram | 14 | 成功 |
+| OSS Insight | 0 | 请求成功，但本次没有符合来源预筛选的条目 |
+| **合计** | **37** | 顶层来源没有整体失败 |
+
+个性化筛选和生成结果：
+
+- 37 条均进入 AI 分析，22 条命中 `any` 评分规则；
+- 1 条 Hacker News 内容因模型响应缺少必填 `tags` 字段，保持未评分并带
+  `ai_analysis_error`，随后被明确排除；
+- 主题去重移除 1 条，剩余 21 条；
+- 来源分类配额最终选出 10 条：AI 与算力 6/6，软件与开发工具 4/4，
+  系统与安全 0/4，芯片与硬件 0/3，其他 0/2；
+- 最终来源：GitHub 3 条、Hacker News 2 条、Reddit 2 条、RSS 1 条、
+  Telegram 2 条；
+- 10 条均完成背景增强，生成中英文简报；
+- Token：189,217（输入 75,909，输出 113,308）。相较上一轮定时运行的
+  71,945 Token，本次约为 2.63 倍；但信息源扩充和 5 维评分同时生效，不能把
+  增幅只归因于其中一项。
+
+Pages 验证：
+
+- `gh-pages` 新提交：`2d5df98ab08fee290b0f5218a69d188ba7d6159e`；
+- 修改 `_posts/2026-07-27-summary-zh.md` 和
+  `_posts/2026-07-27-summary-en.md`；
+- Pages 构建状态：`built`，完成于 2026-07-27 03:30:55Z；
+- [2026-07-27 中文简报](https://zlang8962-art.github.io/Horizon/2026/07/27/summary-zh.html)
+  已在应用内浏览器打开并核对：标题、37→10 统计和 10 条正文均正常显示；
+- [2026-07-27 英文简报](https://zlang8962-art.github.io/Horizon/2026/07/27/summary-en.html)
+  的远程 Markdown 和 Pages 提交已验证，未单独做浏览器视觉复核。
+
 ### 自动定时运行
 
 - [run #30180747028](https://github.com/zlang8962-art/Horizon/actions/runs/30180747028)：
@@ -302,13 +351,12 @@ README.md
   2026-07-27 定时触发并成功；抓取和分析 31 条，1 条达到 8.0；生成中英文
   简报；使用 71,945 Token（输入 25,270，输出 46,675）。
 - 两次运行均由默认分支的 `schedule` 触发，并显式检出
-  `deploy/qwen-daily`；最新 Pages 产物提交为
-  `0568c2608038f8465040b2b820dc2a7428c20923`。
+  `deploy/qwen-daily`；第二次定时运行当时生成的 Pages 提交为
+  `0568c2608038f8465040b2b820dc2a7428c20923`，当前站点已由后续手动运行更新。
 
-以上两次定时运行使用的是来源扩充前的配置。提交
-`fcf236d8a3d2979d952f932749f7af733a813d30` 扩充后的来源尚未经过真实模型和
-Pages 集成运行；本次维护没有手动触发 Actions，实际候选量和 Token 增幅需由
-下一次定时运行验证。
+以上两次定时运行使用的是来源扩充前的配置。来源扩充和个性化筛选已由
+run #30234414815 完成首次真实模型与 Pages 集成验证；自动 `schedule` 路径在
+新配置下是否长期稳定，仍需观察后续定时运行。
 
 ### 首次手动成功运行
 
@@ -375,9 +423,9 @@ ea304fdf7bb475ce41e79699a037a7f0bbe7a2c2
 - 配置加载、可配置评分、分析器、平衡简报与分类接线相关测试：82 项通过；
 - 1 条第三方依赖弃用警告，不影响本次验证；
 - `git diff --check`：通过；
-- 部署仅更新 `deploy/qwen-daily`，未调用真实模型、未手动触发 Actions，也未修改
-  `main` 或 `gh-pages`；5 维模型输出稳定性、实际入选数量和 Token 变化仍需由
-  下一次定时运行验证。
+- run #30234414815 已完成首次真实模型与 Pages 集成验证：37 条候选、22 条命中、
+  1 条结构无效并可诊断、最终 10 条、189,217 Token；工作流成功更新
+  `gh-pages`，没有修改 `main`。
 
 2026-07-27 信息源扩充已完成：
 
@@ -390,8 +438,9 @@ ea304fdf7bb475ce41e79699a037a7f0bbe7a2c2
 - 首轮沙箱测试受 Windows 临时目录权限影响，改用正常用户权限后同一组测试
   全部通过；该权限错误不是产品逻辑失败；
 - 新增 RSS 地址、GitHub 仓库和 OSS Insight 公共接口已做可用性检查；
-- 未手动运行 Actions，未验证扩充来源后的真实抓取数量、模型输出、Token 成本
-  和 Pages 发布结果。
+- run #30234414815 已验证扩充来源后的真实抓取、模型输出、Token 和 Pages 发布；
+  本次抓取 37 条，其中 RSS 1 条、OSS Insight 0 条，并观察到 PyTorch Blog 403
+  以及 Reddit 403/429 降级，需继续观察后续日期的覆盖面。
 
 2026-07-25 已完成：
 
@@ -527,12 +576,15 @@ gh workflow run daily-summary.yml `
 
 ## 10. 已知限制与待办
 
-1. `schedule` 已在 2026-07-26、2026-07-27 连续成功两次；扩充信息源后的配置
-   尚未经过真实定时运行，需核对下一次 Actions、Token 和 Pages 结果。
-2. 真实模型调用已通过一次手动运行和两次定时运行，但 API 可用性、额度和输出
+1. `schedule` 已在 2026-07-26、2026-07-27 连续成功两次；扩充信息源和个性化
+   筛选已通过一次手动真实运行，但尚未经过新配置下的定时运行，需观察下一次
+   `schedule` 的候选量、Token、错误率和 Pages 结果。
+2. 真实模型调用已通过两次手动运行和两次定时运行，但 API 可用性、额度和输出
    格式仍会随服务状态变化。
-3. Reddit 已出现 403/429 的部分降级。
-4. 三条真实模型响应因结构校验失败被排除；当前行为可诊断且没有误当成低分。
+3. Reddit 旧版 HTML 对两个子版块均返回 403；本次 `MachineLearning` 可通过 RSS
+   降级取得 7 条，但 `LocalLLaMA` RSS 返回 429，覆盖并不完整。
+4. 首次旧配置手动运行有 3 条结构校验失败；本次个性化运行有 1 条因缺少
+   `tags` 被排除。当前行为可诊断且没有误当成低分，但应持续观察 5 维输出稳定性。
 5. 邮件、飞书、Webhook 和 LWN 当前未启用，也未做真实发送验证；定时任务已
    连续成功两次，但长期稳定性仍需持续观察。
 6. `docs/_config.yml` 仍有：
@@ -556,14 +608,14 @@ gh workflow run daily-summary.yml `
    它们未提交，也未删除。清理前必须核对精确路径并获得明确批准。
 9. 上游 PR #141 当前为 Draft 且没有 CI checks；不能因为 `MERGEABLE` 就认为
    已获得上游审阅或合并许可。
-10. Pages API 状态和远程 Markdown 产物已验证；应用内浏览器的安全策略阻止了
-    自动打开新建域名，因此最终页面视觉展示未由自动化浏览器独立复核。
-11. 信息源扩充会增加候选条目和模型调用；OSS Insight 已限制为最多 12 条，
-    高流量且无配置上限的 arXiv RSS 暂未启用，但实际 Token 增幅仍未验证。
-12. 个性化筛选把单一评分改为 5 维严格结构输出，可能增加模型输出 Token 和格式
-    校验失败概率；最终 12 条上限只限制主题去重后的内容增强和简报条数，不限制
-    第一轮候选评分。下一次定时运行应重点检查 `ai_analysis_error` 数量和 Token
-    变化。
+10. 2026-07-27 中文页面已由应用内浏览器复核标题、统计和正文；英文页面已验证
+    远程 Markdown 与 Pages 提交，但未单独做视觉复核。
+11. 信息源扩充和 5 维评分同时生效后，本次使用 189,217 Token，是上一轮定时
+    运行的约 2.63 倍；OSS Insight 已限制为最多 12 条且本次返回 0 条，高流量且
+    无配置上限的 arXiv RSS 仍未启用。一次样本不能代表长期成本。
+12. 最终 12 条上限只限制主题去重后的内容增强和简报条数，不限制第一轮候选
+    评分；本次 21 条去重后候选因分类配额只入选 10 条。后续应重点观察配额是否
+    长期压制系统、安全或芯片内容，以及 `ai_analysis_error` 数量和 Token 波动。
 
 ## 11. 关键提交与 PR
 
