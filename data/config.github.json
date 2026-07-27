@@ -20,25 +20,29 @@
       {
         "type": "user_events",
         "username": "karpathy",
-        "enabled": true
+        "enabled": true,
+        "category": "ai-insights"
       },
       {
         "type": "repo_releases",
         "owner": "vllm-project",
         "repo": "vllm",
-        "enabled": true
+        "enabled": true,
+        "category": "ml-systems"
       },
       {
         "type": "repo_releases",
         "owner": "sgl-project",
         "repo": "sglang",
-        "enabled": true
+        "enabled": true,
+        "category": "ml-systems"
       },
       {
         "type": "repo_releases",
         "owner": "triton-lang",
         "repo": "triton",
-        "enabled": true
+        "enabled": true,
+        "category": "ml-systems"
       },
       {
         "type": "repo_releases",
@@ -86,7 +90,8 @@
     "hackernews": {
       "enabled": true,
       "fetch_top_stories": 30,
-      "min_score": 150
+      "min_score": 150,
+      "category": "tech-community"
     },
     "rss": [
       {
@@ -177,7 +182,8 @@
           "sort": "hot",
           "time_filter": "day",
           "fetch_limit": 10,
-          "min_score": 60
+          "min_score": 60,
+          "category": "ai-community"
         },
         {
           "subreddit": "LocalLLaMA",
@@ -185,7 +191,8 @@
           "sort": "hot",
           "time_filter": "day",
           "fetch_limit": 10,
-          "min_score": 60
+          "min_score": 60,
+          "category": "local-ai"
         }
       ],
       "users": [],
@@ -197,7 +204,8 @@
         {
           "channel": "zaihuapd",
           "enabled": true,
-          "fetch_limit": 20
+          "fetch_limit": 20,
+          "category": "tech-news"
         }
       ]
     },
@@ -229,7 +237,83 @@
   },
   "filtering": {
     "ai_score_threshold": 8.0,
-    "time_window_hours": 24
+    "filter_mode": "any",
+    "score_criteria": [
+      {
+        "name": "ai_compute",
+        "description": "Strong relevance to AI or machine learning models, agents, training, inference, evaluation, safety, open-source model ecosystems, or the computing infrastructure that enables them, with substantive novelty or impact.",
+        "threshold": 8.0
+      },
+      {
+        "name": "software_building",
+        "description": "Strong relevance to software engineering, developer tools, programming languages, frameworks, open-source releases, mobile or web application development, local-first or data-centric applications, or maintainable project workflows, with concrete technical value.",
+        "threshold": 8.0
+      },
+      {
+        "name": "systems_security",
+        "description": "Strong relevance to operating systems, especially Windows or Linux, system troubleshooting, cloud-native or distributed systems, networking, observability, reliability, performance, security, privacy, backups, or data safety.",
+        "threshold": 8.0
+      },
+      {
+        "name": "chips_hardware",
+        "description": "Strong relevance to semiconductors, GPUs, AI accelerators, memory, interconnects, hardware architecture, manufacturing, or hardware-software co-design, with meaningful technical or industry impact.",
+        "threshold": 8.0
+      },
+      {
+        "name": "practical_value",
+        "description": "Provides unusually actionable and evidence-based value for diagnosing, maintaining, migrating, securing, or improving real software and computing systems; favors reproducible methods, explicit tradeoffs, and data-safe procedures over generic advice or promotion.",
+        "threshold": 8.5
+      }
+    ],
+    "time_window_hours": 24,
+    "max_items": 12,
+    "category_groups": {
+      "ai_compute": {
+        "name": "AI and Compute",
+        "limit": 6,
+        "categories": [
+          "ai-tools",
+          "ai-research",
+          "ml-systems",
+          "ml-frameworks",
+          "local-ai",
+          "ai-insights",
+          "ai-community"
+        ]
+      },
+      "software_building": {
+        "name": "Software and Developer Tools",
+        "limit": 4,
+        "categories": [
+          "programming",
+          "web-platform",
+          "developer-tools",
+          "github-trending",
+          "open-source-trending",
+          "tech-community",
+          "tech-news"
+        ]
+      },
+      "systems_security": {
+        "name": "Systems and Security",
+        "limit": 4,
+        "categories": [
+          "systems",
+          "security",
+          "cloud-native",
+          "linux-kernel"
+        ]
+      },
+      "chips_hardware": {
+        "name": "Chips and Hardware",
+        "limit": 3,
+        "categories": [
+          "semiconductors"
+        ]
+      }
+    },
+    "default_group": "other",
+    "default_group_limit": 2
   },
   "webhook": {
     "enabled": false,
