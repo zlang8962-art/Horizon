@@ -39,6 +39,48 @@
         "owner": "triton-lang",
         "repo": "triton",
         "enabled": true
+      },
+      {
+        "type": "repo_releases",
+        "owner": "pytorch",
+        "repo": "pytorch",
+        "enabled": true,
+        "category": "ml-systems"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "huggingface",
+        "repo": "transformers",
+        "enabled": true,
+        "category": "ml-frameworks"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "ggml-org",
+        "repo": "llama.cpp",
+        "enabled": true,
+        "category": "local-ai"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "ollama",
+        "repo": "ollama",
+        "enabled": true,
+        "category": "local-ai"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "NVIDIA",
+        "repo": "TensorRT-LLM",
+        "enabled": true,
+        "category": "ml-systems"
+      },
+      {
+        "type": "repo_releases",
+        "owner": "microsoft",
+        "repo": "onnxruntime",
+        "enabled": true,
+        "category": "ml-systems"
       }
     ],
     "hackernews": {
@@ -64,6 +106,60 @@
         "url": "https://newsletter.semianalysis.com/feed",
         "enabled": true,
         "category": "semiconductors"
+      },
+      {
+        "name": "Google DeepMind News",
+        "url": "https://deepmind.google/blog/rss.xml",
+        "enabled": true,
+        "category": "ai-research"
+      },
+      {
+        "name": "PyTorch Blog",
+        "url": "https://pytorch.org/blog/feed/",
+        "enabled": true,
+        "category": "ml-systems"
+      },
+      {
+        "name": "Cloudflare Blog",
+        "url": "https://blog.cloudflare.com/rss/",
+        "enabled": true,
+        "category": "systems"
+      },
+      {
+        "name": "Google Security Blog",
+        "url": "https://security.googleblog.com/feeds/posts/default",
+        "enabled": true,
+        "category": "security"
+      },
+      {
+        "name": "Rust Blog",
+        "url": "https://blog.rust-lang.org/feed.xml",
+        "enabled": true,
+        "category": "programming"
+      },
+      {
+        "name": "Kubernetes Blog",
+        "url": "https://kubernetes.io/feed.xml",
+        "enabled": true,
+        "category": "cloud-native"
+      },
+      {
+        "name": "Mozilla Hacks",
+        "url": "https://hacks.mozilla.org/feed/",
+        "enabled": true,
+        "category": "web-platform"
+      },
+      {
+        "name": "Python Blog",
+        "url": "https://blog.python.org/feeds/posts/default",
+        "enabled": true,
+        "category": "programming"
+      },
+      {
+        "name": "GitHub Blog",
+        "url": "https://github.blog/feed/",
+        "enabled": true,
+        "category": "developer-tools"
       },
       {
         "name": "LWN.net",
@@ -104,6 +200,31 @@
           "fetch_limit": 20
         }
       ]
+    },
+    "ossinsight": {
+      "enabled": true,
+      "period": "past_24_hours",
+      "languages": [
+        "All"
+      ],
+      "keywords": [
+        "artificial intelligence",
+        "machine learning",
+        "large language model",
+        "llm",
+        "inference",
+        "agentic",
+        "ai agent",
+        "transformer",
+        "vector database",
+        "compiler",
+        "distributed systems",
+        "security",
+        "observability"
+      ],
+      "min_stars": 30,
+      "max_items": 12,
+      "category": "open-source-trending"
     }
   },
   "filtering": {
