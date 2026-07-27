@@ -2,7 +2,7 @@
 
 > 维护对象：[`zlang8962-art/Horizon`](https://github.com/zlang8962-art/Horizon)
 > 上游仓库：[`Thysrael/Horizon`](https://github.com/Thysrael/Horizon)
-> 最后现场核实：2026-07-27 11:08（Asia/Shanghai）
+> 最后现场核实：2026-07-27 11:15（Asia/Shanghai）
 > 当前生产分支：`deploy/qwen-daily`
 
 以后接手本项目时，请先完整阅读本文件，再查看 `README_zh.md`、
@@ -19,12 +19,12 @@ Secret 名称。
 |---|---|---|
 | 每日简报工作流 | `active` | [Daily Horizon Summary](https://github.com/zlang8962-art/Horizon/actions/workflows/daily-summary.yml) |
 | 自动运行时间 | 每天 23:15 UTC，即北京时间次日 07:15 | `origin/main:.github/workflows/daily-summary.yml` |
-| 实际运行代码 | `deploy/qwen-daily`；来源扩充配置提交 `fcf236d8a3d2979d952f932749f7af733a813d30` | 工作流显式 `checkout` 该分支 |
+| 实际运行代码 | `deploy/qwen-daily`；个性化筛选配置提交 `a817bc3085630cfb31a3c285a7da344fbb3f0bbe` | 工作流显式 `checkout` 该分支 |
 | 模型服务 | Aliyun DashScope，`qwen3.7-plus` | `data/config.github.json` |
 | 用户 Secret | `DASHSCOPE_API_KEY` | GitHub Actions repository secret，仅核实名称 |
 | 信息源规模 | GitHub 10 项；RSS 13 项（启用 12）；另有 HN、Reddit、Telegram、OSS Insight | `data/config.github.json -> sources` |
-| 线上当前筛选 | 最近 24 小时；单一 AI 重要性评分 `>= 8.0`；未配置自定义评分维度或最终条数上限 | `origin/deploy/qwen-daily:data/config.github.json -> filtering` |
-| 本地个性化候选 | 5 个兴趣维度、`any` 模式、最终最多 12 条；尚未部署 | `codex/personalize-filtering-rules`，配置提交 `a817bc3085630cfb31a3c285a7da344fbb3f0bbe` |
+| 线上当前筛选 | 5 个兴趣维度、`any` 模式、来源分类配额、最终最多 12 条 | `origin/deploy/qwen-daily:data/config.github.json -> filtering` |
+| 个性化筛选版本 | 配置提交 `a817bc3085630cfb31a3c285a7da344fbb3f0bbe`；2026-07-27 部署 | 状态文件提交紧随配置提交，不改变运行逻辑 |
 | Webhook | 关闭 | `data/config.github.json -> webhook.enabled: false` |
 | LWN 订阅源 | 关闭 | `data/config.github.json -> sources.rss[name=LWN.net].enabled: false` |
 | Pages | `built`，HTTPS 开启 | [简报首页](https://zlang8962-art.github.io/Horizon/) |
@@ -53,7 +53,7 @@ flowchart LR
 | 分支 | 作用 | 核实提交 |
 |---|---|---|
 | `origin/main` | GitHub 默认分支；登记自动定时工作流 | `f03016c72c6e826e5bc37cdf2cb0d00cced2e98c` |
-| `origin/deploy/qwen-daily` | 实际运行代码、Qwen 配置与 Pages 部署逻辑；本次扩充信息源 | 配置提交 `fcf236d8a3d2979d952f932749f7af733a813d30` |
+| `origin/deploy/qwen-daily` | 实际运行代码、Qwen 配置、个性化筛选与 Pages 部署逻辑 | 个性化配置提交 `a817bc3085630cfb31a3c285a7da344fbb3f0bbe` |
 | `origin/gh-pages` | Actions 自动生成的站点产物；不要手工编辑 | `0568c2608038f8465040b2b820dc2a7428c20923` |
 | `origin/feat/configurable-scoring-criteria` | Issue #103 功能开发与上游 PR 来源 | `0bc408ae314b35fd3b84da94e3e9c363f2a96b78` |
 | `origin/agent/enable-daily-summary` | 已合并 PR #2 的审计分支 | `7afd981b30d0823df9ab237aeed7b85fa8aee9a0` |
@@ -68,10 +68,10 @@ flowchart LR
 `main` 来“对齐”上游。需要升级时，应在独立集成分支合并上游并完整验证。
 
 本地 `main` 仍停在旧提交 `7a8e6a3`，比远程 `origin/main` 落后 4 个提交。
-本次个性化筛选候选在独立分支 `codex/personalize-filtering-rules` 实施，基线为
-`origin/deploy/qwen-daily@1616a9c4288d9ace8a9c94ea2d1a3be51414be43`。
-候选尚未 Push，线上仍使用单一 `ai_score >= 8.0` 规则。不要把本地候选、
-本地 `main` 或本文中的旧快照当成远程现状。
+本次个性化筛选在独立分支 `codex/personalize-filtering-rules` 实施，基线为
+`origin/deploy/qwen-daily@1616a9c4288d9ace8a9c94ea2d1a3be51414be43`，经用户
+明确批准后以非强制快进方式部署。当前线上使用 5 个兴趣维度和最终 12 条上限。
+不要把本地 `main` 或本文中的旧快照当成远程现状。
 
 ## 3. 自动化如何工作
 
@@ -156,11 +156,11 @@ data/config.github.json
 | `webhook.enabled` | `false` |
 | LWN `enabled` | `false` |
 
-上表描述的是本地候选分支 `codex/personalize-filtering-rules` 中的配置。远端
-`deploy/qwen-daily` 仍使用兼容的单一评分 `ai_score_threshold: 8.0`；只有在用户
-明确批准并 Push 后，以下个性化规则才会成为线上生产规则。
+上表描述的是远端 `deploy/qwen-daily` 的当前生产配置。个性化运行逻辑来自配置
+提交 `a817bc3085630cfb31a3c285a7da344fbb3f0bbe`；紧随其后的状态文件提交只记录
+部署事实，不改变运行逻辑。
 
-### 线上当前筛选链（候选部署前）
+### 旧筛选链（2026-07-27 个性化部署前）
 
 1. **时间范围**：只处理运行时点向前 24 小时内的内容。
 2. **来源内预筛选**：
@@ -182,7 +182,7 @@ data/config.github.json
 7. **最终数量**：当前没有配置 `max_items` 或分类配额，因此主题去重后不再按
    固定总数截断；实际发布条数取决于当天达到 8 分的内容数。
 
-### 个性化候选筛选链
+### 当前个性化筛选链
 
 来源内预筛选、24 小时时间窗、跨来源 URL 合并和主题去重保持不变。AI 判定改为
 同时输出以下 5 个独立分数：
@@ -364,7 +364,7 @@ ea304fdf7bb475ce41e79699a037a7f0bbe7a2c2
 
 ## 7. 已执行的本地验证
 
-2026-07-27 个性化筛选候选已完成：
+2026-07-27 个性化筛选部署已完成：
 
 - 独立分支：`codex/personalize-filtering-rules`；
 - 配置提交：`a817bc3085630cfb31a3c285a7da344fbb3f0bbe`；
@@ -375,8 +375,9 @@ ea304fdf7bb475ce41e79699a037a7f0bbe7a2c2
 - 配置加载、可配置评分、分析器、平衡简报与分类接线相关测试：82 项通过；
 - 1 条第三方依赖弃用警告，不影响本次验证；
 - `git diff --check`：通过；
-- 未调用真实模型、未手动触发 Actions、未 Push；5 维模型输出稳定性、实际入选
-  数量和 Token 变化仍未验证。
+- 部署仅更新 `deploy/qwen-daily`，未调用真实模型、未手动触发 Actions，也未修改
+  `main` 或 `gh-pages`；5 维模型输出稳定性、实际入选数量和 Token 变化仍需由
+  下一次定时运行验证。
 
 2026-07-27 信息源扩充已完成：
 
@@ -559,9 +560,10 @@ gh workflow run daily-summary.yml `
     自动打开新建域名，因此最终页面视觉展示未由自动化浏览器独立复核。
 11. 信息源扩充会增加候选条目和模型调用；OSS Insight 已限制为最多 12 条，
     高流量且无配置上限的 arXiv RSS 暂未启用，但实际 Token 增幅仍未验证。
-12. 个性化候选把单一评分改为 5 维严格结构输出，可能增加模型输出 Token 和格式
+12. 个性化筛选把单一评分改为 5 维严格结构输出，可能增加模型输出 Token 和格式
     校验失败概率；最终 12 条上限只限制主题去重后的内容增强和简报条数，不限制
-    第一轮候选评分。部署后应重点检查 `ai_analysis_error` 数量和 Token 变化。
+    第一轮候选评分。下一次定时运行应重点检查 `ai_analysis_error` 数量和 Token
+    变化。
 
 ## 11. 关键提交与 PR
 
@@ -571,7 +573,7 @@ gh workflow run daily-summary.yml `
 | Qwen 部署初始提交 | `251cadb` | DashScope/Qwen 生产配置与工作流 |
 | 可选集成修复 | `43b3c353944f0a7b4ec144dc5de671a1ea177d86` | 关闭 Webhook/LWN，只保留 DashScope Secret |
 | 信息源扩充 | `fcf236d8a3d2979d952f932749f7af733a813d30` | 新增官方 RSS、关键项目 Release 与有限流的 OSS Insight 趋势源 |
-| 个性化筛选候选 | `a817bc3085630cfb31a3c285a7da344fbb3f0bbe` | 5 个兴趣维度、`any` 模式、来源分类配额与最终 12 条上限；尚未部署 |
+| 个性化筛选 | `a817bc3085630cfb31a3c285a7da344fbb3f0bbe` | 5 个兴趣维度、`any` 模式、来源分类配额与最终 12 条上限；已部署 |
 | 自动任务提交 | `7afd981b30d0823df9ab237aeed7b85fa8aee9a0` | 默认分支登记每日 07:15 自动任务 |
 | Fork PR #2 合并提交 | `f03016c72c6e826e5bc37cdf2cb0d00cced2e98c` | 启用自动运行 |
 | 上游 PR | [#141](https://github.com/Thysrael/Horizon/pull/141) | Issue #103 Draft PR |
