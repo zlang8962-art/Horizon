@@ -42,10 +42,10 @@ jobs:
         env:
           # This deployment uses Zhipu GLM only.
           ZHIPUAI_API_KEY: ${{ secrets.ZHIPUAI_API_KEY }}
-        run: uv run horizon --hours 24
+        run: uv run horizon
 
       - name: Set current date as environment variable
-        run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+        run: echo "DATE=$(TZ=Asia/Shanghai date +'%Y-%m-%d')" >> $GITHUB_ENV
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
@@ -56,3 +56,12 @@ jobs:
           commit_message: "📝 Daily Summary: ${{ env.DATE }}"
           publish_branch: gh-pages
           enable_jekyll: true
+
+      - name: Upload candidate audit
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: candidate-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: data/audits/*-candidate-audit.json
+          if-no-files-found: warn
+          retention-days: 30
