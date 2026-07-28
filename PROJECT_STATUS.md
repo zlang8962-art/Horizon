@@ -54,7 +54,7 @@ flowchart LR
 | 分支 | 作用 | 核实提交 |
 |---|---|---|
 | `origin/main` | GitHub 默认分支；登记自动定时工作流并注入 GLM Secret | `d04d767edba154997285301fe878662ac8a33019` |
-| `origin/deploy/qwen-daily` | 实际运行代码、GLM 配置、个性化筛选与 Pages 部署逻辑 | `7032fbd506435067f98d2badd3b1e17bedd08f4b` |
+| `origin/deploy/qwen-daily` | 实际运行代码、GLM 配置、个性化筛选与 Pages 部署逻辑 | 功能基线 `7032fbd506435067f98d2badd3b1e17bedd08f4b`；其后只追加本状态文件提交，实时 HEAD 应重新查询 |
 | `origin/gh-pages` | Actions 自动生成的站点产物；不要手工编辑 | `ea3024de08c1bc8b70cdcfe920511592c4077458` |
 | `origin/feat/configurable-scoring-criteria` | Issue #103 功能开发与上游 PR 来源 | `0bc408ae314b35fd3b84da94e3e9c363f2a96b78` |
 | `origin/agent/enable-daily-summary` | 已合并 PR #2 的审计分支 | `7afd981b30d0823df9ab237aeed7b85fa8aee9a0` |
