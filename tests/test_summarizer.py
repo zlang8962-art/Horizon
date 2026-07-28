@@ -124,6 +124,26 @@ def test_generate_summary_zh_uses_localized_selection_header_and_numeric_date():
     assert "Apr 25, 08:00" not in result
 
 
+def test_calendar_report_shows_coverage_and_local_item_time() -> None:
+    summarizer = DailySummarizer()
+    item = _make_item(1)
+    item.published_at = datetime(2026, 7, 26, 17, 0, tzinfo=timezone.utc)
+
+    result = _run_async(
+        summarizer.generate_summary(
+            [item],
+            date="2026-07-28",
+            total_fetched=1,
+            language="zh",
+            content_date="2026-07-27",
+            display_timezone="Asia/Shanghai",
+        )
+    )
+
+    assert "> 报道范围：2026-07-27（Asia/Shanghai 自然日）" in result
+    assert "rss · tester · 7月27日 01:00" in result
+
+
 def test_generate_empty_summary_zh_uses_localized_analyzed_line():
     summarizer = DailySummarizer()
 

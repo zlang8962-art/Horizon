@@ -276,6 +276,7 @@ cp data/config.example.json data/config.json  # 自定义信息源
   "filtering": {
     "ai_score_threshold": 6.0,
     "max_items": 20,
+    "max_items_per_sub_source": 2,
     "category_groups": {
       "ai": {
         "limit": 5,
@@ -292,8 +293,25 @@ cp data/config.example.json data/config.json  # 自定义信息源
 }
 ```
 
-分组限额在 AI 分数过滤之后、内容补充之前执行。未配置
-`category_groups` 和 `max_items` 时，筛选行为保持不变。
+分组限额和同一子来源限额在 AI 分数过滤之后、内容补充之前执行。
+`max_items_per_sub_source` 可防止同一仓库、RSS 订阅源或社区连续占满日报。
+未配置 `category_groups`、`max_items` 和 `max_items_per_sub_source` 时，
+筛选行为保持不变。
+
+如需让“28 日日报”严格覆盖上海时区 27 日 00:00-23:59，可配置：
+
+```jsonc
+{
+  "filtering": {
+    "time_window_mode": "previous_calendar_day",
+    "time_window_timezone": "Asia/Shanghai",
+    "candidate_audit_enabled": true
+  }
+}
+```
+
+显式使用 `--hours` 时仍会改为滚动小时窗口。启用候选审计后，Horizon 会在
+`data/audits/` 保存不含文章正文和 URL 查询参数的筛选记录。
 
 `data/config.json` 里的任意字符串值都可以通过 `${VAR_NAME}` 引用环境变量。这适合用于 `ai.base_url`、私有 RSS 链接、Webhook 地址或自定义请求头模板等字段。
 
@@ -315,11 +333,12 @@ docker compose run --rm horizon              # 使用默认 24 小时窗口
 docker compose run --rm horizon --hours 48   # 抓取最近 48 小时的内容
 ```
 
-生成的日报将保存在 `data/summaries/` 目录中。
+生成的日报将保存在 `data/summaries/` 目录中；启用候选审计后，筛选记录保存在
+`data/audits/`。
 
 ### 4. 自动化（可选）
 
-Horizon 非常适合作为 **GitHub Actions** 定时任务运行。查看 [`.github/workflows/daily-summary.yml`](.github/workflows/daily-summary.yml) 获取现成的工作流配置，可自动生成日报并部署到 GitHub Pages。
+Horizon 非常适合作为 **GitHub Actions** 定时任务运行。查看 [`.github/workflows/daily-summary.yml`](.github/workflows/daily-summary.yml) 获取现成的工作流配置，可自动生成日报并部署到 GitHub Pages。示例工作流还会把候选审计作为保留 30 天的 Actions 附件上传，不会复制到 Pages。
 
 ## 支持的信息源
 

@@ -2,8 +2,11 @@
 
 import html
 import re
+from datetime import timezone
 from typing import Dict, List, Optional
 from urllib.parse import quote, urlsplit
+
+from dateutil.tz import gettz
 
 from ..models import ContentItem
 
@@ -53,6 +56,7 @@ LABELS = {
         "discussion": "Discussion",
         "references": "References",
         "tags": "Tags",
+        "coverage": "Coverage: {date} ({timezone} calendar day)",
         "selected_items": "From {total} items, {selected} important content pieces were selected",
         "empty_analyzed": "Analyzed {total} items, but none met the importance threshold.",
         "empty_body": (
@@ -73,6 +77,7 @@ LABELS = {
         "discussion": "社区讨论",
         "references": "参考链接",
         "tags": "标签",
+        "coverage": "报道范围：{date}（{timezone} 自然日）",
         "selected_items": "从 {total} 条内容中筛选出 {selected} 条重要资讯。",
         "empty_analyzed": "已分析 {total} 条内容，但没有达到重要性阈值的条目。",
         "empty_body": (
@@ -101,6 +106,8 @@ class DailySummarizer:
         date: str,
         total_fetched: int,
         language: str = "en",
+        content_date: Optional[str] = None,
+        display_timezone: Optional[str] = None,
     ) -> str:
         """Generate daily summary in Markdown format.
 
@@ -111,6 +118,8 @@ class DailySummarizer:
             date: Date string (YYYY-MM-DD)
             total_fetched: Total number of items fetched before filtering
             language: Output language, either "en" or "zh"
+            content_date: Optional calendar date covered by this report
+            display_timezone: Optional timezone used for coverage and item times
 
         Returns:
             str: Markdown formatted summary
@@ -118,10 +127,28 @@ class DailySummarizer:
         labels = LABELS.get(language, LABELS["en"])
 
         if not items:
-            return self._generate_empty_summary(date, total_fetched, labels)
+            return self._generate_empty_summary(
+                date,
+                total_fetched,
+                labels,
+                content_date=content_date,
+                display_timezone=display_timezone,
+            )
+
+        coverage = ""
+        if content_date is not None:
+            coverage = (
+                "> "
+                + labels["coverage"].format(
+                    date=content_date,
+                    timezone=display_timezone or "UTC",
+                )
+                + "\n\n"
+            )
 
         header = (
             f"# {labels['header']} - {date}\n\n"
+            f"{coverage}"
             f"> {labels['selected_items'].format(total=total_fetched, selected=len(items))}\n\n"
             "---\n\n"
         )
@@ -137,7 +164,16 @@ class DailySummarizer:
             toc_entries.append(f"{i + 1}. [{t}](#item-{i + 1}) \u2b50\ufe0f {score}/10")
         toc = "\n".join(toc_entries) + "\n\n---\n\n"
 
-        parts = [self._format_item(item, labels, language, i + 1) for i, item in enumerate(items)]
+        parts = [
+            self._format_item(
+                item,
+                labels,
+                language,
+                i + 1,
+                display_timezone=display_timezone,
+            )
+            for i, item in enumerate(items)
+        ]
 
         return header + toc + "".join(parts)
 
@@ -190,7 +226,15 @@ class DailySummarizer:
         prefix = f"第 {index}/{total} 条\n\n" if language == "zh" else f"Item {index}/{total}\n\n"
         return prefix + self._format_item(item, labels, language, index).rstrip("-\n ")
 
-    def _format_item(self, item: ContentItem, labels: dict, language: str, index: int) -> str:
+    def _format_item(
+        self,
+        item: ContentItem,
+        labels: dict,
+        language: str,
+        index: int,
+        *,
+        display_timezone: Optional[str] = None,
+    ) -> str:
         """Format a single ContentItem into Markdown."""
         _title = item.metadata.get(f"title_{language}") or item.title
         title = _escape_markdown(_title)
@@ -232,14 +276,20 @@ class DailySummarizer:
         else:
             source_parts.append(_escape_markdown(item.author or "unknown"))
         if item.published_at:
+            published_at = item.published_at
+            if published_at.tzinfo is None:
+                published_at = published_at.replace(tzinfo=timezone.utc)
+            target_timezone = gettz(display_timezone) if display_timezone else None
+            if target_timezone is not None:
+                published_at = published_at.astimezone(target_timezone)
             if language == "zh":
                 source_parts.append(
-                    f"{item.published_at.month}月{item.published_at.day}日 "
-                    f"{item.published_at:%H:%M}"
+                    f"{published_at.month}月{published_at.day}日 "
+                    f"{published_at:%H:%M}"
                 )
             else:
-                day = item.published_at.strftime("%d").lstrip("0")
-                source_parts.append(item.published_at.strftime(f"%b {day}, %H:%M"))
+                day = published_at.strftime("%d").lstrip("0")
+                source_parts.append(published_at.strftime(f"%b {day}, %H:%M"))
         source_line = " \u00b7 ".join(source_parts)  # ·
 
         discussion_url = meta.get("discussion_url")
@@ -293,10 +343,29 @@ class DailySummarizer:
 
         return "\n".join(lines) + "\n\n"
 
-    def _generate_empty_summary(self, date: str, total_fetched: int, labels: dict) -> str:
+    def _generate_empty_summary(
+        self,
+        date: str,
+        total_fetched: int,
+        labels: dict,
+        *,
+        content_date: Optional[str] = None,
+        display_timezone: Optional[str] = None,
+    ) -> str:
         """Generate summary when no high-scoring items were found."""
+        coverage = ""
+        if content_date is not None:
+            coverage = (
+                "> "
+                + labels["coverage"].format(
+                    date=content_date,
+                    timezone=display_timezone or "UTC",
+                )
+                + "\n\n"
+            )
         return (
             f"# {labels['header']} - {date}\n\n"
+            f"{coverage}"
             f"> {labels['empty_analyzed'].format(total=total_fetched)}\n\n"
             + labels["empty_body"]
         )

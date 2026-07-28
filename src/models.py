@@ -5,6 +5,7 @@ from enum import Enum
 from math import isfinite
 import re
 from typing import Annotated, Literal, Optional, List, Dict, Any, NamedTuple, Union
+from dateutil.tz import gettz
 from pydantic import BaseModel, HttpUrl, Field, field_validator
 
 
@@ -532,10 +533,16 @@ class FilteringConfig(BaseModel):
     filter_mode: Literal["any", "all"] = "any"
     score_criteria: Optional[List[ScoreCriterionConfig]] = None
     time_window_hours: int = 24
+    time_window_mode: Literal["rolling_hours", "previous_calendar_day"] = (
+        "rolling_hours"
+    )
+    time_window_timezone: str = "UTC"
     max_items: Optional[int] = Field(default=None, gt=0)
+    max_items_per_sub_source: Optional[int] = Field(default=None, gt=0)
     category_groups: Dict[str, CategoryGroupConfig] = Field(default_factory=dict)
     default_group: str = "other"
     default_group_limit: Optional[int] = Field(default=None, gt=0)
+    candidate_audit_enabled: bool = False
 
     @field_validator("ai_score_threshold", mode="before")
     @classmethod
@@ -572,6 +579,16 @@ class FilteringConfig(BaseModel):
                 )
             seen[normalized] = criterion.name
         return criteria
+
+    @field_validator("time_window_timezone")
+    @classmethod
+    def validate_time_window_timezone(cls, value: str) -> str:
+        timezone_name = value.strip()
+        if not timezone_name or gettz(timezone_name) is None:
+            raise ValueError(
+                "filtering.time_window_timezone must be a valid IANA timezone"
+            )
+        return timezone_name
 
 
 class Config(BaseModel):

@@ -465,7 +465,10 @@ one 0-10 score:
     "filter_mode": "any",
     "score_criteria": null,
     "time_window_hours": 24,
+    "time_window_mode": "rolling_hours",
+    "time_window_timezone": "UTC",
     "max_items": 20,
+    "max_items_per_sub_source": 2,
     "category_groups": {
       "ai": {
         "name": "AI / Machine Learning",
@@ -479,7 +482,8 @@ one 0-10 score:
       }
     },
     "default_group": "other",
-    "default_group_limit": 3
+    "default_group_limit": 3,
+    "candidate_audit_enabled": false
   }
 }
 ```
@@ -492,8 +496,15 @@ one 0-10 score:
 - `score_criteria`: Optional list of custom scoring dimensions. Omit it or set
   it to `null` to preserve the original prompt, response format, and
   `ai_score_threshold` behavior
-- `time_window_hours`: Fetch content from last N hours
+- `time_window_hours`: Fetch content from the last N hours when using
+  `rolling_hours`
+- `time_window_mode`: `rolling_hours` (default) or `previous_calendar_day`.
+  An explicit CLI `--hours` option always uses `rolling_hours`.
+- `time_window_timezone`: IANA timezone used to calculate report and calendar
+  dates, for example `Asia/Shanghai`
 - `max_items`: Optional final cap after all group limits are applied
+- `max_items_per_sub_source`: Optional positive cap for one repository, RSS
+  feed, subreddit, channel, watchlist, or equivalent sub-source
 - `category_groups`: Optional map of quota groups. Each group requires a positive
   `limit` and a non-empty `categories` list. Items within each group are kept by
   AI score, highest first.
@@ -502,6 +513,13 @@ one 0-10 score:
   configured group. Default is `other`.
 - `default_group_limit`: Optional positive limit for unmatched items. If omitted,
   unmatched items are unlimited except for `max_items`.
+- `candidate_audit_enabled`: Save a JSON decision record under `data/audits/`.
+  It contains titles, query-free URLs, scores, and exclusion reasons, but not
+  article bodies.
+
+`previous_calendar_day` uses an inclusive start and exclusive end. For example,
+on 2026-07-28 with `Asia/Shanghai`, it covers 2026-07-27 00:00 through the start
+of 2026-07-28, converted to UTC for fetching and validation.
 
 ### User-defined scoring criteria
 
@@ -570,8 +588,8 @@ All source types support a `category` field: `sources.rss[].category`,
 Sources without a category set enter the default group.
 
 If the same category appears in multiple groups, Horizon logs a warning and uses
-the first group in configuration order. Omitting both `category_groups` and
-`max_items` preserves the previous filtering behavior.
+the first group in configuration order. Omitting `category_groups`, `max_items`,
+and `max_items_per_sub_source` preserves the previous filtering behavior.
 
 ## Environment Variable Substitution
 

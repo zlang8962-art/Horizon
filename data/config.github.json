@@ -267,7 +267,10 @@
       }
     ],
     "time_window_hours": 24,
+    "time_window_mode": "previous_calendar_day",
+    "time_window_timezone": "Asia/Shanghai",
     "max_items": 12,
+    "max_items_per_sub_source": 2,
     "category_groups": {
       "ai_compute": {
         "name": "AI and Compute",
@@ -314,7 +317,8 @@
       }
     },
     "default_group": "other",
-    "default_group_limit": 2
+    "default_group_limit": 2,
+    "candidate_audit_enabled": true
   },
   "webhook": {
     "enabled": false,

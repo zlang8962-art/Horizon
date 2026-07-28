@@ -4,9 +4,11 @@ import asyncio
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Literal, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Literal, Optional
 from urllib.parse import unquote_plus, urlsplit
 import httpx
+from dateutil.tz import gettz
 from rich.console import Console
 
 from .models import Config, ContentItem
@@ -77,6 +79,28 @@ def _deduplication_url_key(url: str) -> tuple[str, str, str, str, Optional[int],
 
 
 @dataclass
+class TimeWindow:
+    """One effective fetch window with explicit calendar semantics."""
+
+    since: datetime
+    until: datetime
+    report_date: str
+    content_date: Optional[str]
+    mode: Literal["rolling_hours", "previous_calendar_day"]
+    timezone_name: str
+
+    def to_dict(self) -> Dict[str, Optional[str]]:
+        return {
+            "mode": self.mode,
+            "timezone": self.timezone_name,
+            "since": self.since.isoformat().replace("+00:00", "Z"),
+            "until_exclusive": self.until.isoformat().replace("+00:00", "Z"),
+            "report_date": self.report_date,
+            "content_date": self.content_date,
+        }
+
+
+@dataclass
 class BalancedDigestResult:
     """Items and selection statistics from balanced digest filtering."""
 
@@ -85,6 +109,9 @@ class BalancedDigestResult:
     group_counts: Dict[str, int] = field(default_factory=dict)
     group_limits: Dict[str, Optional[int]] = field(default_factory=dict)
     duplicate_categories: List[str] = field(default_factory=list)
+    sub_source_counts: Dict[str, int] = field(default_factory=dict)
+    sub_source_limit: Optional[int] = None
+    excluded_reasons: Dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -202,27 +229,66 @@ class HorizonOrchestrator:
             self.console.print("📧 Checking for new email subscriptions...")
             self.email_manager.check_subscriptions(self.storage)
 
+        window: Optional[TimeWindow] = None
+        all_items: List[ContentItem] = []
+        in_window_items: List[ContentItem] = []
+        merged_items: List[ContentItem] = []
+        analyzed_items: List[ContentItem] = []
+        filtering_result: Optional[FilteringPipelineResult] = None
+        post_expansion_result: Optional[FilteringPipelineResult] = None
+        balanced_digest: Optional[BalancedDigestResult] = None
+
         try:
             # 1. Determine time window
-            since = self._determine_time_window(force_hours)
-            self.console.print(f"📅 Fetching content since: {since.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            window = self._determine_time_window(force_hours)
+            if window.mode == "previous_calendar_day":
+                self.console.print(
+                    f"📅 Content date: {window.content_date} "
+                    f"({window.timezone_name}, previous calendar day)"
+                )
+            else:
+                self.console.print(
+                    f"📅 Rolling window ({window.timezone_name})"
+                )
+            self.console.print(
+                "   UTC range: "
+                f"[{window.since.isoformat().replace('+00:00', 'Z')}, "
+                f"{window.until.isoformat().replace('+00:00', 'Z')})\n"
+            )
 
             # 2. Fetch content from all sources
-            all_items = await self.fetch_all_sources(since)
+            all_items = await self.fetch_all_sources(window.since)
             self.console.print(f"📥 Fetched {len(all_items)} items from all sources\n")
 
             if self.last_fetch_report and self.last_fetch_report.all_failed:
                 raise RuntimeError(self.last_fetch_report.failure_message())
 
-            if not all_items:
-                self.console.print("[yellow]No new content found. Exiting.[/yellow]")
+            in_window_items = self._filter_items_to_window(all_items, window)
+            excluded_by_window = len(all_items) - len(in_window_items)
+            if excluded_by_window:
+                self.console.print(
+                    f"🗓️ Excluded {excluded_by_window} items outside the exact "
+                    f"calendar window → {len(in_window_items)} candidates\n"
+                )
+
+            if not in_window_items:
+                self._save_candidate_audit(
+                    window,
+                    state="no_content_in_window",
+                    fetched_items=all_items,
+                    in_window_items=in_window_items,
+                )
+                self.console.print(
+                    "[yellow]No content found in the effective window. Exiting.[/yellow]"
+                )
                 return
 
             # 3. Merge cross-source duplicates (same URL from different sources)
-            merged_items = self.merge_cross_source_duplicates(all_items)
-            if len(merged_items) < len(all_items):
+            merged_items = self.merge_cross_source_duplicates(in_window_items)
+            if len(merged_items) < len(in_window_items):
                 self.console.print(
-                    f"🔗 Merged {len(all_items) - len(merged_items)} cross-source duplicates "
+                    f"🔗 Merged {len(in_window_items) - len(merged_items)} "
+                    "cross-source duplicates "
                     f"→ {len(merged_items)} unique items\n"
                 )
 
@@ -257,9 +323,22 @@ class HorizonOrchestrator:
                 apply_balance=False,
                 log=False,
             )
-            important_items = self.apply_balanced_digest(
+            balanced_digest = self.apply_balanced_digest(
                 post_expansion_result.items
-            ).items
+            )
+            important_items = balanced_digest.items
+
+            self._save_candidate_audit(
+                window,
+                state="selection_complete",
+                fetched_items=all_items,
+                in_window_items=in_window_items,
+                merged_items=merged_items,
+                analyzed_items=analyzed_items,
+                filtering_result=filtering_result,
+                post_expansion_result=post_expansion_result,
+                balanced_digest=balanced_digest,
+            )
 
             # Show per-sub-source selection breakdown
             selected_counts: Dict[str, int] = defaultdict(int)
@@ -274,10 +353,17 @@ class HorizonOrchestrator:
             await self._enrich_important_items(important_items)
 
             # 7. Generate and save daily summaries for each configured language
-            today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            today = window.report_date
             for lang in self.config.ai.languages:
                 summarizer = DailySummarizer()
-                summary = await summarizer.generate_summary(important_items, today, len(all_items), language=lang)
+                summary = await summarizer.generate_summary(
+                    important_items,
+                    today,
+                    len(in_window_items),
+                    language=lang,
+                    content_date=window.content_date,
+                    display_timezone=window.timezone_name,
+                )
 
                 # Save to data/summaries/
                 summary_path = self.storage.save_daily_summary(today, summary, language=lang)
@@ -285,8 +371,6 @@ class HorizonOrchestrator:
 
                 # Copy to docs/ for GitHub Pages
                 try:
-                    from pathlib import Path
-
                     post_filename = f"{today}-summary-{lang}.md"
                     posts_dir = Path("docs/_posts")
                     posts_dir.mkdir(parents=True, exist_ok=True)
@@ -294,11 +378,17 @@ class HorizonOrchestrator:
                     dest_path = safe_output_path(posts_dir, post_filename)
 
                     # Add Jekyll front matter
+                    content_date_front_matter = (
+                        f"content_date: {window.content_date}\n"
+                        if window.content_date is not None
+                        else ""
+                    )
                     front_matter = (
                         "---\n"
                         "layout: default\n"
                         f"title: \"Horizon Summary: {today} ({lang.upper()})\"\n"
                         f"date: {today}\n"
+                        f"{content_date_front_matter}"
                         f"lang: {lang}\n"
                         "---\n\n"
                     )
@@ -330,11 +420,23 @@ class HorizonOrchestrator:
                     await self.webhook_notifier.send_daily_summary(
                         summary=summary,
                         important_items=important_items,
-                        all_items_count=len(all_items),
+                        all_items_count=len(in_window_items),
                         date=today,
                         lang=lang,
                         summarizer=summarizer,
                     )
+
+            self._save_candidate_audit(
+                window,
+                state="completed",
+                fetched_items=all_items,
+                in_window_items=in_window_items,
+                merged_items=merged_items,
+                analyzed_items=analyzed_items,
+                filtering_result=filtering_result,
+                post_expansion_result=post_expansion_result,
+                balanced_digest=balanced_digest,
+            )
 
             self.console.print("[bold green]✅ Horizon completed successfully![/bold green]")
             usage = get_usage_snapshot()
@@ -355,22 +457,318 @@ class HorizonOrchestrator:
         except Exception as e:
             self.console.print(f"[bold red]❌ Error: {e}[/bold red]")
 
+            if window is not None:
+                failure_state = "failed"
+                if self.last_fetch_report and self.last_fetch_report.all_failed:
+                    failure_state = "source_fetch_failed"
+                elif analyzed_items and all(
+                    item.ai_analysis_error is not None
+                    for item in analyzed_items
+                ):
+                    failure_state = "ai_analysis_failed"
+                elif balanced_digest is not None:
+                    failure_state = "failed_after_selection"
+                self._save_candidate_audit(
+                    window,
+                    state=failure_state,
+                    fetched_items=all_items,
+                    in_window_items=in_window_items,
+                    merged_items=merged_items,
+                    analyzed_items=analyzed_items,
+                    filtering_result=filtering_result,
+                    post_expansion_result=post_expansion_result,
+                    balanced_digest=balanced_digest,
+                )
+
             # Send webhook failure notification if configured
             if self.webhook_notifier:
                 await self.webhook_notifier.send_failure(
-                    date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                    date=(
+                        window.report_date
+                        if window is not None
+                        else datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                    ),
                     error_message=str(e),
                 )
 
             raise
 
-    def _determine_time_window(self, force_hours: int = None) -> datetime:
-        if force_hours:
-            since = datetime.now(timezone.utc) - timedelta(hours=force_hours)
-        else:
-            hours = self.config.filtering.time_window_hours
-            since = datetime.now(timezone.utc) - timedelta(hours=hours)
-        return since
+    @staticmethod
+    def _as_utc(value: datetime) -> datetime:
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
+
+    def _determine_time_window(
+        self,
+        force_hours: int = None,
+        *,
+        now: Optional[datetime] = None,
+    ) -> TimeWindow:
+        """Resolve either a rolling-hours or previous-calendar-day window.
+
+        An explicit ``force_hours`` value always opts into rolling-hour
+        semantics. Otherwise the configured mode is used.
+        """
+        current = self._as_utc(now or datetime.now(timezone.utc))
+        filtering = self.config.filtering
+        timezone_name = getattr(filtering, "time_window_timezone", "UTC")
+        local_timezone = gettz(timezone_name) or timezone.utc
+        local_now = current.astimezone(local_timezone)
+        report_date = local_now.strftime("%Y-%m-%d")
+
+        configured_mode = getattr(
+            filtering,
+            "time_window_mode",
+            "rolling_hours",
+        )
+        mode: Literal["rolling_hours", "previous_calendar_day"] = (
+            "rolling_hours" if force_hours is not None else configured_mode
+        )
+
+        if mode == "previous_calendar_day":
+            content_day = local_now.date() - timedelta(days=1)
+            since_local = datetime(
+                content_day.year,
+                content_day.month,
+                content_day.day,
+                tzinfo=local_timezone,
+            )
+            until_day = content_day + timedelta(days=1)
+            until_local = datetime(
+                until_day.year,
+                until_day.month,
+                until_day.day,
+                tzinfo=local_timezone,
+            )
+            return TimeWindow(
+                since=self._as_utc(since_local),
+                until=self._as_utc(until_local),
+                report_date=report_date,
+                content_date=content_day.isoformat(),
+                mode=mode,
+                timezone_name=timezone_name,
+            )
+
+        hours = force_hours if force_hours is not None else filtering.time_window_hours
+        if hours <= 0:
+            raise ValueError("time window hours must be greater than zero")
+        return TimeWindow(
+            since=current - timedelta(hours=hours),
+            until=current,
+            report_date=report_date,
+            content_date=None,
+            mode="rolling_hours",
+            timezone_name=timezone_name,
+        )
+
+    def _filter_items_to_window(
+        self,
+        items: List[ContentItem],
+        window: TimeWindow,
+    ) -> List[ContentItem]:
+        """Apply the exclusive upper bound required by calendar-day mode."""
+        if window.mode != "previous_calendar_day":
+            return items
+        return [
+            item
+            for item in items
+            if window.since <= self._as_utc(item.published_at) < window.until
+        ]
+
+    @staticmethod
+    def _audit_url(url: str) -> str:
+        """Strip query strings, fragments, and credentials from audit URLs."""
+        parsed = urlsplit(url)
+        host = parsed.hostname or ""
+        port = f":{parsed.port}" if parsed.port is not None else ""
+        return f"{parsed.scheme}://{host}{port}{parsed.path}"
+
+    def _save_candidate_audit(
+        self,
+        window: TimeWindow,
+        *,
+        state: str,
+        fetched_items: List[ContentItem],
+        in_window_items: List[ContentItem],
+        merged_items: Optional[List[ContentItem]] = None,
+        analyzed_items: Optional[List[ContentItem]] = None,
+        filtering_result: Optional[FilteringPipelineResult] = None,
+        post_expansion_result: Optional[FilteringPipelineResult] = None,
+        balanced_digest: Optional[BalancedDigestResult] = None,
+    ) -> Optional[Path]:
+        """Persist candidate decisions without article bodies or secret values."""
+        if not bool(
+            getattr(self.config.filtering, "candidate_audit_enabled", False)
+        ):
+            return None
+
+        merged_items = merged_items or []
+        analyzed_items = analyzed_items or []
+        in_window_ids = {item.id for item in in_window_items}
+        merged_ids = {item.id for item in merged_items}
+        analyzed_by_id = {item.id: item for item in analyzed_items}
+        filtered_ids = (
+            {item.id for item in filtering_result.items}
+            if filtering_result is not None
+            else set()
+        )
+        post_expansion_ids = (
+            {item.id for item in post_expansion_result.items}
+            if post_expansion_result is not None
+            else set()
+        )
+        selected_ids = (
+            {item.id for item in balanced_digest.items}
+            if balanced_digest is not None
+            else set()
+        )
+        balance_exclusions = (
+            balanced_digest.excluded_reasons
+            if balanced_digest is not None
+            else {}
+        )
+
+        candidates: List[Dict[str, Any]] = []
+        for fetched_item in fetched_items:
+            item = analyzed_by_id.get(fetched_item.id, fetched_item)
+            decision = "pending"
+            reason = "pipeline_not_reached"
+
+            if fetched_item.id not in in_window_ids:
+                decision = "excluded"
+                reason = "outside_window"
+            elif fetched_item.id not in merged_ids and merged_items:
+                decision = "excluded"
+                reason = "cross_source_duplicate"
+            elif item.ai_analysis_error is not None:
+                decision = "excluded"
+                reason = "analysis_failed"
+            elif item.id in analyzed_by_id:
+                evaluation = evaluate_item_score(item, self.config.filtering)
+                if evaluation.error is not None:
+                    decision = "excluded"
+                    reason = "invalid_score"
+                elif not evaluation.passed:
+                    decision = "excluded"
+                    reason = "below_threshold"
+                elif filtering_result is not None and item.id not in filtered_ids:
+                    decision = "excluded"
+                    reason = "topic_duplicate"
+                elif (
+                    post_expansion_result is not None
+                    and item.id not in post_expansion_ids
+                ):
+                    decision = "excluded"
+                    reason = "post_expansion_filter"
+                elif balanced_digest is not None and item.id not in selected_ids:
+                    decision = "excluded"
+                    reason = balance_exclusions.get(item.id, "digest_limit")
+                elif balanced_digest is not None and item.id in selected_ids:
+                    decision = "selected"
+                    reason = "selected"
+                else:
+                    decision = "eligible"
+                    reason = "eligible"
+
+            candidates.append(
+                {
+                    "id": fetched_item.id,
+                    "source_type": fetched_item.source_type.value,
+                    "sub_source": self._sub_source_label(fetched_item),
+                    "title": fetched_item.title,
+                    "url": self._audit_url(str(fetched_item.url)),
+                    "published_at": self._as_utc(
+                        fetched_item.published_at
+                    ).isoformat().replace("+00:00", "Z"),
+                    "category": fetched_item.metadata.get("category"),
+                    "ai_score": item.ai_score,
+                    "ai_scores": dict(item.ai_scores),
+                    "ai_analysis_error": item.ai_analysis_error,
+                    "decision": decision,
+                    "reason": reason,
+                }
+            )
+
+        fetch_report: Optional[Dict[str, object]] = None
+        if self.last_fetch_report is not None:
+            report = self.last_fetch_report.to_dict()
+            fetch_report = {
+                key: report[key]
+                for key in (
+                    "status",
+                    "attempted",
+                    "successful",
+                    "empty",
+                    "failed",
+                    "item_count",
+                )
+            }
+
+        payload: Dict[str, Any] = {
+            "audit_version": 1,
+            "generated_at": datetime.now(timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z"),
+            "state": state,
+            "window": window.to_dict(),
+            "counts": {
+                "fetched": len(fetched_items),
+                "in_window": len(in_window_items),
+                "merged": len(merged_items),
+                "analyzed": len(analyzed_items),
+                "threshold_and_topic_unique": (
+                    len(filtering_result.items)
+                    if filtering_result is not None
+                    else 0
+                ),
+                "post_expansion_eligible": (
+                    len(post_expansion_result.items)
+                    if post_expansion_result is not None
+                    else 0
+                ),
+                "selected": (
+                    len(balanced_digest.items)
+                    if balanced_digest is not None
+                    else 0
+                ),
+            },
+            "fetch_report": fetch_report,
+            "balance": {
+                "group_counts": (
+                    balanced_digest.group_counts
+                    if balanced_digest is not None
+                    else {}
+                ),
+                "group_limits": (
+                    balanced_digest.group_limits
+                    if balanced_digest is not None
+                    else {}
+                ),
+                "sub_source_counts": (
+                    balanced_digest.sub_source_counts
+                    if balanced_digest is not None
+                    else {}
+                ),
+                "sub_source_limit": (
+                    balanced_digest.sub_source_limit
+                    if balanced_digest is not None
+                    else None
+                ),
+            },
+            "candidates": candidates,
+        }
+
+        try:
+            path = self.storage.save_candidate_audit(window.report_date, payload)
+        except Exception as exc:
+            self.console.print(
+                f"[yellow]⚠️ Failed to save candidate audit: {exc}[/yellow]"
+            )
+            return None
+
+        self.console.print(f"🧾 Saved candidate audit to: {path}\n")
+        return path
 
     async def fetch_all_sources(self, since: datetime) -> List[ContentItem]:
         """Fetch content from all configured sources.
@@ -520,6 +918,9 @@ class HorizonOrchestrator:
             return f"google_news:{meta['gn_query']}"
         if meta.get("domain"):
             return meta["domain"]
+        hostname = urlsplit(str(item.url)).hostname
+        if hostname:
+            return hostname.lower()
         return item.author or "unknown"
 
     def merge_cross_source_duplicates(self, items: List[ContentItem]) -> List[ContentItem]:
@@ -754,8 +1155,17 @@ class HorizonOrchestrator:
         filtering = self.config.filtering
         groups = filtering.category_groups
         max_items = filtering.max_items
+        max_items_per_sub_source = getattr(
+            filtering,
+            "max_items_per_sub_source",
+            None,
+        )
 
-        if not groups and max_items is None:
+        if (
+            not groups
+            and max_items is None
+            and max_items_per_sub_source is None
+        ):
             return BalancedDigestResult(items=items)
 
         sorted_items = sorted(
@@ -784,6 +1194,8 @@ class HorizonOrchestrator:
 
         selected: List[tuple[ContentItem, str]] = []
         group_counts: Dict[str, int] = defaultdict(int)
+        sub_source_counts: Dict[str, int] = defaultdict(int)
+        excluded_reasons: Dict[str, str] = {}
         default_group = filtering.default_group
 
         for item in sorted_items:
@@ -799,14 +1211,27 @@ class HorizonOrchestrator:
             else:
                 limit = filtering.default_group_limit
 
+            sub_source_key = (
+                f"{item.source_type.value}/{self._sub_source_label(item)}"
+            )
+            if (
+                max_items_per_sub_source is not None
+                and sub_source_counts[sub_source_key] >= max_items_per_sub_source
+            ):
+                excluded_reasons[item.id] = "sub_source_limit"
+                continue
+
             if limit is not None and group_counts[group_key] >= limit:
+                excluded_reasons[item.id] = f"group_limit:{group_key}"
+                continue
+
+            if max_items is not None and len(selected) >= max_items:
+                excluded_reasons[item.id] = "max_items"
                 continue
 
             selected.append((item, group_key))
             group_counts[group_key] += 1
-
-        if max_items is not None:
-            selected = selected[:max_items]
+            sub_source_counts[sub_source_key] += 1
 
         final_counts: Dict[str, int] = defaultdict(int)
         for _, group_key in selected:
@@ -821,6 +1246,11 @@ class HorizonOrchestrator:
             self.console.print(
                 f"⚖️ Balanced digest selected {len(selected)}/{len(items)} items"
             )
+            if max_items_per_sub_source is not None:
+                self.console.print(
+                    "      • Per sub-source limit: "
+                    f"{max_items_per_sub_source}"
+                )
             for group_key, group in groups.items():
                 label = group.name or group_key
                 self.console.print(
@@ -847,6 +1277,9 @@ class HorizonOrchestrator:
             group_counts=dict(final_counts),
             group_limits=group_limits,
             duplicate_categories=sorted(set(duplicate_categories)),
+            sub_source_counts=dict(sub_source_counts),
+            sub_source_limit=max_items_per_sub_source,
+            excluded_reasons=excluded_reasons,
         )
 
     async def _expand_twitter_discussion(self, items: List[ContentItem]) -> None:

@@ -67,9 +67,11 @@ class StorageManager:
         self.data_dir = Path(data_dir)
         self.config_path = self.data_dir / "config.json"
         self.summaries_dir = self.data_dir / "summaries"
+        self.audits_dir = self.data_dir / "audits"
 
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.summaries_dir.mkdir(parents=True, exist_ok=True)
+        self.audits_dir.mkdir(parents=True, exist_ok=True)
 
     def load_config(self) -> Config:
         if not self.config_path.exists():
@@ -125,6 +127,14 @@ class StorageManager:
 
         _atomic_write_text(filepath, markdown)
 
+        return filepath
+
+    def save_candidate_audit(self, report_date: str, payload: dict[str, Any]) -> Path:
+        """Atomically save a privacy-minimized candidate decision audit."""
+        filename = f"{report_date}-candidate-audit.json"
+        filepath = safe_output_path(self.audits_dir, filename)
+        content = json.dumps(payload, indent=2, ensure_ascii=False)
+        _atomic_write_text(filepath, f"{content}\n")
         return filepath
 
     def load_subscribers(self) -> list:

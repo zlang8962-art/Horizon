@@ -123,10 +123,14 @@ def print_config_template():
   "filtering": {
     "ai_score_threshold": 7.0,
     "time_window_hours": 24,
+    "time_window_mode": "rolling_hours",
+    "time_window_timezone": "UTC",
     "max_items": null,
+    "max_items_per_sub_source": null,
     "category_groups": {},
     "default_group": "other",
-    "default_group_limit": null
+    "default_group_limit": null,
+    "candidate_audit_enabled": false
   }
 }
 

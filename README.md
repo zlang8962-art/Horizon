@@ -298,6 +298,7 @@ results. Categories come from source configuration such as
   "filtering": {
     "ai_score_threshold": 6.0,
     "max_items": 20,
+    "max_items_per_sub_source": 2,
     "category_groups": {
       "ai": {
         "limit": 5,
@@ -314,8 +315,26 @@ results. Categories come from source configuration such as
 }
 ```
 
-Group limits are applied after AI score filtering and before enrichment. If
-`category_groups` and `max_items` are omitted, filtering behaves as before.
+Group and per-sub-source limits are applied after AI score filtering and before
+enrichment. `max_items_per_sub_source` prevents one repository, RSS feed, or
+community from filling the digest. If `category_groups`, `max_items`, and
+`max_items_per_sub_source` are omitted, filtering behaves as before.
+
+To make a July 28 report cover exactly July 27 00:00-23:59 in Shanghai time:
+
+```jsonc
+{
+  "filtering": {
+    "time_window_mode": "previous_calendar_day",
+    "time_window_timezone": "Asia/Shanghai",
+    "candidate_audit_enabled": true
+  }
+}
+```
+
+An explicit `--hours` option still selects a rolling-hours window. Candidate
+audits are saved under `data/audits/` without article bodies or URL query
+strings.
 
 `api_key_env` must be the name of an environment variable, not the API key
 itself. Put the real secret in `.env`:
@@ -356,11 +375,12 @@ docker compose run --rm horizon           # Run with default 24h window
 docker compose run --rm horizon --hours 48  # Fetch from last 48 hours
 ```
 
-The generated report will be saved to `data/summaries/`.
+The generated report is saved to `data/summaries/`. Candidate audits, when
+enabled, are saved to `data/audits/`.
 
 ### 4. Automate (Optional)
 
-Horizon works great as a **GitHub Actions** cron job. See [`.github/workflows/daily-summary.yml`](.github/workflows/daily-summary.yml) for a ready-to-use workflow that generates and deploys your daily briefing to GitHub Pages automatically.
+Horizon works great as a **GitHub Actions** cron job. See [`.github/workflows/daily-summary.yml`](.github/workflows/daily-summary.yml) for a ready-to-use workflow that generates and deploys your daily briefing to GitHub Pages automatically. The example uploads the candidate audit as a 30-day Actions artifact and does not copy it to Pages.
 
 ## Supported Sources
 

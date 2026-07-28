@@ -45,6 +45,7 @@ data/mcp.secrets.json
 data/mcp-secrets.json
 data/mcp-runs/
 data/x_cookies_*.json
+data/audits/
 
 docs/_posts/*.md
 
@@ -62,3 +63,4 @@ logs/*.log
 todo.txt
 .ruff_cache
 .pytest_cache
+.codex-test-tmp/

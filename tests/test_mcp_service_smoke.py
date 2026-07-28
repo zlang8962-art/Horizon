@@ -53,6 +53,10 @@ def test_validate_config_smoke(tmp_path: Path) -> None:
     assert result["missing_env"] == []
     assert result["filtering"]["filter_mode"] == "any"
     assert result["filtering"]["score_criteria"] is None
+    assert result["filtering"]["time_window_mode"] == "rolling_hours"
+    assert result["filtering"]["time_window_timezone"] == "UTC"
+    assert result["filtering"]["max_items_per_sub_source"] is None
+    assert result["filtering"]["candidate_audit_enabled"] is False
 
 
 def test_get_effective_config_can_filter_sources(tmp_path: Path) -> None:

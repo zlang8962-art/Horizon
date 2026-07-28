@@ -284,13 +284,21 @@ class HorizonPipelineService:
                     else None
                 ),
                 "time_window_hours": ctx.config.filtering.time_window_hours,
+                "time_window_mode": ctx.config.filtering.time_window_mode,
+                "time_window_timezone": ctx.config.filtering.time_window_timezone,
                 "max_items": ctx.config.filtering.max_items,
+                "max_items_per_sub_source": (
+                    ctx.config.filtering.max_items_per_sub_source
+                ),
                 "category_groups": {
                     key: group.model_dump(mode="json")
                     for key, group in ctx.config.filtering.category_groups.items()
                 },
                 "default_group": ctx.config.filtering.default_group,
                 "default_group_limit": ctx.config.filtering.default_group_limit,
+                "candidate_audit_enabled": (
+                    ctx.config.filtering.candidate_audit_enabled
+                ),
             },
             "enabled_sources": get_enabled_sources(ctx.config),
             "selected_sources": selected_sources,

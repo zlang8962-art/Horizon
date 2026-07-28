@@ -104,6 +104,45 @@ def test_max_items_works_without_category_groups() -> None:
     assert [item.id for item in result.items] == ["higher"]
 
 
+def test_per_sub_source_limit_prevents_one_project_from_filling_digest() -> None:
+    filtering = FilteringConfig(max_items=4, max_items_per_sub_source=2)
+    items = [
+        make_item("same-1", 10.0, "ai"),
+        make_item("same-2", 9.5, "ai"),
+        make_item("same-3", 9.0, "ai"),
+        make_item("alternative-1", 8.5, "ai"),
+        make_item("alternative-2", 8.0, "ai"),
+    ]
+    for item in items[:3]:
+        item.metadata["feed_name"] = "Same Project"
+    items[3].metadata["feed_name"] = "Alternative One"
+    items[4].metadata["feed_name"] = "Alternative Two"
+
+    result = make_orchestrator(filtering).apply_balanced_digest(items)
+
+    assert [item.id for item in result.items] == [
+        "same-1",
+        "same-2",
+        "alternative-1",
+        "alternative-2",
+    ]
+    assert result.sub_source_limit == 2
+    assert result.sub_source_counts == {
+        "rss/Same Project": 2,
+        "rss/Alternative One": 1,
+        "rss/Alternative Two": 1,
+    }
+    assert result.excluded_reasons["same-3"] == "sub_source_limit"
+
+
+def test_sub_source_label_uses_url_domain_when_source_has_no_native_label() -> None:
+    item = make_item("domain-item", 8.0, "ai")
+    item.source_type = SourceType.HACKERNEWS
+    item.url = "https://Example.COM/news/item?tracking=1"
+
+    assert HorizonOrchestrator._sub_source_label(item) == "example.com"
+
+
 def test_duplicate_category_warns_and_first_group_wins() -> None:
     filtering = FilteringConfig(
         category_groups={
@@ -126,6 +165,7 @@ def test_duplicate_category_warns_and_first_group_wins() -> None:
     "kwargs",
     [
         {"max_items": 0},
+        {"max_items_per_sub_source": 0},
         {"default_group_limit": 0},
         {"category_groups": {"ai": {"limit": 0, "categories": ["ai"]}}},
         {"category_groups": {"ai": {"limit": 1, "categories": []}}},

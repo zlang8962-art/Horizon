@@ -56,6 +56,7 @@ Optional balanced digest quotas are then applied before enrichment.
     "ai_score_threshold": 7.0,
     "time_window_hours": 24,
     "max_items": 20,
+    "max_items_per_sub_source": 2,
     "category_groups": {
       "ai": {
         "limit": 5,
@@ -67,8 +68,9 @@ Optional balanced digest quotas are then applied before enrichment.
 ```
 
 `category_groups` limits each configured category group independently.
-`max_items` caps the merged result. Both fields are optional; without them,
-scoring and filtering behave as before.
+`max_items_per_sub_source` limits one repository, feed, community, or equivalent
+sub-source, and `max_items` caps the merged result. All three are optional;
+without them, scoring and filtering behave as before.
 
 ### Custom criteria and filter modes
 
