@@ -2,7 +2,7 @@
 
 > 维护对象：[`zlang8962-art/Horizon`](https://github.com/zlang8962-art/Horizon)
 > 上游仓库：[`Thysrael/Horizon`](https://github.com/Thysrael/Horizon)
-> 最后现场核实：2026-07-28 17:59（Asia/Shanghai）
+> 最后现场核实：2026-07-28 18:01（Asia/Shanghai）
 > 当前生产分支：`deploy/qwen-daily`
 
 以后接手本项目时，请先完整阅读本文件，再查看 `README_zh.md`、
@@ -55,7 +55,7 @@ flowchart LR
 | 分支 | 作用 | 核实提交 |
 |---|---|---|
 | `origin/main` | GitHub 默认分支；登记自动定时工作流并注入 GLM Secret | `80ccd44429561c2ed85a9633f57fee6fc9e834dd` |
-| `origin/deploy/qwen-daily` | 实际运行代码、GLM 配置、筛选、审计与 Pages 部署逻辑 | `c35956bc1c243426205327796a4b80910ac4bba6` |
+| `origin/deploy/qwen-daily` | 实际运行代码、GLM 配置、筛选、审计与 Pages 部署逻辑 | 本文件所在状态提交；最新验证的生产代码基线为 `c35956bc1c243426205327796a4b80910ac4bba6` |
 | `origin/gh-pages` | Actions 自动生成的站点产物；不要手工编辑 | `3493302e9cb74b5d77c98aa53158df3a75a3e049` |
 | `origin/feat/configurable-scoring-criteria` | Issue #103 功能开发与上游 PR 来源 | `0bc408ae314b35fd3b84da94e3e9c363f2a96b78` |
 | `origin/agent/enable-daily-summary` | 已合并 PR #2 的审计分支 | `7afd981b30d0823df9ab237aeed7b85fa8aee9a0` |
