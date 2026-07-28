@@ -29,6 +29,7 @@ _DEFAULT_API_KEY_ENVS = {
     AIProvider.OPENAI: "OPENAI_API_KEY",
     AIProvider.AZURE: "AZURE_OPENAI_API_KEY",
     AIProvider.ALI: "DASHSCOPE_API_KEY",
+    AIProvider.ZHIPU: "ZHIPUAI_API_KEY",
     AIProvider.GEMINI: "GOOGLE_API_KEY",
     AIProvider.DOUBAO: "DOUBAO_API_KEY",
     AIProvider.MINIMAX: "MINIMAX_API_KEY",
@@ -325,6 +326,10 @@ class OpenAIClient(AIClient):
             request_kwargs["temperature"] = temperature
         if self.provider not in self._NO_RESPONSE_FORMAT:
             request_kwargs["response_format"] = {"type": "json_object"}
+        if self.config.thinking is not None:
+            request_kwargs["extra_body"] = {
+                "thinking": {"type": self.config.thinking}
+            }
         return await self.client.chat.completions.create(**request_kwargs)
 
     @staticmethod
@@ -550,6 +555,7 @@ def _create_single_client(config: AIConfig) -> AIClient:
     elif config.provider in {
         AIProvider.OPENAI,
         AIProvider.ALI,
+        AIProvider.ZHIPU,
         AIProvider.DOUBAO,
         AIProvider.MINIMAX,
         AIProvider.DEEPSEEK,
@@ -654,6 +660,11 @@ def _create_chained_client(config: AIConfig) -> ChainedAIClient:
             base_url=base_url,
             temperature=config.temperature,
             max_tokens=config.max_tokens,
+            thinking=(
+                config.thinking
+                if provider == config.provider
+                else defaults.get("thinking")
+            ),
             throttle_sec=config.throttle_sec,
             analysis_concurrency=config.analysis_concurrency,
             enrichment_concurrency=config.enrichment_concurrency,

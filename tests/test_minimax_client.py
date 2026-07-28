@@ -205,6 +205,33 @@ class TestOpenAIClientComplete:
         call_kwargs = mock_create.call_args[1]
         assert call_kwargs.get("response_format") == {"type": "json_object"}
 
+    def test_zhipu_sends_disabled_thinking(self, monkeypatch):
+        monkeypatch.setenv("ZHIPUAI_API_KEY", "test-key")
+        client = OpenAIClient(_make_config(
+            provider=AIProvider.ZHIPU,
+            model="glm-4.7-flash",
+            api_key_env="ZHIPUAI_API_KEY",
+            thinking="disabled",
+        ))
+
+        mock_response = MagicMock()
+        mock_response.choices = [MagicMock()]
+        mock_response.choices[0].message.content = '{"score": 8}'
+        mock_response.usage.prompt_tokens = 10
+        mock_response.usage.completion_tokens = 5
+
+        with patch.object(
+            client.client.chat.completions, "create", new_callable=AsyncMock
+        ) as mock_create:
+            mock_create.return_value = mock_response
+            asyncio.run(client.complete(system="test", user="hello"))
+
+        call_kwargs = mock_create.call_args[1]
+        assert call_kwargs["extra_body"] == {
+            "thinking": {"type": "disabled"}
+        }
+        assert call_kwargs["response_format"] == {"type": "json_object"}
+
 
 class TestTemperatureFallback:
     """Retry-without-temperature path for models that deprecated temperature.
@@ -326,6 +353,30 @@ class TestFactoryFunction:
         defaults = AI_PROVIDER_DEFAULTS[AIProvider.MINIMAX]
         assert defaults["model"] == "MiniMax-M3"
         assert defaults["base_url"] == "https://api.minimax.io/v1"
+
+    def test_zhipu_provider_defaults(self):
+        defaults = AI_PROVIDER_DEFAULTS[AIProvider.ZHIPU]
+        assert defaults == {
+            "model": "glm-4.7-flash",
+            "api_key_env": "ZHIPUAI_API_KEY",
+            "base_url": "https://open.bigmodel.cn/api/paas/v4",
+            "thinking": "disabled",
+        }
+
+    def test_creates_openai_client_for_zhipu(self, monkeypatch):
+        monkeypatch.setenv("ZHIPUAI_API_KEY", "test-key")
+        config = _make_config(
+            provider=AIProvider.ZHIPU,
+            model="glm-4.7-flash",
+            api_key_env="ZHIPUAI_API_KEY",
+            thinking="disabled",
+        )
+        client = create_ai_client(config)
+        assert isinstance(client, OpenAIClient)
+        assert client.provider == "zhipu"
+        assert str(client.client.base_url).rstrip("/") == (
+            "https://open.bigmodel.cn/api/paas/v4"
+        )
 
     def test_creates_openai_client_for_minimax(self, monkeypatch):
         monkeypatch.setenv("MINIMAX_API_KEY", "test-key")

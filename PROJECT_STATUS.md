@@ -416,6 +416,97 @@ ea304fdf7bb475ce41e79699a037a7f0bbe7a2c2
 
 ## 7. 已执行的本地验证
 
+### 2026-07-28 MiMo-V2.5 可行性核查
+
+本次只核查本地接入条件和 Xiaomi MiMo 官方资料，没有修改生产模型、GitHub
+Secret、Actions 工作流或线上 Pages，也没有发起真实 MiMo 模型调用。
+
+- 结论：`mimo-v2.5` 的能力和限流足以承担当前 5 维评分、JSON 解析、主题去重、
+  双语内容增强任务；官方支持 OpenAI 兼容 Chat Completions、JSON 模式，限流为
+  100 RPM / 10M TPM，明显高于当前并发 5 的工作负载。
+- 接入：当前代码可先将 MiMo 配成通用 `openai` provider，使用
+  `https://api.xiaomimimo.com/v1` 和独立环境变量名；项目未原生登记 `mimo`
+  provider，若要加入 provider chain 自动回退，建议先补原生 provider 或修正链式
+  配置对自定义 Key/Base URL 的继承。
+- 兼容风险：MiMo-V2.5 Chat Completions 默认开启深度思考；当前客户端没有发送
+  `thinking: {"type": "disabled"}`，因此 `temperature: 0.3` 会被服务端忽略，且
+  推理 token 可能增加成本。正式切换前应增加可配置开关，并分别验证评分和长摘要。
+- 免费与价格：MiMo 文本 API 已于 2026-01-26 开始计费，不是永久免费的 API；
+  官方当前说明为新注册赠送 ¥10 体验金。`mimo-v2.5` 按缓存未命中输入
+  ¥1/MTok、输出 ¥2/MTok 计费。
+- 工作量估算：按 run #30234414815 的 75,909 输入 / 113,308 输出 token 直接
+  换算约 ¥0.30/次、¥9.08/30 天；线性外推到 45 条候选约 ¥0.37/次、
+  ¥11.04/30 天。该估算未计不同 tokenizer、深度思考 token、重试和候选量波动，
+  ¥10 体验金约可覆盖 27-33 次类似运行，而不是长期免费。
+- 未验证：尚未用 MiMo API 对 Horizon 的真实样本做 JSON 成功率、评分一致性、
+  中文完整性、延迟、Token 和故障回退测试。生产切换前应先跑固定样本 A/B，再做
+  一次手动完整运行并检查内容，而不能只以工作流绿色状态作为验收。
+
+### 2026-07-28 免费/低成本替代模型核查
+
+本次只核查官方文档并按最近完整运行约 66 次 API 请求、189,217 Token/天估算，
+没有注册账号、调用模型、修改生产配置、Secret、工作流权限或线上 Pages。
+
+1. `glm-4.7-flash`：当前首选免费替代。智谱官方将其列为免费模型；支持
+   OpenAI 风格 Chat Completions、200K 上下文、JSON Object、函数调用和思考模式，
+   中文及长文本能力与 Horizon 更匹配。正式接入仍需在账号控制台确认实时限流，
+   并先以并发 1-2 做固定样本 A/B；免费政策和模型可用性可能调整。
+2. GitHub Models `openai/gpt-4o-mini`：免费 Low 档为 15 RPM、150 请求/天、
+   8K 输入、4K 输出；当前约 66 请求/天可覆盖。GitHub Actions 可用内置
+   `GITHUB_TOKEN`，但必须新增 `models: read` 工作流权限，并把单次输出上限降至
+   4096 以内。该服务仍是免费公共预览，不宜作为唯一生产来源；权限尚未申请。
+3. Cerebras `gpt-oss-120b`：免费档 30 RPM、1M Token/小时和 1M Token/天，
+   容量足够，且支持 OpenAI 兼容接口和结构化 JSON；但免费上下文仅 8,192 Token，
+   当前 `max_tokens: 8192` 必须降到约 3,072-4,096，并需实测中文简报质量。
+4. Gemini 2.5 Flash/Flash-Lite：官方免费档且支持 OpenAI 兼容与结构化输出，
+   但免费档地区可用性、账号实际限额和数据用于改进产品的政策使其不适合作为当前
+   首选；中国大陆注册与调用可用性尚未验证。
+5. 硅基流动免费 4B-9B 模型：可承担低风险初筛，但不建议独立负责 5 维评分、
+   双语背景增强和最终摘要。OpenRouter 零付费账号仅 50 请求/天，Groq 免费档
+   仅约 200K Token/天，均不足以给最近一次 66 请求、189K Token 的运行留出重试
+   余量；百度千帆 1M Token 为限期新用户额度，旧腾讯混元 Lite 已退役。
+
+该表是选择前的研究快照。用户曾短暂选择 DeepSeek V4-Pro，但在任何提交、推送、
+Secret 修改、API 调用或费用发生前撤回；当前决定是部署 GLM-4.7-Flash。
+
+### 2026-07-28 DeepSeek V4-Pro 切换尝试（已撤回）
+
+本地曾准备 `deepseek-v4-pro` 配置并完成 76 项离线测试，但没有接收或写入 Key、
+没有调用 DeepSeek、没有产生费用、没有提交或推送，也没有修改线上 Secret、Actions
+或 Pages。随后相关生产配置与测试改动已撤回，不再作为当前部署方案。
+
+### 2026-07-28 GLM-4.7-Flash 切换准备（当前）
+
+本地已完成、尚未部署：
+
+- 新增原生 `zhipu` Provider，默认模型 `glm-4.7-flash`、通用 API 端点
+  `https://open.bigmodel.cn/api/paas/v4`、Secret 名 `ZHIPUAI_API_KEY`；
+- 新增可选 `ai.thinking` 配置并通过 OpenAI 兼容请求的 `extra_body` 发送；生产
+  配置使用 `thinking: disabled`，避免 GLM-4.7 系列默认思考增加延迟和 Token；
+- 保留 `response_format: json_object`、`max_tokens: 8192` 和全部现有筛选/来源；
+  初始分析与增强并发均从 5 降至 2，待真实运行确认账号限流后再决定是否提高；
+- 新增发布保护：只在所有候选的 AI 分析均失败时让工作流失败并保留旧 Pages，
+  防止密钥、额度或服务故障再次被误发布成“无重要动态”；有有效评分但没有条目
+  达到阈值时仍按正常筛选结果发布；
+- 当前分支的工作流副本已改为注入 `ZHIPUAI_API_KEY`；默认分支 `main` 上真正
+  登记定时任务的工作流仍未修改；
+- GLM 客户端、Provider 默认值、JSON/思考参数、回退链、安装向导和空简报保护
+  相关测试 56 项通过；此前同一通用配置改动的存储测试 26 项通过；生产
+  JSON/Pydantic 解析与 `git diff --check` 通过；
+- 完整测试中的 Webhook 与 Trafilatura 共 21 项因测试域名 `example.com` 在当前
+  环境解析到非公网保留地址 `198.18.0.81`，在 Mock 请求前被 SSRF 安全校验拦截；
+  排除这两个受 DNS 环境影响的测试文件后，其余 298 项全部通过。该覆盖缺口与
+  GLM 改动无代码路径交集，但不能记为完整测试全绿；测试临时目录已清理；
+- GitHub Repository Secret 名称 `ZHIPUAI_API_KEY` 已于 2026-07-28 15:05
+  （Asia/Shanghai）只读核实存在；Key 内容不可读，也未写入文件或日志；
+- 尚未调用 GLM、未产生费用、未提交或推送、未触发 Actions、未更新 Pages；
+  线上当前仍使用 Qwen 和 `DASHSCOPE_API_KEY`。
+
+部署前置条件：在 GitHub Repository Secret 中创建 `ZHIPUAI_API_KEY`。首次成功
+真实运行前保留旧 `DASHSCOPE_API_KEY` 作为回滚路径；部署后必须手动运行并检查
+JSON 成功率、最终条数、长信存储等必选样本、双语内容完整性、Token 与 Pages，
+不能只看工作流绿色。
+
 2026-07-27 个性化筛选部署已完成：
 
 - 独立分支：`codex/personalize-filtering-rules`；

@@ -1,19 +1,20 @@
 {
   "version": "1.0",
   "ai": {
-    "provider": "ali",
-    "model": "qwen3.7-plus",
-    "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-    "api_key_env": "DASHSCOPE_API_KEY",
+    "provider": "zhipu",
+    "model": "glm-4.7-flash",
+    "base_url": "https://open.bigmodel.cn/api/paas/v4",
+    "api_key_env": "ZHIPUAI_API_KEY",
     "temperature": 0.3,
     "max_tokens": 8192,
+    "thinking": "disabled",
     "throttle_sec": 1,
     "languages": [
       "zh",
       "en"
     ],
-    "analysis_concurrency": 5,
-    "enrichment_concurrency": 5
+    "analysis_concurrency": 2,
+    "enrichment_concurrency": 2
   },
   "sources": {
     "github": [

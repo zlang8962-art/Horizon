@@ -74,6 +74,7 @@ class AIProvider(str, Enum):
     OPENAI = "openai"
     AZURE = "azure"
     ALI = "ali"
+    ZHIPU = "zhipu"
     GEMINI = "gemini"
     DOUBAO = "doubao"
     MINIMAX = "minimax"
@@ -104,6 +105,12 @@ AI_PROVIDER_DEFAULTS = {
         "model": "qwen-plus",
         "api_key_env": "DASHSCOPE_API_KEY",
         "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    },
+    AIProvider.ZHIPU: {
+        "model": "glm-4.7-flash",
+        "api_key_env": "ZHIPUAI_API_KEY",
+        "base_url": "https://open.bigmodel.cn/api/paas/v4",
+        "thinking": "disabled",
     },
     AIProvider.GEMINI: {
         "model": "gemini-1.5-flash",
@@ -143,6 +150,7 @@ class AIConfig(BaseModel):
     api_key_env: str
     temperature: float = 0.3
     max_tokens: int = 4096
+    thinking: Optional[Literal["enabled", "disabled"]] = None
     throttle_sec: float = 0.0
     analysis_concurrency: int = 1
     enrichment_concurrency: int = 1

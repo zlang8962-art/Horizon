@@ -230,6 +230,15 @@ class HorizonOrchestrator:
             analyzed_items = await self._analyze_content(merged_items)
             self.console.print(f"🤖 Analyzed {len(analyzed_items)} items with AI\n")
 
+            failed_analyses = sum(
+                item.ai_analysis_error is not None for item in analyzed_items
+            )
+            if analyzed_items and failed_analyses == len(analyzed_items):
+                raise RuntimeError(
+                    f"AI analysis failed for all {failed_analyses} items; "
+                    "refusing to publish an empty digest"
+                )
+
             # 5. Filter, deduplicate, and balance the digest
             filtering_result = await self.filter_items(
                 analyzed_items,

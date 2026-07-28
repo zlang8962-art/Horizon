@@ -162,3 +162,42 @@ def test_native_run_treats_all_success_empty_as_no_content(monkeypatch) -> None:
     asyncio.run(orchestrator.run())
 
     send_failure.assert_not_awaited()
+
+
+def test_native_run_refuses_to_publish_when_all_ai_analyses_failed(monkeypatch) -> None:
+    orchestrator = make_orchestrator()
+    orchestrator.config = SimpleNamespace(  # type: ignore[assignment]
+        email=None,
+        filtering=SimpleNamespace(time_window_hours=24),
+    )
+    orchestrator.email_manager = None
+    send_failure = AsyncMock()
+    orchestrator.webhook_notifier = SimpleNamespace(send_failure=send_failure)  # type: ignore[assignment]
+    items = [make_item("failed-1"), make_item("failed-2")]
+
+    async def fetch_all_sources(since):  # type: ignore[no-untyped-def]
+        orchestrator.last_fetch_report = FetchReport(
+            [SourceFetchOutcome("RSS Feeds", "success", items=items)]
+        )
+        return items
+
+    async def analyze_content(input_items):  # type: ignore[no-untyped-def]
+        for item in input_items:
+            item.ai_analysis_error = "AI analysis failed after retries (RuntimeError)"
+        return input_items
+
+    monkeypatch.setattr(orchestrator, "fetch_all_sources", fetch_all_sources)
+    monkeypatch.setattr(
+        orchestrator,
+        "merge_cross_source_duplicates",
+        lambda input_items: input_items,
+    )
+    monkeypatch.setattr(orchestrator, "_analyze_content", analyze_content)
+
+    with pytest.raises(
+        RuntimeError,
+        match="AI analysis failed for all 2 items; refusing to publish an empty digest",
+    ):
+        asyncio.run(orchestrator.run())
+
+    send_failure.assert_awaited_once()
