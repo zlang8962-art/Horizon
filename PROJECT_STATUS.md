@@ -2,7 +2,7 @@
 
 > 维护对象：[`zlang8962-art/Horizon`](https://github.com/zlang8962-art/Horizon)
 > 上游仓库：[`Thysrael/Horizon`](https://github.com/Thysrael/Horizon)
-> 最后现场核实：2026-07-29 11:02（Asia/Shanghai）
+> 最后现场核实：2026-07-29 14:12（Asia/Shanghai）
 > 当前生产分支：`deploy/qwen-daily`
 
 以后接手本项目时，请先完整阅读本文件，再查看 `README_zh.md`、
@@ -19,18 +19,18 @@ Secret 名称。
 |---|---|---|
 | 每日简报工作流 | `active` | [Daily Horizon Summary](https://github.com/zlang8962-art/Horizon/actions/workflows/daily-summary.yml) |
 | 自动运行时间 | 每天 23:15 UTC，即北京时间次日 07:15 | `origin/main:.github/workflows/daily-summary.yml` |
-| 实际运行代码 | `deploy/qwen-daily@11c361652f8716da45144fb3ebad6a6f6e145126` | run #30410203162 的 Checkout 日志与远程分支复核 |
+| 实际运行代码 | `deploy/qwen-daily@61b34b57fa5b59341ec5531935c2db4fc37fd301` | run #30426585766 的 Checkout 日志 |
 | 模型服务 | 智谱 GLM，`glm-4.7-flash`；思考模式关闭 | `data/config.github.json` |
 | 用户 Secret | 当前使用 `ZHIPUAI_API_KEY`；旧 `DASHSCOPE_API_KEY` 保留回滚 | GitHub Actions repository secrets，仅核实名称 |
-| 信息源规模 | GitHub 10 项；RSS 13 项（启用 12）；另有 HN、Reddit、Telegram、OSS Insight | `origin/deploy/qwen-daily:data/config.github.json -> sources` |
-| 本地待部署增量 | 新增 Google News 定向检索、PandaBrief、工信部 RSS；分析失败率超过 50% 时中止发布 | 本地未提交差异；未改工作流或 Secret |
+| 信息源规模 | GitHub 10 项；RSS 15 项（启用 14）；另有 HN、Reddit、Telegram、OSS Insight、Google News | `origin/deploy/qwen-daily:data/config.github.json -> sources` |
+| 国内芯片覆盖与发布保护 | Google News、PandaBrief、工信部 RSS 已部署；分析失败率严格超过 50% 时中止发布 | `61b34b5` 与 run #30426585766 |
 | 线上当前筛选 | 上一自然日（Asia/Shanghai）、5 个兴趣维度、`any`、分类配额、同一子来源最多 2 条、最终最多 12 条 | `origin/deploy/qwen-daily:data/config.github.json -> filtering` |
-| 候选审计 | 已启用；Actions 附件保留 30 天，不发布到 Pages | run #30410203162 artifact `candidate-audit-30410203162-1` |
-| 当前筛选版本 | `c35956bc1c243426205327796a4b80910ac4bba6`；2026-07-28 部署 | 自然日、同源限额、候选审计与文档测试 |
+| 候选审计 | 已启用；Actions 附件保留 30 天，不发布到 Pages | run #30426585766 artifact `candidate-audit-30426585766-1` |
+| 当前筛选版本 | `61b34b57fa5b59341ec5531935c2db4fc37fd301`；2026-07-29 部署 | 新来源、50% 失败率保护、审计字段与文档测试 |
 | Webhook | 关闭 | `data/config.github.json -> webhook.enabled: false` |
 | LWN 订阅源 | 关闭 | `data/config.github.json -> sources.rss[name=LWN.net].enabled: false` |
-| Pages | `built`，HTTPS 开启；当前提交 `f6116b44f7339410b3f2648c46061b43b139b838` | [简报首页](https://zlang8962-art.github.io/Horizon/) |
-| 最近手动运行 | 自然日部署后仅触发 1 次；56 条抓取、27 日窗内 26 条、22 条分析失败、最终 4 条、13,808 Token | [run #30347633657](https://github.com/zlang8962-art/Horizon/actions/runs/30347633657) |
+| Pages | `built`，HTTPS 开启；当前提交 `6bc2d06dedaa26852ad468106781abdbb0c0ee62` | [简报首页](https://zlang8962-art.github.io/Horizon/) |
+| 最近手动运行 | 新来源部署后仅触发 1 次；161 条抓取、窗内 60 条、分析失败 24/59、最终 8 条、63,995 Token；长鑫上市已入选 | [run #30426585766](https://github.com/zlang8962-art/Horizon/actions/runs/30426585766) |
 | Issue #103 功能 | 已实现，等待上游审阅 | [上游 Draft PR #141](https://github.com/Thysrael/Horizon/pull/141) |
 | 最近自动定时运行 | 2026-07-29 首次以 GLM + 上海上一自然日组合成功：56 条抓取、窗内 38 条、分析失败 4/37、最终 8 条、67,540 Token | [run #30410203162](https://github.com/zlang8962-art/Horizon/actions/runs/30410203162) |
 
@@ -56,8 +56,8 @@ flowchart LR
 | 分支 | 作用 | 核实提交 |
 |---|---|---|
 | `origin/main` | GitHub 默认分支；登记自动定时工作流并注入 GLM Secret | `80ccd44429561c2ed85a9633f57fee6fc9e834dd` |
-| `origin/deploy/qwen-daily` | 实际运行代码、GLM 配置、筛选、审计与 Pages 部署逻辑 | `11c361652f8716da45144fb3ebad6a6f6e145126` |
-| `origin/gh-pages` | Actions 自动生成的站点产物；不要手工编辑 | `f6116b44f7339410b3f2648c46061b43b139b838` |
+| `origin/deploy/qwen-daily` | 实际运行代码、GLM 配置、筛选、审计与 Pages 部署逻辑 | 本文件所在状态提交；最新真实运行的代码基线为 `61b34b57fa5b59341ec5531935c2db4fc37fd301` |
+| `origin/gh-pages` | Actions 自动生成的站点产物；不要手工编辑 | `6bc2d06dedaa26852ad468106781abdbb0c0ee62` |
 | `origin/feat/configurable-scoring-criteria` | Issue #103 功能开发与上游 PR 来源 | `0bc408ae314b35fd3b84da94e3e9c363f2a96b78` |
 | `origin/agent/enable-daily-summary` | 已合并 PR #2 的审计分支 | `7afd981b30d0823df9ab237aeed7b85fa8aee9a0` |
 
@@ -83,9 +83,9 @@ flowchart LR
 `stash@{0}`，未删除或改写。
 
 2026-07-29 07:15 后，当前 GLM + 上海上一自然日组合完成首次自动定时运行
-#30410203162。远端 `main` 仍为 `80ccd44`，实际检出的生产分支现为 `11c3616`，
-并由 Actions 生成 `gh-pages@f6116b4`。本地随后实现了信息源扩充和分析失败比例
-保护，但截至本次核实尚未提交、Push 或触发真实模型运行。
+#30410203162。随后，国内芯片信息源扩充和分析失败比例保护以非强制方式部署为
+`deploy/qwen-daily@61b34b5`，并由唯一一次手动运行 #30426585766 真实检出；
+Actions 生成 `gh-pages@6bc2d06`。远端 `main` 和工作流、GitHub Secret 均未修改。
 
 ## 3. 自动化如何工作
 
@@ -172,11 +172,12 @@ data/config.github.json
 | `filtering.time_window_timezone` | `Asia/Shanghai` |
 | `filtering.max_items` | `12` |
 | `filtering.max_items_per_sub_source` | `2` |
-| `filtering.max_analysis_failure_ratio` | 远端当前未配置；本地候选值为 `0.5`，尚未部署 |
+| `filtering.max_analysis_failure_ratio` | `0.5`；失败比例严格超过 50% 时停止发布 |
 | `filtering.category_groups` | 4 组来源分类配额；其他来源最多 2 条 |
 | `filtering.candidate_audit_enabled` | `true` |
 | GitHub 来源 | 10 项（1 个用户事件、9 个项目 Release） |
-| RSS 来源 | 13 项，其中 12 项启用、LWN 关闭 |
+| RSS 来源 | 15 项，其中 14 项启用、LWN 关闭；新增 PandaBrief 与工信部 |
+| Google News | 启用；中文区定向半导体/IPO 查询，最多抓取 100 项 |
 | OSS Insight | 启用；24 小时、最多 12 项、最低 30 Stars、关键词过滤 |
 | `webhook.enabled` | `false` |
 | LWN `enabled` | `false` |
@@ -184,7 +185,8 @@ data/config.github.json
 上表描述的是远端 `deploy/qwen-daily` 的当前生产配置。GLM 接入与运行参数来自
 提交 `7032fbd506435067f98d2badd3b1e17bedd08f4b`；个性化筛选逻辑来自配置提交
 `a817bc3085630cfb31a3c285a7da344fbb3f0bbe`；自然日、同源限额和审计来自
-`c35956bc1c243426205327796a4b80910ac4bba6`。
+`c35956bc1c243426205327796a4b80910ac4bba6`；新来源和失败率保护来自
+`61b34b57fa5b59341ec5531935c2db4fc37fd301`。
 
 ### 已部署的自然日、同源限额与候选审计配置
 
@@ -351,6 +353,52 @@ README.md
 ```
 
 ## 6. 已验证的真实运行
+
+### 2026-07-29 国内芯片信息源与失败率保护真实运行
+
+- Actions：
+  [run #30426585766](https://github.com/zlang8962-art/Horizon/actions/runs/30426585766)；
+  事件为 `workflow_dispatch`，本次只触发 1 次；2026-07-29 05:56:58Z 创建，
+  06:07:30Z 完成，任务耗时 10 分 22 秒，结论为 `success`；
+- 默认分支入口仍是 `main@80ccd44429561c2ed85a9633f57fee6fc9e834dd`，Checkout
+  日志确认实际检出 `deploy/qwen-daily@61b34b57fa5b59341ec5531935c2db4fc37fd301`；
+  本次没有修改 `main`、工作流或 GitHub Secret；
+- 报道范围是 2026-07-28（Asia/Shanghai），UTC 窗口为
+  `[2026-07-27T16:00:00Z, 2026-07-28T16:00:00Z)`；来源抓取为 GitHub 12、
+  Hacker News 12、RSS 10、Reddit 8、Telegram 19、OSS Insight 0、Google News
+  100，共 161 条；精确自然日过滤排除 101 条，剩 60 条，跨来源合并 1 条后
+  59 条进入分析；
+- 工信部 RSS 在本地可访问，但 GitHub Actions 出口收到 HTTP 403；PandaBrief
+  在该窗口没有条目；PyTorch Blog 仍为 403，Reddit 仍有 403/429 降级。新增覆盖
+  的实际贡献来自 Google News；
+- 59 条中 24 条分析重试失败，失败率为 `24/59 = 40.68%`，低于配置上限 50%，
+  因此发布保护按设计放行；14 条命中 `any`，5 条主题重复被移除，9 条进入平衡，
+  最终选中 8 条。审计状态为 `completed`，并记录
+  `analysis_quality.failure_ratio=0.4067796610169492`、`max_failure_ratio=0.5`；
+- “长鑫科技正式登陆科创板！首日市值登顶 A 股”取得总分 9.0，芯片硬件维度 9.0，
+  最终入选；另有 5 条长鑫/长鑫存储报道因主题重复移除。分类结果为 AI 与算力 5、
+  软件与开发工具 2、系统安全 0、芯片硬件 1；来源分布为 `llama.cpp` 2、
+  Simon Willison 2、Hacker News 1、GitHub Blog 1、Reddit 1、Google News 1；
+- 内容增强阶段有 3 条因 `RateLimitError` 降级，其中包括长鑫条目。该中文条目虽已
+  正确入选，但说明仍是一句英文 `CXMT's successful IPO...`，并带 HTML 转义实体；
+  这是残余内容质量问题，不能写成中文增强完全通过；
+- Token 为 63,995（输入 54,241、输出 9,754），全部归于 `zhipu`；
+- 候选审计附件为
+  [`candidate-audit-30426585766-1`](https://github.com/zlang8962-art/Horizon/actions/runs/30426585766/artifacts/8714025213)，
+  ID `8714025213`、压缩大小 27,223 字节、SHA-256 digest
+  `e3a21b3487708c837b03526681469fac474b4afac6887f2b832a632ba2e3b61c`，
+  预计 2026-08-28 06:07:27Z 到期；解压后的 JSON 为 108,756 字节；
+- 审计仍不保存正文或带查询参数 URL。凭据模式扫描的两个命中分别来自 URL slug
+  `musk-xai...` 和 `sk-hynix...`，不是 API Key；
+- `gh-pages` 更新为 `6bc2d06dedaa26852ad468106781abdbb0c0ee62`。中英文
+  Markdown 均有 8 个条目、声明 `content_date: 2026-07-28`、包含长鑫/CXMT，
+  没有分析失败占位或 `undefined`；
+  [中文页](https://zlang8962-art.github.io/Horizon/2026/07/29/summary-zh.html)和
+  [英文页](https://zlang8962-art.github.io/Horizon/2026/07/29/summary-en.html)均返回
+  HTTP 200，Pages 状态为 `built`；
+- 本次失败率没有超过 50%，所以真实验证了“配置加载、比例记录和低于阈值放行”，
+  但尚未在远端真实触发“超过阈值后失败并保留旧 Pages”的分支；该分支仍以本地
+  单元测试为依据。
 
 ### 2026-07-29 首次 GLM 自然日自动定时运行
 
@@ -614,10 +662,11 @@ ea304fdf7bb475ce41e79699a037a7f0bbe7a2c2
 
 ## 7. 已执行的本地验证
 
-### 2026-07-29 国内半导体来源与部分失败发布保护（本地待部署）
+### 2026-07-29 国内半导体来源与部分失败发布保护（已部署）
 
-本次变更只存在于本地 `deploy/qwen-daily` 工作区：没有修改 GitHub Actions
-工作流或 Secret，没有提交、Push、发布 Pages，也没有调用 GLM 或消耗模型额度。
+本次变更先在本地实现并验证，随后经明确授权以 `61b34b5` 非强制 Push 到
+`deploy/qwen-daily`，并由唯一一次真实运行 #30426585766 验证。GitHub Actions
+工作流、`main` 和 Secret 均未修改。
 
 实现范围：
 
@@ -630,7 +679,7 @@ ea304fdf7bb475ce41e79699a037a7f0bbe7a2c2
 - 未启用 GDELT：本次公开接口现场请求返回 HTTP 429，不能把不稳定的验证结果
   当成可靠生产来源；Google News 同样只作为无 Key 的补充聚合入口，不是官方
   公告的替代品；
-- `filtering.max_analysis_failure_ratio` 本地设为 `0.5`。只要失败比例严格超过
+- `filtering.max_analysis_failure_ratio` 生产值设为 `0.5`。只要失败比例严格超过
   50%，运行就在筛选、内容增强、摘要和 Pages 输出前失败；全部失败保护继续保留。
   候选审计新增失败数、实际失败比例、配置上限和
   `ai_analysis_failure_ratio_exceeded` 状态；
@@ -658,12 +707,14 @@ ea304fdf7bb475ce41e79699a037a7f0bbe7a2c2
   全部通过；
 - 完整测试仍有上述 21 项环境相关失败（Webhook 20 项、Trafilatura 1 项），
   不能写成全套测试全绿；
-- 仍待验证：GitHub Actions 网络环境下三个新增来源的长期稳定性、一次真实 GLM
-  运行的候选量/Token/正文质量，以及失败率保护在远端的实际中止与旧 Pages 保留。
+- 生产验证：Google News 实际取得 100 条并补上长鑫上市，PandaBrief 当日为 0，
+  工信部源在 Actions 返回 403；真实运行使用 63,995 Token，中文长鑫说明因增强
+  429 降级而仍为英文；
+- 仍待验证：三个新增来源的长期稳定性，以及失败率真正超过 50% 时远端中止并保留
+  旧 Pages 的分支。
 
-当前工作区共有 19 个跟踪文件包含上述代码、配置、文档、测试和本状态文件的未提交
-改动；部署前必须再次复核差异，并取得对提交、非强制 Push 和真实模型运行范围的
-明确授权。
+部署提交修改 19 个跟踪文件；提交前没有未暂存差异，也没有发现常见凭据明文模式。
+本次真实验收后仅同步维护本状态文件，不再重复调用模型。
 
 ### 2026-07-28 MiMo-V2.5 可行性核查
 
@@ -967,20 +1018,21 @@ gh workflow run daily-summary.yml `
 
 ## 10. 已知限制与待办
 
-1. GLM + 上海上一自然日组合已在 2026-07-29 完成首次自动 `schedule`，37 条分析
-   仅失败 4 条并成功发布 8 条。单次成功已解除“尚未验证自动入口”的旧缺口，但
-   仍需观察不同候选量下的长期来源稳定性、Token、错误率和 Pages 内容质量。
+1. GLM + 上海上一自然日组合已在 2026-07-29 完成自动 `schedule`；同日新来源
+   部署后又完成一次手动真实运行并补上长鑫上市。两个样本证明入口可用，但仍需
+   观察不同候选量下的长期来源稳定性、Token、错误率和 Pages 内容质量。
 2. `glm-4.7-flash` 在 2026-07-28 手动运行中曾有 22/26 条重试后仍返回 HTTP 429、
-   错误码 1305“模型当前访问量过大”；2026-07-29 定时运行改善为 4/37 失败。
-   API 可用性、免费额度和限流会随服务状态变化；实际额度扣减仍只能在智谱账号
-   后台核实。
-3. Reddit 旧版 HTML 仍返回 403，JSON 也被阻断；本次降级后总计取得 6 条，
+   错误码 1305“模型当前访问量过大”；2026-07-29 定时运行改善为 4/37 失败，
+   但新来源手动运行又有 24/59 失败（40.68%），距 50% 发布保护上限仅 9.32 个
+   百分点。API 可用性、免费额度和限流会随服务状态变化；实际额度扣减仍只能在
+   智谱账号后台核实。
+3. Reddit 旧版 HTML 仍返回 403，JSON 也被阻断；最新运行降级后总计取得 8 条，
    `LocalLLaMA` RSS 返回 429，覆盖并不完整。
-4. 远端当前发布保护仍只在所有候选分析全部失败时阻止发布；22/26 失败仍会发布
-   仅 4 条的简报。本地已实现“失败比例严格超过 50% 就停止发布”，但尚未提交、
-   Push 或做真实 Actions 验证，不能把本地测试结果写成已上线能力。
-5. 邮件、飞书、Webhook 和 LWN 当前未启用，也未做真实发送验证；2026-07-29
-   自动运行只验证了 GLM、审计附件和 Pages 路径，不能替代这些未启用出口的验收。
+4. “分析失败比例严格超过 50% 就停止发布”已经部署；最新真实运行的 40.68%
+   正确放行并写入审计，但没有真实触发超过阈值分支。因此远端中止、失败通知和旧
+   Pages 保留仍未实测，不能把低于阈值的成功运行当成该失败分支已验收。
+5. 邮件、飞书、Webhook 和 LWN 当前未启用，也未做真实发送验证；现有真实运行
+   只验证了 GLM、审计附件和 Pages 路径，不能替代这些未启用出口的验收。
 6. `docs/_config.yml` 仍有：
 
    ```yaml
@@ -1010,9 +1062,10 @@ gh workflow run daily-summary.yml `
    %LOCALAPPDATA%\Temp\horizon-pytest-source-guard-20260729d
    %LOCALAPPDATA%\Temp\horizon-pytest-source-guard-20260729e
    %LOCALAPPDATA%\Temp\horizon-run-30410203162
+   %LOCALAPPDATA%\Temp\horizon-run-30426585766
    ```
 
-   `pytest` 路径来自本地验证；两个 `Horizon-run-*` 路径是下载核对的候选审计
+   `pytest` 路径来自本地验证；三个 `Horizon-run-*` 路径是下载核对的候选审计
    副本。部分沙箱内目录权限不可读，但沙箱外独立临时目录中的断言验证已通过。
    删除前仍须核对精确路径并获得明确批准。
 9. 上游 PR #141 当前为 Draft 且没有 CI checks；不能因为 `MERGEABLE` 就认为
@@ -1020,22 +1073,28 @@ gh workflow run daily-summary.yml `
 10. 2026-07-27 中文页面已由应用内浏览器复核；第 8 条医学模型资讯在原始
     Markdown 中即存在尾句截断，说明这是生成内容质量问题，不是 Pages 渲染问题。
     英文同一条正文完整；英文页面已验证远程 Markdown 与 Pages 提交，但未单独
-    做视觉复核。
+    做视觉复核。最新长鑫条目的中文标题正确，但正文仍是一句英文并带 HTML 转义
+    实体，原因是该条内容增强遭遇 429 后降级；仍需改善降级翻译与实体解码。
 11. GLM 历史基线运行使用 92,467 Token；高失败率手动运行仅 13,808 Token，不能
     把该低值当作正常日均成本；2026-07-29 首次自然日定时运行使用 67,540 Token，
-    可作为新样本但仍不足以代表长期均值。OSS Insight 本次仍为 0 条，高流量且无
-    配置上限的 arXiv RSS 仍未启用。
-12. 同一子来源最多 2 条已经部署并实测生效；但本次只有 4 条有效评分，最终仍是
-    `llama.cpp` 2 条加 Telegram 2 条。需要在模型调用较完整的运行中继续观察分类
-    配额、回填和内容多样性，尤其是系统、安全与芯片来源。
+    可作为新样本但仍不足以代表长期均值；新来源真实运行使用 63,995 Token，但
+    24/59 分析失败，同样不是完整成功调用下的稳定成本。OSS Insight 本次仍为 0 条，
+    高流量且无配置上限的 arXiv RSS 仍未启用。
+12. 同一子来源最多 2 条已继续生效；最新 8 条中 `llama.cpp` 2 条、Simon Willison
+    2 条，并首次有芯片硬件 1 条，但系统安全组仍为 0。需要继续观察分类配额、回填
+    和内容多样性。
 13. 候选审计已证明 2026-07-28 手动运行的 56 条抓取记录中没有“长鑫/长信/CXMT
-    上市/IPO”候选，因此当时是信息源覆盖缺口，不是筛选门槛问题。本地新增来源的
-    历史回放已经抓到 CXMT 上市标题，但尚未部署；Google News 可波动、PandaBrief
-    非日更、工信部也不覆盖所有公司公告，因此即使部署也只能显著补强，不能保证
-    每条重大国内产业新闻必然进入候选集。
+    上市/IPO”候选，因此当时是信息源覆盖缺口，不是筛选门槛问题。新增来源现已
+    部署并在真实运行中选中长鑫上市；但 Google News 可波动、PandaBrief 非日更，
+    工信部源在 Actions 返回 403，因此只能显著补强，不能保证每条重大国内产业
+    新闻必然进入候选集。
 14. 本次 Actions 有 Node.js 20 弃用告警：`actions/setup-python@v5` 和
     `astral-sh/setup-uv@v6` 被 GitHub 强制用 Node.js 24 运行。当前不阻塞，但应
     关注上游新版本并在独立 PR 中升级验证。
+15. Google News 抓取达到配置上限 100 条，使目标日分析候选从前一轮 37 条增加到
+    59 条，主处理耗时约 10 分钟；其中包含大量同一事件报道。当前主题去重发生在
+    AI 分析之后，仍会为近似新闻消耗请求。后续可评估分析前的标题/实体去重或更窄
+    查询，但修改前应先比较漏报风险。
 
 ## 11. 关键提交与 PR
 
@@ -1048,10 +1107,10 @@ gh workflow run daily-summary.yml `
 | 个性化筛选 | `a817bc3085630cfb31a3c285a7da344fbb3f0bbe` | 5 个兴趣维度、`any` 模式、来源分类配额与最终 12 条上限；已部署 |
 | GLM 生产切换 | `7032fbd506435067f98d2badd3b1e17bedd08f4b` | 原生 Zhipu Provider、关闭思考、并发 2、全失败发布保护和生产配置 |
 | 自然日、审计与同源限额 | `c35956bc1c243426205327796a4b80910ac4bba6` | 上一自然日、同源最多 2 条、脱敏候选审计、文档与测试 |
-| 国内半导体来源与失败率保护 | 本地未提交 | Google News、PandaBrief、工信部 RSS、超过 50% 分析失败时停止发布；尚未部署 |
+| 国内半导体来源与失败率保护 | `61b34b57fa5b59341ec5531935c2db4fc37fd301` | Google News、PandaBrief、工信部 RSS、超过 50% 分析失败时停止发布；已部署并真实运行 |
 | 默认分支工作流提交 | `1a8300dba9f47fd6a1ffdb4eafe595c8a7fb84bf` | 移除 `--hours 24` 覆盖、上海日期、上传审计 |
 | Fork PR #4 合并提交 | `80ccd44429561c2ed85a9633f57fee6fc9e834dd` | 在 `main` 启用自然日运行与审计附件 |
-| 最新 Pages 产物 | `f6116b44f7339410b3f2648c46061b43b139b838` | run #30410203162 的 2026-07-29 中英文简报 |
+| 最新 Pages 产物 | `6bc2d06dedaa26852ad468106781abdbb0c0ee62` | run #30426585766 的 2026-07-29 中英文简报，包含长鑫上市 |
 | 自动任务提交 | `7afd981b30d0823df9ab237aeed7b85fa8aee9a0` | 默认分支登记每日 07:15 自动任务 |
 | Fork PR #2 合并提交 | `f03016c72c6e826e5bc37cdf2cb0d00cced2e98c` | 启用自动运行 |
 | Fork PR #3 合并提交 | `d04d767edba154997285301fe878662ac8a33019` | 默认分支工作流改用 `ZHIPUAI_API_KEY` |
