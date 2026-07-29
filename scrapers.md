@@ -78,7 +78,9 @@ Two source types are supported:
 
 **File**: `src/scrapers/rss.py`
 
-Fetches any Atom/RSS feed using the `feedparser` library. Tries multiple date fields (`published`, `updated`, `created`) with fallback parsing.
+Fetches any Atom/RSS feed using the `feedparser` library. Tries multiple date
+fields (`published`, `updated`, `created`) with fallback parsing, including
+RFC-style dates and Unix timestamps expressed in seconds or milliseconds.
 
 **Config** (`sources.rss`, list of entries):
 

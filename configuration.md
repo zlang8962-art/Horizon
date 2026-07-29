@@ -469,6 +469,7 @@ one 0-10 score:
     "time_window_timezone": "UTC",
     "max_items": 20,
     "max_items_per_sub_source": 2,
+    "max_analysis_failure_ratio": 0.5,
     "category_groups": {
       "ai": {
         "name": "AI / Machine Learning",
@@ -505,6 +506,10 @@ one 0-10 score:
 - `max_items`: Optional final cap after all group limits are applied
 - `max_items_per_sub_source`: Optional positive cap for one repository, RSS
   feed, subreddit, channel, watchlist, or equivalent sub-source
+- `max_analysis_failure_ratio`: Optional number from 0 through 1. When the
+  failed AI-analysis share is strictly greater than this value, Horizon saves
+  the candidate audit and aborts before filtering, enrichment, summaries, or
+  Pages output. Omit it or set it to `null` to keep only the all-failed guard.
 - `category_groups`: Optional map of quota groups. Each group requires a positive
   `limit` and a non-empty `categories` list. Items within each group are kept by
   AI score, highest first.
@@ -515,7 +520,8 @@ one 0-10 score:
   unmatched items are unlimited except for `max_items`.
 - `candidate_audit_enabled`: Save a JSON decision record under `data/audits/`.
   It contains titles, query-free URLs, scores, and exclusion reasons, but not
-  article bodies.
+  article bodies. The audit also records the failed-analysis count, observed
+  ratio, configured maximum, and failure state.
 
 `previous_calendar_day` uses an inclusive start and exclusive end. For example,
 on 2026-07-28 with `Asia/Shanghai`, it covers 2026-07-27 00:00 through the start

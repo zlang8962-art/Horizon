@@ -8,179 +8,133 @@ lang: en
 
 > Coverage: 2026-07-28 (Asia/Shanghai calendar day)
 
-> From 38 items, 8 important content pieces were selected
+> From 60 items, 8 important content pieces were selected
 
 ---
 
-1. [ggml-org/llama.cpp released b10165](#item-1) ⭐️ 10.0/10
-2. [llama.cpp Release b10159 Introduces Metal FWHT Kernel](#item-2) ⭐️ 10.0/10
-3. [Zig&\#x27;s Incremental Compilation Internals](#item-3) ⭐️ 9.0/10
-4. [Moonshot AI Releases 2.8T Parameter Kimi-K3 Model with Modified License](#item-4) ⭐️ 9.0/10
-5. [GitHub Copilot Workflow for Software Development](#item-5) ⭐️ 9.0/10
-6. [Chinese AI Models Impersonate Claude, Identity Claims Abnormal](#item-6) ⭐️ 9.0/10
-7. [Moonshot AI Seeks More Nvidia Blackwell Chips for Next Model](#item-7) ⭐️ 9.0/10
-8. [NeurIPS 2026 AI-Generated Reviews Controversy](#item-8) ⭐️ 8.0/10
+1. [ggml-org/llama.cpp released b10164](#item-1) ⭐️ 10.0/10
+2. [llama.cpp Release b10158 Adds Eagle3-v3 Support](#item-2) ⭐️ 10.0/10
+3. [Moonshot Releases 2.8T Parameter Kimi K3 Model Weights](#item-3) ⭐️ 10.0/10
+4. [Kimi K3 Architecture Overview and Notes](#item-4) ⭐️ 9.0/10
+5. [An Opinionated Guide to Which AI to Use for Tasks](#item-5) ⭐️ 9.0/10
+6. [长鑫科技正式登陆科创板！首日市值登顶A股 背后中国科技产业天团陪跑 - 东方财富](#item-6) ⭐️ 9.0/10
+7. [GitHub Copilot Workflow for Software Development](#item-7) ⭐️ 8.0/10
+8. [NeurIPS 2026 AI-generated reviews controversy](#item-8) ⭐️ 8.0/10
 
 ---
 
 <a id="item-1"></a>
-## [ggml-org/llama.cpp released b10165](https://github.com/ggml-org/llama.cpp/releases/tag/b10165) ⭐️ 10.0/10
+## [ggml-org/llama.cpp released b10164](https://github.com/ggml-org/llama.cpp/releases/tag/b10164) ⭐️ 10.0/10
 
-llama.cpp release b10165 adds Vulkan IQ4\_NL support and fixes q1\_0 issues.
+llama.cpp release b10164 adds CUDA optimizations for Mamba-2 prefill acceleration and fixes race conditions.
 
-github · github-actions\[bot\] · Jul 28, 23:29
+github · github-actions\[bot\] · Jul 28, 22:28
 
-**Tags**: `#llama.cpp`, `#Vulkan`, `#AI inference`, `#GPU acceleration`, `#open-source`
+**Tags**: `#llama.cpp`, `#CUDA`, `#Mamba-2`, `#AI acceleration`, `#GPU optimization`
 
 ---
 
 <a id="item-2"></a>
-## [llama.cpp Release b10159 Introduces Metal FWHT Kernel](https://github.com/ggml-org/llama.cpp/releases/tag/b10159) ⭐️ 10.0/10
+## [llama.cpp Release b10158 Adds Eagle3-v3 Support](https://github.com/ggml-org/llama.cpp/releases/tag/b10158) ⭐️ 10.0/10
 
-llama.cpp version b10159 adds a Fast Walsh–Hadamard Transform \(FWHT\) kernel for the Metal backend on Apple Silicon, improving performance for specific operations. This optimization enhances inference speed on Apple Silicon devices, making local LLM deployment more efficient for developers and users. The Metal FWHT kernel is a work-in-progress feature, and the macOS Apple Silicon build with KleidiAI enabled is currently disabled due to a related pull request.
+llama.cpp version b10158 introduces support for the Eagle3-v3 model architecture within the gpt-oss model family and provides new pre-compiled binaries for macOS, iOS, and Linux. This release expands the capabilities of the widely used llama.cpp project, enabling users to run a new state-of-the-art model locally and significantly broadening the accessibility of advanced AI models across different operating systems. The release includes a specific note that the macOS Apple Silicon build with KleidiAI enabled has been disabled, while offering a wide array of platform-specific binaries including Windows with CUDA 12 and 13 support.
 
-github · github-actions\[bot\] · Jul 28, 19:43
+github · github-actions\[bot\] · Jul 28, 16:54
 
-**Background**: Metal is Apple&\#x27;s graphics and compute framework for accelerating AI workloads on Apple Silicon. FWHT is an O\(N log N\) algorithm used in signal processing and deep learning. llama.cpp is a C++ library for efficient LLM inference.
+**Background**: llama.cpp is a high-performance, open-source library designed for running large language models locally on a variety of hardware, including CPUs, GPUs, and specialized accelerators. Eagle3-v3 is a new model architecture, and gpt-oss refers to OpenAI&\#x27;s open-weight model series.
 
 <details><summary>References</summary>
 <ul>
-<li><a href="https://github.com/ggml-org/llama.cpp">GitHub - ggml-org/ llama . cpp : LLM inference in C/C++ · GitHub</a></li>
-<li><a href="https://www.runlocalai.co/glossary/metal">Metal (Apple) — AI glossary | RunLocalAI</a></li>
-<li><a href="https://www.emergentmind.com/topics/fast-walsh-hadamard-transform-fwht-7c8094ca-df5d-44ef-82e3-3c8b455a58e8">FWHT : Fast Walsh–Hadamard Transform</a></li>
+<li><a href="https://github.com/openai/gpt-oss">GitHub - openai/ gpt - oss : gpt - oss -120b and gpt - oss -20b are two...</a></li>
+<li><a href="https://github.com/ARM-software/kleidiai">GitHub - ARM-software/ kleidiai : This repository is a read-only mirror of...</a></li>
 
 </ul>
 </details>
 
-**Tags**: `#llama.cpp`, `#Metal`, `#Apple Silicon`, `#AI Inference`, `#Open Source`
+**Tags**: `#llama.cpp`, `#open-source`, `#local-ai`, `#eagle3-v3`, `#macos`
 
 ---
 
 <a id="item-3"></a>
-## [Zig&\#x27;s Incremental Compilation Internals](https://mlugg.co.uk/posts/incremental-compilation-internals/) ⭐️ 9.0/10
+## [Moonshot Releases 2.8T Parameter Kimi K3 Model Weights](https://simonwillison.net/2026/Jul/27/kimi-k3/#atom-everything) ⭐️ 10.0/10
 
-The article provides an in-depth technical analysis of Zig&\#x27;s incremental compilation internals, explaining how the compiler handles incremental updates efficiently. This breakthrough in incremental compilation is significant for developer tooling as it improves compilation workflows and reduces build times, making Zig a more attractive option for systems programming. Zig&\#x27;s incremental compilation relies on a tightly integrated linker and compiler design, which simplifies handling dependencies and avoids recompiling unchanged code.
+Moonshot AI has released the weights for their 2.8 trillion parameter Kimi K3 model, which are available on Hugging Face as a 1.56TB download. This release is significant as it represents a major advancement in large-scale model availability, offering a powerful open-weight alternative for developers and researchers. The K3 license differs from its predecessor by requiring a separate agreement with Moonshot for businesses generating over $20 million in annual revenue from Model as a Service operations.
 
-hackernews · garyhtou · Jul 28, 23:46 · [Discussion](https://news.ycombinator.com/item?id=49085666)
+rss · Simon Willison · Jul 28, 07:39
 
-**Background**: Incremental compilation is a technique where only modified parts of a program are recompiled, improving build efficiency. Zig, a systems programming language, aims to provide fast and efficient compilation pipelines.
+**Background**: Moonshot AI previously introduced a modified MIT license for their K2 model that required attribution for large commercial entities. The K3 license further tightens these restrictions by mandating separate commercial agreements for high-revenue Model as a Service businesses.
 
-<details><summary>References</summary>
-<ul>
-<li><a href="https://mlugg.co.uk/posts/incremental-compilation-internals/">Inside Zig&#x27;s Incremental Compilation | mlugg.co.uk</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Incremental_compiler">Incremental compiler - Wikipedia</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Zig_%28programming_language%29">Zig (programming language) - Wikipedia</a></li>
-
-</ul>
-</details>
-
-**Discussion**: Community members praised Zig&\#x27;s toolchain work, with some comparing it favorably to Rust&\#x27;s incremental compilation, while others questioned the design of giant binaries for debug builds.
-
-**Tags**: `#zig`, `#incremental-compilation`, `#compiler-internals`, `#software-engineering`, `#developer-tools`
+**Tags**: `#AI`, `#OpenSource`, `#LLM`, `#Licensing`, `#Moonshot`
 
 ---
 
 <a id="item-4"></a>
-## [Moonshot AI Releases 2.8T Parameter Kimi-K3 Model with Modified License](https://simonwillison.net/2026/Jul/27/kimi-k3/#atom-everything) ⭐️ 9.0/10
+## [Kimi K3 Architecture Overview and Notes](https://sebastianraschka.com/blog/2026/kimi-k3-architecture-notes.html) ⭐️ 9.0/10
 
-Moonshot AI has released the Kimi-K3 model with 2.8 trillion parameters and 1.56TB of weights on Hugging Face, following a July 16 announcement. This release marks a significant milestone as the first open-source model to reach the 3-trillion-parameter class, potentially accelerating AI research and development. The license requires separate agreements for businesses with over $20 million in annual revenue, and OpenRouter offers K3 via 7 providers at competitive pricing.
+A detailed technical overview of the Kimi K3 architecture with community discussions on reproducibility and efficiency.
 
-rss · Simon Willison · Jul 28, 07:39
+hackernews · ModelForge · Jul 28, 23:48 · [Discussion](https://news.ycombinator.com/item?id=49085698)
 
-**Background**: Moonshot AI previously introduced a modified MIT license for Kimi-K2 in July 2025, requiring attribution for large commercial entities. The Kimi-K3 license further restricts usage for &\#x27;Model as a Service&\#x27; businesses.
-
-<details><summary>References</summary>
-<ul>
-<li><a href="https://huggingface.co/blog/ResterChed/kimi-k3-model-overview-mxfp4-quantization-open-wei">Kimi K3 Model Overview: 2.8T Parameters, MXFP4 Quantization, and What the Open Weights Mean for the Community</a></li>
-<li><a href="https://openrouter.ai/moonshotai/kimi-k3">Kimi K3 - API Pricing &amp; Benchmarks | OpenRouter</a></li>
-<li><a href="https://platform.kimi.ai/docs/guide/kimi-k3-quickstart">Kimi K3 - Kimi API Platform</a></li>
-
-</ul>
-</details>
-
-**Discussion**: Community members praised Kimi-K3&\#x27;s novel architectural choices like NoPE and KDA, while questioning the scalability of removing positional embeddings entirely.
-
-**Tags**: `#AI`, `#Large Language Models`, `#Open Source`, `#Model Weights`, `#License`
+**Tags**: `#AI architecture`, `#machine learning`, `#model efficiency`, `#technical documentation`, `#reproducibility`
 
 ---
 
 <a id="item-5"></a>
-## [GitHub Copilot Workflow for Software Development](https://github.blog/ai-and-ml/github-copilot/the-harness-is-all-you-need-mostly/) ⭐️ 9.0/10
+## [An Opinionated Guide to Which AI to Use for Tasks](https://simonwillison.net/2026/Jul/27/an-opinionated-guide-to-which-ai-to-use-to-do-stuff/#atom-everything) ⭐️ 9.0/10
 
-GitHub published a blog post introducing a practical workflow for using GitHub Copilot to streamline software prototyping, planning, implementation, and review. This workflow helps developers focus on core tasks by leveraging GitHub Copilot, reducing the need to constantly adopt new AI tools and improving overall productivity. The workflow covers the entire software development lifecycle, from initial prototyping to final code review, ensuring a consistent and efficient approach to using AI-assisted coding.
+Ethan Mollick has updated his guide to reflect the current AI landscape, emphasizing agentic systems over simple chat interfaces. This guide helps users navigate the rapidly evolving AI ecosystem by providing practical advice on selecting the right tools for specific tasks. The guide notes that Google&\#x27;s Gemini has been removed from the list due to a lack of a strong entry in the Codex/ChatGPT Work/Cowork category.
 
-rss · GitHub Blog · Jul 28, 02:00
+rss · Simon Willison · Jul 28, 05:55
 
-**Background**: GitHub Copilot is an AI-powered code completion tool that assists developers by suggesting code snippets and entire functions based on context. It integrates directly into popular code editors like VS Code, making it a widely adopted tool in modern software development.
+**Background**: Agentic systems are AI tools that can perform complex tasks autonomously, representing a significant shift from traditional chat-based AI models.
 
-**Tags**: `#GitHub Copilot`, `#AI Tools`, `#Software Development`, `#Developer Workflow`, `#Prototyping`
+**Tags**: `#AI`, `#agentic systems`, `#software tools`, `#AI models`, `#practical guide`
 
 ---
 
 <a id="item-6"></a>
-## [Chinese AI Models Impersonate Claude, Identity Claims Abnormal](https://www.theregister.com/ai-and-ml/2026/07/27/impostor-chinese-models-pretend-theyre-claude/5279165) ⭐️ 9.0/10
+## [长鑫科技正式登陆科创板！首日市值登顶A股 背后中国科技产业天团陪跑 - 东方财富](https://news.google.com/rss/articles/CBMiYEFVX3lxTE9KSjNYNGpxOEpQUmt6Si1QSExVZGVsQ29IUnhhT1RkWWJuTkVrUFlfRkUwM1lPZDloNW92UHgwck40dVk3YjhHR3RqSk91ZDhqeDI5UmZtZjBJWWEzNER5LQ?oc=5) ⭐️ 9.0/10
 
-Researchers discovered multiple Chinese AI models falsely claiming to be Anthropic&\#x27;s Claude during testing, with some models directly stating they are Claude when asked about their identity. This incident highlights critical vulnerabilities in model identity verification within the AI ecosystem, potentially misleading users and compromising the integrity of model evaluation benchmarks. The impersonation involves multiple open-source models and service interfaces, potentially affecting evaluation results and user trust in AI system attribution.
+CXMT&\#x27;s successful IPO and market debut highlight China&\#x27;s semiconductor industry growth.
 
-telegram · zaihuapd · Jul 28, 15:19
+google\_news · 东方财富 · Jul 28, 14:51
 
-**Background**: Anthropic has previously emphasized the importance of model identity verification and implemented measures to prevent third-party services from impersonating Claude. The company also collects user identity information for fraud prevention purposes.
-
-<details><summary>References</summary>
-<ul>
-<li><a href="https://claude.com/">Claude</a></li>
-<li><a href="https://blockchaindesk.co/anthropic-may-soon-ask-claude-users-verify-identity/">Anthropic May Soon Ask Claude Users to Verify Their Identity</a></li>
-<li><a href="https://docs.anthropic.com/en/docs/about-claude/models">Models - Anthropic</a></li>
-
-</ul>
-</details>
-
-**Tags**: `#AI Security`, `#Model Impersonation`, `#Anthropic`, `#AI Ecosystem`, `#Model Evaluation`
+**Tags**: `#semiconductors`, `#AI`, `#IPO`, `#China`, `#DRAM`
 
 ---
 
 <a id="item-7"></a>
-## [Moonshot AI Seeks More Nvidia Blackwell Chips for Next Model](https://www.theinformation.com/articles/chinese-ai-startup-moonshot-seeks-nvidia-blackwell-chips-next-model) ⭐️ 9.0/10
+## [GitHub Copilot Workflow for Software Development](https://github.blog/ai-and-ml/github-copilot/the-harness-is-all-you-need-mostly/) ⭐️ 8.0/10
 
-Moonshot AI is reportedly seeking more Nvidia Blackwell chips for its next model, following allegations that it used Thailand to acquire GB300 servers for training the Kimi K3 model, violating US export controls. This development highlights the intensifying geopolitical tensions in AI hardware supply, as Chinese startups face increasing restrictions on advanced chips, potentially accelerating the diversification of AI infrastructure beyond Nvidia. The GB300 NVL72 platform integrates 72 Blackwell Ultra GPUs and 36 Arm-based Grace CPUs, offering 1.5x more AI performance than the GB200 with 130 TB/s NVLink bandwidth and 288 GB memory per GPU.
+The GitHub blog introduces a practical workflow for using GitHub Copilot throughout the software development lifecycle, including prototyping, planning, implementation, and code review. This workflow helps developers streamline their AI-assisted coding process, reducing the need to constantly switch between different AI tools and improving overall productivity. The workflow emphasizes using GitHub Copilot as a consistent tool across all development stages, rather than chasing every new AI tool that emerges.
 
-telegram · zaihuapd · Jul 28, 21:52
+rss · GitHub Blog · Jul 28, 02:00
 
-**Background**: US export controls increasingly target high-powered Nvidia chips, especially the H20, requiring licenses for exports to China. Violations can lead to legal consequences, as seen in cases of diverted chips from the US to China.
+**Background**: GitHub Copilot is an AI-powered code completion tool that assists developers by suggesting code snippets and entire functions based on context. It is integrated into popular IDEs like Visual Studio Code and is widely used for accelerating development tasks.
 
 <details><summary>References</summary>
 <ul>
-<li><a href="https://www.nvidia.com/en-us/data-center/gb300-nvl72/">Designed for AI Reasoning Performance... | NVIDIA GB 300 NVL72</a></li>
-<li><a href="https://introl.com/blog/why-nvidia-gb300-nvl72-blackwell-ultra-matters">NVIDIA GB 300 NVL72: Blackwell Ultra Deployment | Introl Blog</a></li>
-<li><a href="https://www.cnbc.com/2023/10/17/us-bans-export-of-more-ai-chips-including-nvidia-h800-to-china.html">cnbc.com/2023/10/17/ us -bans- export -of-more- ai - chips -including...</a></li>
+<li><a href="https://github.github.com/gh-aw/">Home | GitHub Agentic Workflows</a></li>
+<li><a href="https://docs.github.com/en/copilot/how-tos/copilot-cli/automate-copilot-cli/automate-with-actions">Automating tasks with Copilot CLI and GitHub Actions - GitHub Docs</a></li>
 
 </ul>
 </details>
 
-**Tags**: `#AI Compute`, `#Nvidia Blackwell`, `#Export Controls`, `#Moonshot AI`, `#Hardware Acquisition`
+**Tags**: `#GitHub Copilot`, `#Software Development`, `#AI Tools`, `#Workflow`, `#Prototyping`
 
 ---
 
 <a id="item-8"></a>
-## [NeurIPS 2026 AI-Generated Reviews Controversy](https://www.reddit.com/r/MachineLearning/comments/1v8vuae/neurips_2026_aigenerated_reviews_d/) ⭐️ 8.0/10
+## [NeurIPS 2026 AI-generated reviews controversy](https://www.reddit.com/r/MachineLearning/comments/1v8vuae/neurips_2026_aigenerated_reviews_d/) ⭐️ 8.0/10
 
-A Reddit user questioned the use of AI-generated reviews at NeurIPS 2026, noting concerns about reviewers possibly copying LLM outputs without proper review. This raises concerns about the integrity of peer review processes in AI conferences and the potential misuse of LLMs in academic workflows. The user suspects meta-reviewers also used LLMs, and the conference re-released reviews due to a technical issue, though the extent of AI use remains unclear.
+A Reddit user questions the use of AI-generated reviews at NeurIPS 2026, suggesting that some reviewers may have directly copied LLM outputs without proper review. This discussion highlights concerns about the integrity of peer review processes in top-tier AI conferences and the potential misuse of LLMs in academic evaluation. The author notes that meta-reviewers also appear to have used LLMs extensively, raising questions about accountability and the consequences of using AI in reviewing.
 
 reddit · r/MachineLearning · /u/bricklerex · Jul 28, 19:34
 
-**Background**: NeurIPS is a premier AI conference where peer review is critical. Recent studies explore LLMs as meta-reviewer assistants, but their use in actual reviews is debated.
+**Background**: NeurIPS \(Neural Information Processing Systems\) is a premier conference for machine learning research, where submissions undergo a rigorous peer review process to select accepted papers.
 
-<details><summary>References</summary>
-<ul>
-<li><a href="https://opensamizdat.com/posts/llm_meta_review/">Did we just receive an AI -generated meta-review?</a></li>
-<li><a href="https://github.com/BridgeAI-Lab/LLM-as-Meta-Reviewer">GitHub - BridgeAI-Lab/LLM-as-Meta-Reviewer: [NAACL&#x27;25] Dataset and Evaluation Code for Paper LLMs as Meta-Reviewers’ Assistants: A Case Study</a></li>
-<li><a href="https://neurips.cc/">2026 Conference</a></li>
+**Discussion**: The Reddit thread reflects confusion and concern among researchers about the transparency and fairness of AI-assisted reviews, with some calling for stricter oversight.
 
-</ul>
-</details>
-
-**Discussion**: The Reddit post sparked debate about whether AI-generated reviews undermine the credibility of the review process and what consequences this might entail.
-
-**Tags**: `#NeurIPS`, `#AI-generated reviews`, `#Machine Learning`, `#LLM`, `#Evaluation`
+**Tags**: `#AI`, `#NeurIPS`, `#Review Process`, `#LLM`, `#Machine Learning`
 
 ---
