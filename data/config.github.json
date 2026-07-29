@@ -114,6 +114,18 @@
         "category": "semiconductors"
       },
       {
+        "name": "PandaBrief - China Semiconductors",
+        "url": "https://pandabrief.com/feed.xml",
+        "enabled": true,
+        "category": "semiconductors"
+      },
+      {
+        "name": "MIIT - Industry Updates",
+        "url": "https://www.miit.gov.cn/api-gateway/jpaas-plugins-web-server/front/rss/getinfo?webId=8d828e408d90447786ddbe128d495e9e&columnIds=ca517c97303b40cf80bd668b35f6148f",
+        "enabled": true,
+        "category": "industry-policy"
+      },
+      {
         "name": "Google DeepMind News",
         "url": "https://deepmind.google/blog/rss.xml",
         "enabled": true,
@@ -234,6 +246,15 @@
       "min_stars": 30,
       "max_items": 12,
       "category": "open-source-trending"
+    },
+    "google_news": {
+      "enabled": true,
+      "query": "(\"长鑫科技\" OR \"长鑫存储\" OR CXMT OR \"长江存储\" OR YMTC OR \"国产半导体\" OR \"半导体 IPO\" OR \"芯片 IPO\") -加密货币 -代币 -Hyperliquid -MEXC -Binance",
+      "language": "zh-CN",
+      "country": "CN",
+      "ceid": "CN:zh-Hans",
+      "max_results": 100,
+      "category": "semiconductors"
     }
   },
   "filtering": {
@@ -271,6 +292,7 @@
     "time_window_timezone": "Asia/Shanghai",
     "max_items": 12,
     "max_items_per_sub_source": 2,
+    "max_analysis_failure_ratio": 0.5,
     "category_groups": {
       "ai_compute": {
         "name": "AI and Compute",
@@ -312,7 +334,8 @@
         "name": "Chips and Hardware",
         "limit": 3,
         "categories": [
-          "semiconductors"
+          "semiconductors",
+          "industry-policy"
         ]
       }
     },

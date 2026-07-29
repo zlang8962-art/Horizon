@@ -56,6 +56,7 @@ def test_validate_config_smoke(tmp_path: Path) -> None:
     assert result["filtering"]["time_window_mode"] == "rolling_hours"
     assert result["filtering"]["time_window_timezone"] == "UTC"
     assert result["filtering"]["max_items_per_sub_source"] is None
+    assert result["filtering"]["max_analysis_failure_ratio"] is None
     assert result["filtering"]["candidate_audit_enabled"] is False
 
 

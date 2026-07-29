@@ -277,6 +277,7 @@ cp data/config.example.json data/config.json  # 自定义信息源
     "ai_score_threshold": 6.0,
     "max_items": 20,
     "max_items_per_sub_source": 2,
+    "max_analysis_failure_ratio": 0.5,
     "category_groups": {
       "ai": {
         "limit": 5,
@@ -295,6 +296,8 @@ cp data/config.example.json data/config.json  # 自定义信息源
 
 分组限额和同一子来源限额在 AI 分数过滤之后、内容补充之前执行。
 `max_items_per_sub_source` 可防止同一仓库、RSS 订阅源或社区连续占满日报。
+`max_analysis_failure_ratio` 可在 AI 分析失败比例超过上限时终止运行，避免把
+严重残缺的结果发布出去；设为 `null` 或省略时不启用比例保护，全失败保护仍然生效。
 未配置 `category_groups`、`max_items` 和 `max_items_per_sub_source` 时，
 筛选行为保持不变。
 
@@ -351,6 +354,9 @@ Horizon 非常适合作为 **GitHub Actions** 定时任务运行。查看 [`.git
 | **Twitter / X** | 特定用户的推文 | 支持（前 N 条回复） |
 | **GitHub** | 用户动态 & 仓库 Release | — |
 | **OpenBB** | 按观察列表 / provider 抓取金融公司新闻 | — |
+| **Google News** | 无需 API Key 的定向新闻检索 | — |
+| **GDELT** | 无需 API Key 的全球新闻检索 | — |
+| **OSS Insight** | GitHub 开源项目趋势 | — |
 
 ## 日报可以去哪里
 

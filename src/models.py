@@ -539,6 +539,12 @@ class FilteringConfig(BaseModel):
     time_window_timezone: str = "UTC"
     max_items: Optional[int] = Field(default=None, gt=0)
     max_items_per_sub_source: Optional[int] = Field(default=None, gt=0)
+    max_analysis_failure_ratio: Optional[float] = Field(
+        default=None,
+        ge=0,
+        le=1,
+        allow_inf_nan=False,
+    )
     category_groups: Dict[str, CategoryGroupConfig] = Field(default_factory=dict)
     default_group: str = "other"
     default_group_limit: Optional[int] = Field(default=None, gt=0)
@@ -553,6 +559,21 @@ class FilteringConfig(BaseModel):
             or not isfinite(float(value))
         ):
             raise ValueError("filtering.ai_score_threshold must be a finite number")
+        return value
+
+    @field_validator("max_analysis_failure_ratio", mode="before")
+    @classmethod
+    def validate_max_analysis_failure_ratio(cls, value: object) -> object:
+        if value is None:
+            return value
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not isfinite(float(value))
+        ):
+            raise ValueError(
+                "filtering.max_analysis_failure_ratio must be a finite number"
+            )
         return value
 
     @field_validator("score_criteria")

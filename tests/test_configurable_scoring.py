@@ -320,6 +320,11 @@ def test_custom_model_missing_or_malformed_scores_are_diagnostic(
             ]
         },
         {"ai_score_threshold": float("nan")},
+        {"max_analysis_failure_ratio": -0.1},
+        {"max_analysis_failure_ratio": 1.1},
+        {"max_analysis_failure_ratio": float("nan")},
+        {"max_analysis_failure_ratio": True},
+        {"max_analysis_failure_ratio": "0.5"},
         {"filter_mode": "some"},
     ],
 )

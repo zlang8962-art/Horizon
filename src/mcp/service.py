@@ -290,6 +290,9 @@ class HorizonPipelineService:
                 "max_items_per_sub_source": (
                     ctx.config.filtering.max_items_per_sub_source
                 ),
+                "max_analysis_failure_ratio": (
+                    ctx.config.filtering.max_analysis_failure_ratio
+                ),
                 "category_groups": {
                     key: group.model_dump(mode="json")
                     for key, group in ctx.config.filtering.category_groups.items()

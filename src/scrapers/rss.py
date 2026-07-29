@@ -135,7 +135,7 @@ class RSSScraper(BaseScraper):
 
         return items
 
-    def _parse_date(self, entry: dict) -> datetime:
+    def _parse_date(self, entry: dict) -> Optional[datetime]:
         """Parse publication date from feed entry.
 
         Args:
@@ -154,7 +154,12 @@ class RSSScraper(BaseScraper):
                             calendar.timegm(entry[f"{field}_parsed"]), tz=timezone.utc
                         )
                     # Fallback to string parsing
-                    date_str = entry[field]
+                    date_str = str(entry[field]).strip()
+                    if date_str.isdigit():
+                        timestamp = int(date_str)
+                        if timestamp >= 1_000_000_000_000:
+                            timestamp /= 1000
+                        return datetime.fromtimestamp(timestamp, tz=timezone.utc)
                     return parsedate_to_datetime(date_str)
                 except Exception:
                     continue

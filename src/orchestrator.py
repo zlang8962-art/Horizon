@@ -237,6 +237,7 @@ class HorizonOrchestrator:
         filtering_result: Optional[FilteringPipelineResult] = None
         post_expansion_result: Optional[FilteringPipelineResult] = None
         balanced_digest: Optional[BalancedDigestResult] = None
+        analysis_failure_ratio_exceeded = False
 
         try:
             # 1. Determine time window
@@ -304,6 +305,22 @@ class HorizonOrchestrator:
                     f"AI analysis failed for all {failed_analyses} items; "
                     "refusing to publish an empty digest"
                 )
+
+            max_failure_ratio = getattr(
+                self.config.filtering,
+                "max_analysis_failure_ratio",
+                None,
+            )
+            if analyzed_items and max_failure_ratio is not None:
+                failure_ratio = failed_analyses / len(analyzed_items)
+                if failure_ratio > max_failure_ratio:
+                    analysis_failure_ratio_exceeded = True
+                    raise RuntimeError(
+                        "AI analysis failure ratio "
+                        f"{failed_analyses}/{len(analyzed_items)} "
+                        f"({failure_ratio:.1%}) exceeds configured maximum "
+                        f"{max_failure_ratio:.1%}; refusing to publish"
+                    )
 
             # 5. Filter, deduplicate, and balance the digest
             filtering_result = await self.filter_items(
@@ -461,6 +478,8 @@ class HorizonOrchestrator:
                 failure_state = "failed"
                 if self.last_fetch_report and self.last_fetch_report.all_failed:
                     failure_state = "source_fetch_failed"
+                elif analysis_failure_ratio_exceeded:
+                    failure_state = "ai_analysis_failure_ratio_exceeded"
                 elif analyzed_items and all(
                     item.ai_analysis_error is not None
                     for item in analyzed_items
@@ -605,6 +624,14 @@ class HorizonOrchestrator:
 
         merged_items = merged_items or []
         analyzed_items = analyzed_items or []
+        analysis_failed_count = sum(
+            item.ai_analysis_error is not None for item in analyzed_items
+        )
+        analysis_failure_ratio = (
+            analysis_failed_count / len(analyzed_items)
+            if analyzed_items
+            else None
+        )
         in_window_ids = {item.id for item in in_window_items}
         merged_ids = {item.id for item in merged_items}
         analyzed_by_id = {item.id: item for item in analyzed_items}
@@ -717,6 +744,7 @@ class HorizonOrchestrator:
                 "in_window": len(in_window_items),
                 "merged": len(merged_items),
                 "analyzed": len(analyzed_items),
+                "analysis_failed": analysis_failed_count,
                 "threshold_and_topic_unique": (
                     len(filtering_result.items)
                     if filtering_result is not None
@@ -731,6 +759,14 @@ class HorizonOrchestrator:
                     len(balanced_digest.items)
                     if balanced_digest is not None
                     else 0
+                ),
+            },
+            "analysis_quality": {
+                "failure_ratio": analysis_failure_ratio,
+                "max_failure_ratio": getattr(
+                    self.config.filtering,
+                    "max_analysis_failure_ratio",
+                    None,
                 ),
             },
             "fetch_report": fetch_report,

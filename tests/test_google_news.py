@@ -178,3 +178,21 @@ def test_max_results_cap() -> None:
     items = asyncio.run(scraper.fetch(_now() - timedelta(days=365)))
 
     assert len(items) == 2
+
+
+def test_entries_older_than_since_do_not_consume_result_cap() -> None:
+    old = (_now() - timedelta(days=2)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+    recent = (_now() - timedelta(hours=1)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+    items_xml = _item("Old - Pub", "https://example.com/old", pub=old) + _item(
+        "Recent - Pub",
+        "https://example.com/recent",
+        pub=recent,
+    )
+    client = _mock_client(_feed(items_xml))
+    config = GoogleNewsConfig(enabled=True, query="ai", max_results=1)
+    scraper = GoogleNewsScraper(config, client)
+
+    items = asyncio.run(scraper.fetch(_now() - timedelta(hours=24)))
+
+    assert len(items) == 1
+    assert str(items[0].url) == "https://example.com/recent"

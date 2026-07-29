@@ -127,6 +127,7 @@ def print_config_template():
     "time_window_timezone": "UTC",
     "max_items": null,
     "max_items_per_sub_source": null,
+    "max_analysis_failure_ratio": null,
     "category_groups": {},
     "default_group": "other",
     "default_group_limit": null,

@@ -2,7 +2,7 @@
 
 > 维护对象：[`zlang8962-art/Horizon`](https://github.com/zlang8962-art/Horizon)
 > 上游仓库：[`Thysrael/Horizon`](https://github.com/Thysrael/Horizon)
-> 最后现场核实：2026-07-28 18:01（Asia/Shanghai）
+> 最后现场核实：2026-07-29 11:02（Asia/Shanghai）
 > 当前生产分支：`deploy/qwen-daily`
 
 以后接手本项目时，请先完整阅读本文件，再查看 `README_zh.md`、
@@ -19,19 +19,20 @@ Secret 名称。
 |---|---|---|
 | 每日简报工作流 | `active` | [Daily Horizon Summary](https://github.com/zlang8962-art/Horizon/actions/workflows/daily-summary.yml) |
 | 自动运行时间 | 每天 23:15 UTC，即北京时间次日 07:15 | `origin/main:.github/workflows/daily-summary.yml` |
-| 实际运行代码 | `deploy/qwen-daily@c35956bc1c243426205327796a4b80910ac4bba6` | run #30347633657 的 Checkout 日志 |
+| 实际运行代码 | `deploy/qwen-daily@11c361652f8716da45144fb3ebad6a6f6e145126` | run #30410203162 的 Checkout 日志与远程分支复核 |
 | 模型服务 | 智谱 GLM，`glm-4.7-flash`；思考模式关闭 | `data/config.github.json` |
 | 用户 Secret | 当前使用 `ZHIPUAI_API_KEY`；旧 `DASHSCOPE_API_KEY` 保留回滚 | GitHub Actions repository secrets，仅核实名称 |
-| 信息源规模 | GitHub 10 项；RSS 13 项（启用 12）；另有 HN、Reddit、Telegram、OSS Insight | `data/config.github.json -> sources` |
+| 信息源规模 | GitHub 10 项；RSS 13 项（启用 12）；另有 HN、Reddit、Telegram、OSS Insight | `origin/deploy/qwen-daily:data/config.github.json -> sources` |
+| 本地待部署增量 | 新增 Google News 定向检索、PandaBrief、工信部 RSS；分析失败率超过 50% 时中止发布 | 本地未提交差异；未改工作流或 Secret |
 | 线上当前筛选 | 上一自然日（Asia/Shanghai）、5 个兴趣维度、`any`、分类配额、同一子来源最多 2 条、最终最多 12 条 | `origin/deploy/qwen-daily:data/config.github.json -> filtering` |
-| 候选审计 | 已启用；Actions 附件保留 30 天，不发布到 Pages | run #30347633657 artifact `candidate-audit-30347633657-1` |
+| 候选审计 | 已启用；Actions 附件保留 30 天，不发布到 Pages | run #30410203162 artifact `candidate-audit-30410203162-1` |
 | 当前筛选版本 | `c35956bc1c243426205327796a4b80910ac4bba6`；2026-07-28 部署 | 自然日、同源限额、候选审计与文档测试 |
 | Webhook | 关闭 | `data/config.github.json -> webhook.enabled: false` |
 | LWN 订阅源 | 关闭 | `data/config.github.json -> sources.rss[name=LWN.net].enabled: false` |
-| Pages | `built`，HTTPS 开启；当前提交 `3493302e9cb74b5d77c98aa53158df3a75a3e049` | [简报首页](https://zlang8962-art.github.io/Horizon/) |
+| Pages | `built`，HTTPS 开启；当前提交 `f6116b44f7339410b3f2648c46061b43b139b838` | [简报首页](https://zlang8962-art.github.io/Horizon/) |
 | 最近手动运行 | 自然日部署后仅触发 1 次；56 条抓取、27 日窗内 26 条、22 条分析失败、最终 4 条、13,808 Token | [run #30347633657](https://github.com/zlang8962-art/Horizon/actions/runs/30347633657) |
 | Issue #103 功能 | 已实现，等待上游审阅 | [上游 Draft PR #141](https://github.com/Thysrael/Horizon/pull/141) |
-| 最近自动定时运行 | 2026-07-26、2026-07-27 均成功 | [run #30180747028](https://github.com/zlang8962-art/Horizon/actions/runs/30180747028)、[run #30226855537](https://github.com/zlang8962-art/Horizon/actions/runs/30226855537) |
+| 最近自动定时运行 | 2026-07-29 首次以 GLM + 上海上一自然日组合成功：56 条抓取、窗内 38 条、分析失败 4/37、最终 8 条、67,540 Token | [run #30410203162](https://github.com/zlang8962-art/Horizon/actions/runs/30410203162) |
 
 ## 2. 仓库与分支拓扑
 
@@ -55,8 +56,8 @@ flowchart LR
 | 分支 | 作用 | 核实提交 |
 |---|---|---|
 | `origin/main` | GitHub 默认分支；登记自动定时工作流并注入 GLM Secret | `80ccd44429561c2ed85a9633f57fee6fc9e834dd` |
-| `origin/deploy/qwen-daily` | 实际运行代码、GLM 配置、筛选、审计与 Pages 部署逻辑 | 本文件所在状态提交；最新验证的生产代码基线为 `c35956bc1c243426205327796a4b80910ac4bba6` |
-| `origin/gh-pages` | Actions 自动生成的站点产物；不要手工编辑 | `3493302e9cb74b5d77c98aa53158df3a75a3e049` |
+| `origin/deploy/qwen-daily` | 实际运行代码、GLM 配置、筛选、审计与 Pages 部署逻辑 | `11c361652f8716da45144fb3ebad6a6f6e145126` |
+| `origin/gh-pages` | Actions 自动生成的站点产物；不要手工编辑 | `f6116b44f7339410b3f2648c46061b43b139b838` |
 | `origin/feat/configurable-scoring-criteria` | Issue #103 功能开发与上游 PR 来源 | `0bc408ae314b35fd3b84da94e3e9c363f2a96b78` |
 | `origin/agent/enable-daily-summary` | 已合并 PR #2 的审计分支 | `7afd981b30d0823df9ab237aeed7b85fa8aee9a0` |
 
@@ -80,6 +81,11 @@ flowchart LR
 [Fork PR #4](https://github.com/zlang8962-art/Horizon/pull/4) 合并为 `80ccd44`，
 并完成唯一一次真实运行 #30347633657。同步前的 1 行状态文件差异仍保存在可恢复的
 `stash@{0}`，未删除或改写。
+
+2026-07-29 07:15 后，当前 GLM + 上海上一自然日组合完成首次自动定时运行
+#30410203162。远端 `main` 仍为 `80ccd44`，实际检出的生产分支现为 `11c3616`，
+并由 Actions 生成 `gh-pages@f6116b4`。本地随后实现了信息源扩充和分析失败比例
+保护，但截至本次核实尚未提交、Push 或触发真实模型运行。
 
 ## 3. 自动化如何工作
 
@@ -166,6 +172,7 @@ data/config.github.json
 | `filtering.time_window_timezone` | `Asia/Shanghai` |
 | `filtering.max_items` | `12` |
 | `filtering.max_items_per_sub_source` | `2` |
+| `filtering.max_analysis_failure_ratio` | 远端当前未配置；本地候选值为 `0.5`，尚未部署 |
 | `filtering.category_groups` | 4 组来源分类配额；其他来源最多 2 条 |
 | `filtering.candidate_audit_enabled` | `true` |
 | GitHub 来源 | 10 项（1 个用户事件、9 个项目 Release） |
@@ -344,6 +351,30 @@ README.md
 ```
 
 ## 6. 已验证的真实运行
+
+### 2026-07-29 首次 GLM 自然日自动定时运行
+
+- Actions：
+  [run #30410203162](https://github.com/zlang8962-art/Horizon/actions/runs/30410203162)；
+- 事件：`schedule`；2026-07-29 00:08:02Z 创建，00:12:15Z 完成，结论为
+  `success`；默认分支入口为 `main@80ccd44429561c2ed85a9633f57fee6fc9e834dd`，
+  实际生产分支为 `deploy/qwen-daily@11c361652f8716da45144fb3ebad6a6f6e145126`；
+- 报道日为 2026-07-28（Asia/Shanghai）：顶层抓取 56 条，精确自然日内 38 条，
+  跨来源合并后 37 条进入分析；其中 4 条分析失败、8 条最终入选，失败比例为
+  `4/37 = 10.81%`；
+- 最终来源分布为 `llama.cpp` 2 条、Hacker News 1 条、Reddit 1 条、GitHub Blog
+  1 条、Simon Willison 1 条、Telegram 2 条；芯片硬件组本次仍为 0 条，因此
+  工作流成功不等于国内芯片覆盖已经解决；
+- Token 为 67,540（输入 57,219、输出 10,321），全部归于 `zhipu`。这是可用的
+  正常运行样本，但实际余额和资源包扣减仍只能以智谱账号后台为准；
+- 候选审计附件为
+  [`candidate-audit-30410203162-1`](https://github.com/zlang8962-art/Horizon/actions/runs/30410203162/artifacts/8708151725)，
+  ID `8708151725`、大小 6,138 字节、SHA-256 digest
+  `9f204fc012ab79a3d7aa08f6cb953d1b537527459de26fd81b159d3303fcd733`，
+  预计 2026-08-28 00:12:12Z 到期；
+- `gh-pages` 更新为 `f6116b44f7339410b3f2648c46061b43b139b838`。本地候选的
+  50% 失败率保护若已部署会放行本次 10.81% 的正常波动；而 2026-07-28 手动运行
+  的 22/26（84.62%）会在发布前被阻止。
 
 ### 自然日、候选审计与同源限额部署后真实运行
 
@@ -583,6 +614,57 @@ ea304fdf7bb475ce41e79699a037a7f0bbe7a2c2
 
 ## 7. 已执行的本地验证
 
+### 2026-07-29 国内半导体来源与部分失败发布保护（本地待部署）
+
+本次变更只存在于本地 `deploy/qwen-daily` 工作区：没有修改 GitHub Actions
+工作流或 Secret，没有提交、Push、发布 Pages，也没有调用 GLM 或消耗模型额度。
+
+实现范围：
+
+- 生产候选配置新增 Google News 中文区定向检索，关键词覆盖长鑫科技/长鑫存储、
+  CXMT、长江存储、YMTC、国产半导体和芯片 IPO，并排除常见加密货币噪音；来源
+  分类为 `semiconductors`，抓取上限为 100；
+- RSS 新增 [PandaBrief](https://pandabrief.com/) 中国半导体周报和
+  [工信部 RSS](https://www.miit.gov.cn/RRSdy/)“工信动态”。工信部接口使用
+  13 位 Unix 毫秒时间戳，因此 RSS 解析器补充了秒/毫秒时间戳兼容；
+- 未启用 GDELT：本次公开接口现场请求返回 HTTP 429，不能把不稳定的验证结果
+  当成可靠生产来源；Google News 同样只作为无 Key 的补充聚合入口，不是官方
+  公告的替代品；
+- `filtering.max_analysis_failure_ratio` 本地设为 `0.5`。只要失败比例严格超过
+  50%，运行就在筛选、内容增强、摘要和 Pages 输出前失败；全部失败保护继续保留。
+  候选审计新增失败数、实际失败比例、配置上限和
+  `ai_analysis_failure_ratio_exceeded` 状态；
+- Google News 抓取器现在先按 `since` 剔除过期条目，再计算 `max_results`，避免
+  旧新闻先占满上限、把目标自然日新闻挤掉。
+
+只读来源回放（2026-07-29 执行，固定复核 2026-07-27 上海自然日）：
+
+- Google News：从 `since` 起解析到 100 条，上述精确自然日内 6 条，其中明确
+  命中“CXMT 上海上市交易首日”的一财全球标题；这说明此前漏报可在候选入口被
+  补上，但历史回放不等同于 7 月 28 日 07:15 当时的实时结果；
+- 工信部：从 `since` 起 3 条，精确自然日内 1 条，毫秒时间戳解析成功；
+- PandaBrief：订阅源可访问，但该精确自然日内为 0 条；其长鑫上市预告发布在
+  7 月 25 日，因此会作为前瞻补充，不能单独保证“事件发生日”覆盖；
+- 抓取后的自然日上界过滤仍在模型分析之前执行，回放中的 100 条不是 100 次 GLM
+  调用。实际调用量取决于目标日条数、跨来源合并和运行时来源状态。
+
+验证结果：
+
+- `data/config.example.json` 与 `data/config.github.json` 的 JSON/Pydantic 加载通过，
+  `git diff --check` 通过；
+- 新增来源、日期解析、失败比例、候选审计、配置和 MCP 聚焦测试：64 项通过；
+- 排除本机 DNS 会让 SSRF 防护提前拒绝 `example.com` 的
+  `tests/test_webhook.py` 与 `tests/test_extractors_trafilatura.py` 后，其余 320 项
+  全部通过；
+- 完整测试仍有上述 21 项环境相关失败（Webhook 20 项、Trafilatura 1 项），
+  不能写成全套测试全绿；
+- 仍待验证：GitHub Actions 网络环境下三个新增来源的长期稳定性、一次真实 GLM
+  运行的候选量/Token/正文质量，以及失败率保护在远端的实际中止与旧 Pages 保留。
+
+当前工作区共有 19 个跟踪文件包含上述代码、配置、文档、测试和本状态文件的未提交
+改动；部署前必须再次复核差异，并取得对提交、非强制 Push 和真实模型运行范围的
+明确授权。
+
 ### 2026-07-28 MiMo-V2.5 可行性核查
 
 本次只核查本地接入条件和 Xiaomi MiMo 官方资料，没有修改生产模型、GitHub
@@ -718,8 +800,8 @@ Secret 修改、API 调用或费用发生前撤回；随后已部署 GLM-4.7-Fla
 - “长鑫/长信存储”没有出现在本次产物，且最终 11 条中有 6 条同属
   `llama.cpp` 连续版本；这两点已转入内容覆盖和多样性待办，不能因工作流成功
   而视为筛选质量完全通过；
-- 下一次自动 `schedule` 尚未发生；本次已验证手动入口、模型调用和 Pages，自动
-  触发在新模型下的长期稳定性仍需观察。
+- 2026-07-29 已完成首次 GLM + 上海上一自然日自动 `schedule`：37 条进入分析、
+  4 条失败、最终 8 条、67,540 Token，并成功更新 Pages；长期稳定性仍需继续观察。
 
 2026-07-27 个性化筛选部署已完成：
 
@@ -885,19 +967,20 @@ gh workflow run daily-summary.yml `
 
 ## 10. 已知限制与待办
 
-1. Qwen `schedule` 已在 2026-07-26、2026-07-27 连续成功两次；GLM 和自然日部署
-   已通过手动真实运行，但当前组合尚未经过下一次自动 `schedule`，需观察候选量、
-   Token、错误率和 Pages 结果。
-2. `glm-4.7-flash` 最新运行的 26 条自然日候选中有 22 条在重试后仍返回 HTTP 429、
-   错误码 1305“模型当前访问量过大”。API 可用性、免费额度和限流会随服务状态
-   变化；实际额度扣减仍只能在智谱账号后台核实。
+1. GLM + 上海上一自然日组合已在 2026-07-29 完成首次自动 `schedule`，37 条分析
+   仅失败 4 条并成功发布 8 条。单次成功已解除“尚未验证自动入口”的旧缺口，但
+   仍需观察不同候选量下的长期来源稳定性、Token、错误率和 Pages 内容质量。
+2. `glm-4.7-flash` 在 2026-07-28 手动运行中曾有 22/26 条重试后仍返回 HTTP 429、
+   错误码 1305“模型当前访问量过大”；2026-07-29 定时运行改善为 4/37 失败。
+   API 可用性、免费额度和限流会随服务状态变化；实际额度扣减仍只能在智谱账号
+   后台核实。
 3. Reddit 旧版 HTML 仍返回 403，JSON 也被阻断；本次降级后总计取得 6 条，
    `LocalLLaMA` RSS 返回 429，覆盖并不完整。
-4. 当前发布保护只在所有候选分析全部失败时阻止发布；本次 22/26 失败仍发布了仅
-   4 条的简报。应另行评估“失败比例过高时停止发布或延迟重试”的保护策略，不能
-   把 Actions 绿色状态等同于内容质量通过。
-5. 邮件、飞书、Webhook 和 LWN 当前未启用，也未做真实发送验证；现有两次自动
-   定时成功均早于 GLM 切换，不能替代新模型下的定时验证。
+4. 远端当前发布保护仍只在所有候选分析全部失败时阻止发布；22/26 失败仍会发布
+   仅 4 条的简报。本地已实现“失败比例严格超过 50% 就停止发布”，但尚未提交、
+   Push 或做真实 Actions 验证，不能把本地测试结果写成已上线能力。
+5. 邮件、飞书、Webhook 和 LWN 当前未启用，也未做真实发送验证；2026-07-29
+   自动运行只验证了 GLM、审计附件和 Pages 路径，不能替代这些未启用出口的验收。
 6. `docs/_config.yml` 仍有：
 
    ```yaml
@@ -920,26 +1003,36 @@ gh workflow run daily-summary.yml `
    %LOCALAPPDATA%\Temp\horizon-pytest-deploy-20260728-1735
    %LOCALAPPDATA%\Temp\horizon-pytest-deploy-final
    %LOCALAPPDATA%\Temp\Horizon-run-30347633657-audit
+   %LOCALAPPDATA%\Temp\horizon-pytest-full-source-guard-20260729
+   %LOCALAPPDATA%\Temp\horizon-pytest-source-guard-20260729
+   %LOCALAPPDATA%\Temp\horizon-pytest-source-guard-20260729b
+   %LOCALAPPDATA%\Temp\horizon-pytest-source-guard-20260729c
+   %LOCALAPPDATA%\Temp\horizon-pytest-source-guard-20260729d
+   %LOCALAPPDATA%\Temp\horizon-pytest-source-guard-20260729e
+   %LOCALAPPDATA%\Temp\horizon-run-30410203162
    ```
 
-   前六个来自 pytest；最后一个是下载核对的候选审计副本。受限沙箱曾错误设置
-   临时目录权限，改在沙箱外后 46 项测试全部通过。删除前仍须核对精确路径并获得
-   明确批准。
+   `pytest` 路径来自本地验证；两个 `Horizon-run-*` 路径是下载核对的候选审计
+   副本。部分沙箱内目录权限不可读，但沙箱外独立临时目录中的断言验证已通过。
+   删除前仍须核对精确路径并获得明确批准。
 9. 上游 PR #141 当前为 Draft 且没有 CI checks；不能因为 `MERGEABLE` 就认为
    已获得上游审阅或合并许可。
 10. 2026-07-27 中文页面已由应用内浏览器复核；第 8 条医学模型资讯在原始
     Markdown 中即存在尾句截断，说明这是生成内容质量问题，不是 Pages 渲染问题。
     英文同一条正文完整；英文页面已验证远程 Markdown 与 Pages 提交，但未单独
     做视觉复核。
-11. GLM 历史基线运行使用 92,467 Token；最新自然日运行仅 13,808 Token，但
-    22/26 分析失败，不能把低用量当作正常日均成本。OSS Insight 本次仍为 0 条，
-    高流量且无配置上限的 arXiv RSS 仍未启用。
+11. GLM 历史基线运行使用 92,467 Token；高失败率手动运行仅 13,808 Token，不能
+    把该低值当作正常日均成本；2026-07-29 首次自然日定时运行使用 67,540 Token，
+    可作为新样本但仍不足以代表长期均值。OSS Insight 本次仍为 0 条，高流量且无
+    配置上限的 arXiv RSS 仍未启用。
 12. 同一子来源最多 2 条已经部署并实测生效；但本次只有 4 条有效评分，最终仍是
     `llama.cpp` 2 条加 Telegram 2 条。需要在模型调用较完整的运行中继续观察分类
     配额、回填和内容多样性，尤其是系统、安全与芯片来源。
-13. 候选审计已证明 56 条抓取记录中没有“长鑫/长信/CXMT 上市/IPO”候选，因此
-    这是信息源覆盖缺口，不是筛选门槛问题。后续应增加可靠的中国半导体、企业上市
-    与监管公告来源；在新增前不能保证类似重大国内产业新闻进入候选集。
+13. 候选审计已证明 2026-07-28 手动运行的 56 条抓取记录中没有“长鑫/长信/CXMT
+    上市/IPO”候选，因此当时是信息源覆盖缺口，不是筛选门槛问题。本地新增来源的
+    历史回放已经抓到 CXMT 上市标题，但尚未部署；Google News 可波动、PandaBrief
+    非日更、工信部也不覆盖所有公司公告，因此即使部署也只能显著补强，不能保证
+    每条重大国内产业新闻必然进入候选集。
 14. 本次 Actions 有 Node.js 20 弃用告警：`actions/setup-python@v5` 和
     `astral-sh/setup-uv@v6` 被 GitHub 强制用 Node.js 24 运行。当前不阻塞，但应
     关注上游新版本并在独立 PR 中升级验证。
@@ -955,9 +1048,10 @@ gh workflow run daily-summary.yml `
 | 个性化筛选 | `a817bc3085630cfb31a3c285a7da344fbb3f0bbe` | 5 个兴趣维度、`any` 模式、来源分类配额与最终 12 条上限；已部署 |
 | GLM 生产切换 | `7032fbd506435067f98d2badd3b1e17bedd08f4b` | 原生 Zhipu Provider、关闭思考、并发 2、全失败发布保护和生产配置 |
 | 自然日、审计与同源限额 | `c35956bc1c243426205327796a4b80910ac4bba6` | 上一自然日、同源最多 2 条、脱敏候选审计、文档与测试 |
+| 国内半导体来源与失败率保护 | 本地未提交 | Google News、PandaBrief、工信部 RSS、超过 50% 分析失败时停止发布；尚未部署 |
 | 默认分支工作流提交 | `1a8300dba9f47fd6a1ffdb4eafe595c8a7fb84bf` | 移除 `--hours 24` 覆盖、上海日期、上传审计 |
 | Fork PR #4 合并提交 | `80ccd44429561c2ed85a9633f57fee6fc9e834dd` | 在 `main` 启用自然日运行与审计附件 |
-| 最新 Pages 产物 | `3493302e9cb74b5d77c98aa53158df3a75a3e049` | run #30347633657 的 2026-07-28 中英文简报 |
+| 最新 Pages 产物 | `f6116b44f7339410b3f2648c46061b43b139b838` | run #30410203162 的 2026-07-29 中英文简报 |
 | 自动任务提交 | `7afd981b30d0823df9ab237aeed7b85fa8aee9a0` | 默认分支登记每日 07:15 自动任务 |
 | Fork PR #2 合并提交 | `f03016c72c6e826e5bc37cdf2cb0d00cced2e98c` | 启用自动运行 |
 | Fork PR #3 合并提交 | `d04d767edba154997285301fe878662ac8a33019` | 默认分支工作流改用 `ZHIPUAI_API_KEY` |

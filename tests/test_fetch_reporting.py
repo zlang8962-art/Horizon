@@ -201,3 +201,48 @@ def test_native_run_refuses_to_publish_when_all_ai_analyses_failed(monkeypatch) 
         asyncio.run(orchestrator.run())
 
     send_failure.assert_awaited_once()
+
+
+def test_native_run_refuses_to_publish_when_ai_failure_ratio_is_too_high(
+    monkeypatch,
+) -> None:
+    orchestrator = make_orchestrator()
+    orchestrator.config = SimpleNamespace(  # type: ignore[assignment]
+        email=None,
+        filtering=SimpleNamespace(
+            time_window_hours=24,
+            max_analysis_failure_ratio=0.5,
+        ),
+    )
+    orchestrator.email_manager = None
+    send_failure = AsyncMock()
+    orchestrator.webhook_notifier = SimpleNamespace(send_failure=send_failure)  # type: ignore[assignment]
+    items = [make_item(f"item-{index}") for index in range(4)]
+
+    async def fetch_all_sources(since):  # type: ignore[no-untyped-def]
+        orchestrator.last_fetch_report = FetchReport(
+            [SourceFetchOutcome("RSS Feeds", "success", items=items)]
+        )
+        return items
+
+    async def analyze_content(input_items):  # type: ignore[no-untyped-def]
+        for item in input_items[:3]:
+            item.ai_analysis_error = "AI analysis failed after retries"
+        input_items[3].ai_score = 9.0
+        return input_items
+
+    monkeypatch.setattr(orchestrator, "fetch_all_sources", fetch_all_sources)
+    monkeypatch.setattr(
+        orchestrator,
+        "merge_cross_source_duplicates",
+        lambda input_items: input_items,
+    )
+    monkeypatch.setattr(orchestrator, "_analyze_content", analyze_content)
+
+    with pytest.raises(
+        RuntimeError,
+        match=r"AI analysis failure ratio 3/4 \(75\.0%\).*50\.0%",
+    ):
+        asyncio.run(orchestrator.run())
+
+    send_failure.assert_awaited_once()

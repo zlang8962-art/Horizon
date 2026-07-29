@@ -21,6 +21,18 @@ _FEED = """<?xml version="1.0" encoding="UTF-8" ?>
 """
 _SINCE = datetime(2026, 4, 24, 0, 0, tzinfo=timezone.utc)
 
+_MILLISECOND_FEED = """<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0"><channel><title>Test</title>
+  <item>
+    <guid>entry-ms</guid>
+    <title>Millisecond timestamp</title>
+    <link>https://example.com/item-ms</link>
+    <pubDate>1777028400000</pubDate>
+    <description>Official feed timestamp.</description>
+  </item>
+</channel></rss>
+"""
+
 
 def _make_feed_client(feed_text: str) -> AsyncMock:
     response = MagicMock()
@@ -41,6 +53,19 @@ def test_rss_ids_are_deterministic() -> None:
 
     assert first == second
     assert first == "rss:example.com_feed.xml:5e2d5d1e58e94d76"
+
+
+def test_rss_parses_epoch_millisecond_dates() -> None:
+    client = _make_feed_client(_MILLISECOND_FEED)
+    source = RSSSourceConfig(name="Official", url="https://example.com/feed.xml")
+    scraper = RSSScraper([source], client)
+
+    items = asyncio.run(scraper.fetch(_SINCE))
+
+    assert len(items) == 1
+    assert items[0].published_at == datetime(
+        2026, 4, 24, 11, 0, 0, tzinfo=timezone.utc
+    )
 
 
 def _make_registry(name: str, extractor):

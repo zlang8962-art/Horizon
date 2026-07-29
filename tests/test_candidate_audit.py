@@ -137,6 +137,68 @@ def test_run_audits_items_outside_calendar_window(tmp_path, monkeypatch) -> None
     assert payload["candidates"][0]["reason"] == "outside_window"
 
 
+def test_run_audits_excessive_partial_analysis_failures(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    filtering = FilteringConfig(
+        max_analysis_failure_ratio=0.5,
+        candidate_audit_enabled=True,
+    )
+    config = Config(
+        ai=AIConfig(
+            provider="openai",
+            model="test",
+            api_key_env="TEST_API_KEY",
+            languages=[],
+        ),
+        sources=SourcesConfig(),
+        filtering=filtering,
+    )
+    storage = StorageManager(data_dir=str(tmp_path / "data"))
+    orchestrator = HorizonOrchestrator(config, storage)
+    window = TimeWindow(
+        since=datetime(2026, 7, 26, 16, 0, tzinfo=timezone.utc),
+        until=datetime(2026, 7, 27, 16, 0, tzinfo=timezone.utc),
+        report_date="2026-07-28",
+        content_date="2026-07-27",
+        mode="previous_calendar_day",
+        timezone_name="Asia/Shanghai",
+    )
+    items = [
+        make_item(
+            f"item-{index}",
+            datetime(2026, 7, 27, index, 0, tzinfo=timezone.utc),
+        )
+        for index in range(4)
+    ]
+
+    async def fetch_all_sources(since):  # type: ignore[no-untyped-def]
+        return items
+
+    async def analyze_content(input_items):  # type: ignore[no-untyped-def]
+        for item in input_items[:3]:
+            item.ai_analysis_error = "AI analysis failed after retries"
+        input_items[3].ai_score = 9.0
+        return input_items
+
+    monkeypatch.setattr(orchestrator, "_determine_time_window", lambda *args: window)
+    monkeypatch.setattr(orchestrator, "fetch_all_sources", fetch_all_sources)
+    monkeypatch.setattr(orchestrator, "_analyze_content", analyze_content)
+
+    with pytest.raises(RuntimeError, match="AI analysis failure ratio 3/4"):
+        asyncio.run(orchestrator.run())
+
+    path = storage.audits_dir / "2026-07-28-candidate-audit.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert payload["state"] == "ai_analysis_failure_ratio_exceeded"
+    assert payload["counts"]["analysis_failed"] == 3
+    assert payload["analysis_quality"] == {
+        "failure_ratio": 0.75,
+        "max_failure_ratio": 0.5,
+    }
+
+
 def test_calendar_run_uses_report_date_and_shows_content_date(
     tmp_path,
     monkeypatch,

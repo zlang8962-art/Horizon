@@ -299,6 +299,7 @@ results. Categories come from source configuration such as
     "ai_score_threshold": 6.0,
     "max_items": 20,
     "max_items_per_sub_source": 2,
+    "max_analysis_failure_ratio": 0.5,
     "category_groups": {
       "ai": {
         "limit": 5,
@@ -317,7 +318,11 @@ results. Categories come from source configuration such as
 
 Group and per-sub-source limits are applied after AI score filtering and before
 enrichment. `max_items_per_sub_source` prevents one repository, RSS feed, or
-community from filling the digest. If `category_groups`, `max_items`, and
+community from filling the digest. `max_analysis_failure_ratio` aborts the run
+when the failed AI-analysis share exceeds the configured limit, preventing a
+severely incomplete digest from being published. Set it to `null` or omit it to
+disable the ratio guard; the all-failed guard still applies. If
+`category_groups`, `max_items`, and
 `max_items_per_sub_source` are omitted, filtering behaves as before.
 
 To make a July 28 report cover exactly July 27 00:00-23:59 in Shanghai time:
@@ -393,6 +398,9 @@ Horizon works great as a **GitHub Actions** cron job. See [`.github/workflows/da
 | **Twitter / X** | Tweets from specific users | Yes (top N replies) |
 | **GitHub** | User events & repo releases | — |
 | **OpenBB** | Financial company news by watchlist/provider | — |
+| **Google News** | Key-less targeted news search | — |
+| **GDELT** | Key-less global news search | — |
+| **OSS Insight** | Trending GitHub repositories | — |
 
 ## Where Your Briefing Goes
 
