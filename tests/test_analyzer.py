@@ -175,6 +175,8 @@ def test_analysis_failure_diagnostic_unwraps_retry_error_without_payloads():
 def test_analysis_retry_policy_retries_only_transient_errors(monkeypatch):
     monkeypatch.setattr(analyzer_module.random, "uniform", lambda *_: 1.0)
     rate_limited = _ProviderStatusError(429)
+    account_rate_limited = _ProviderStatusError(429, body={"code": 1302})
+    platform_overloaded = _ProviderStatusError(429, body={"code": 1305})
     transient = _ProviderStatusError(503)
     invalid_request = _ProviderStatusError(400)
 
@@ -190,6 +192,14 @@ def test_analysis_retry_policy_retries_only_transient_errors(monkeypatch):
         outcome=SimpleNamespace(exception=lambda: transient),
         attempt_number=1,
     )
+    account_rate_limit_state = SimpleNamespace(
+        outcome=SimpleNamespace(exception=lambda: account_rate_limited),
+        attempt_number=1,
+    )
+    platform_overload_state = SimpleNamespace(
+        outcome=SimpleNamespace(exception=lambda: platform_overloaded),
+        attempt_number=1,
+    )
     retry_after_state = SimpleNamespace(
         outcome=SimpleNamespace(
             exception=lambda: _ProviderStatusError(
@@ -200,8 +210,10 @@ def test_analysis_retry_policy_retries_only_transient_errors(monkeypatch):
         attempt_number=1,
     )
 
-    assert analyzer_module._analysis_retry_wait(rate_state) == 5.0
+    assert analyzer_module._analysis_retry_wait(rate_state) == 10.0
     assert analyzer_module._analysis_retry_wait(transient_state) == 2.0
+    assert analyzer_module._analysis_retry_wait(account_rate_limit_state) == 30.0
+    assert analyzer_module._analysis_retry_wait(platform_overload_state) == 15.0
     assert analyzer_module._analysis_retry_wait(retry_after_state) == 17.0
 
 

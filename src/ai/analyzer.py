@@ -152,7 +152,7 @@ def _is_retryable_analysis_exception(error: BaseException) -> bool:
 
 
 def _analysis_retry_wait(retry_state: RetryCallState) -> float:
-    """Use longer, jittered waits for rate limits than for transient failures."""
+    """Use code-aware, jittered waits for provider rate limits and failures."""
 
     error = (
         retry_state.outcome.exception()
@@ -164,8 +164,17 @@ def _analysis_retry_wait(retry_state: RetryCallState) -> float:
     if retry_after is not None:
         return retry_after
 
-    is_rate_limited = _http_status(root_error) == 429
-    base_delay, max_delay = (5.0, 60.0) if is_rate_limited else (2.0, 20.0)
+    provider_error_code = _provider_error_code(root_error)
+    if provider_error_code == "1302":
+        # Account-level rate limit: let the provider's rolling window recover.
+        base_delay, max_delay = 30.0, 60.0
+    elif provider_error_code == "1305":
+        # Platform overload: back off, but do not assume the account is capped.
+        base_delay, max_delay = 15.0, 60.0
+    elif _http_status(root_error) == 429:
+        base_delay, max_delay = 10.0, 60.0
+    else:
+        base_delay, max_delay = 2.0, 20.0
     delay = min(base_delay * (2 ** (retry_state.attempt_number - 1)), max_delay)
     return min(max_delay, delay * random.uniform(0.75, 1.25))
 

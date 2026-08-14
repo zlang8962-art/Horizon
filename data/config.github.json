@@ -8,12 +8,12 @@
     "temperature": 0.3,
     "max_tokens": 8192,
     "thinking": "disabled",
-    "throttle_sec": 1,
+    "throttle_sec": 6,
     "languages": [
       "zh",
       "en"
     ],
-    "analysis_concurrency": 2,
+    "analysis_concurrency": 1,
     "enrichment_concurrency": 2
   },
   "sources": {
