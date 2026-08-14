@@ -111,6 +111,17 @@ class AIClient(ABC):
         """
         pass
 
+    async def complete_for_retrying_caller(
+        self,
+        system: str,
+        user: str,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+    ) -> str:
+        """Complete while allowing a caller to own retry policy when supported."""
+
+        return await self.complete(system, user, temperature, max_tokens)
+
 
 class AnthropicClient(AIClient):
     """Client for Anthropic-compatible models."""
@@ -243,6 +254,8 @@ class OpenAIClient(AIClient):
         user: str,
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
+        *,
+        sdk_max_retries: Optional[int] = None,
     ) -> str:
         """Generate completion using OpenAI-compatible API.
 
@@ -270,6 +283,7 @@ class OpenAIClient(AIClient):
                 max_tokens=max_tokens,
                 include_temperature=self._supports_temperature,
                 use_max_completion_tokens=self._use_max_completion_tokens,
+                sdk_max_retries=sdk_max_retries,
             )
         except Exception as exc:
             if self._supports_temperature and self._is_temperature_unsupported(str(exc)):
@@ -281,6 +295,7 @@ class OpenAIClient(AIClient):
                     max_tokens=max_tokens,
                     include_temperature=False,
                     use_max_completion_tokens=self._use_max_completion_tokens,
+                    sdk_max_retries=sdk_max_retries,
                 )
             elif not self._use_max_completion_tokens and self._is_max_tokens_unsupported(str(exc)):
                 self._use_max_completion_tokens = True
@@ -291,6 +306,7 @@ class OpenAIClient(AIClient):
                     max_tokens=max_tokens,
                     include_temperature=self._supports_temperature,
                     use_max_completion_tokens=True,
+                    sdk_max_retries=sdk_max_retries,
                 )
             else:
                 raise
@@ -303,6 +319,23 @@ class OpenAIClient(AIClient):
             )
         return response.choices[0].message.content
 
+    async def complete_for_retrying_caller(
+        self,
+        system: str,
+        user: str,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
+    ) -> str:
+        """Delegate retries to the analysis caller instead of the SDK."""
+
+        return await self.complete(
+            system,
+            user,
+            temperature,
+            max_tokens,
+            sdk_max_retries=0,
+        )
+
     async def _do_request(
         self,
         *,
@@ -312,6 +345,7 @@ class OpenAIClient(AIClient):
         max_tokens: int,
         include_temperature: bool,
         use_max_completion_tokens: bool,
+        sdk_max_retries: Optional[int],
     ):
         request_kwargs = {
             "model": self.model,
@@ -330,7 +364,10 @@ class OpenAIClient(AIClient):
             request_kwargs["extra_body"] = {
                 "thinking": {"type": self.config.thinking}
             }
-        return await self.client.chat.completions.create(**request_kwargs)
+        client = self.client
+        if sdk_max_retries is not None:
+            client = client.with_options(max_retries=sdk_max_retries)
+        return await client.chat.completions.create(**request_kwargs)
 
     @staticmethod
     def _is_temperature_unsupported(message: str) -> bool:

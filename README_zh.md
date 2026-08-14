@@ -318,7 +318,8 @@ cp data/config.example.json data/config.json  # 自定义信息源
 `data/audits/` 保存不含文章正文和 URL 查询参数的筛选记录。启用
 `pre_analysis_title_dedup_enabled` 后，系统会在 AI 打分前只压缩 Google News 中
 “去掉各自媒体名后标题完全一致”的条目；审计记录会保留被压缩条目及其代表条目 ID，
-方便复核或随时关闭该规则。
+方便复核或随时关闭该规则。若 AI 分析失败，审计最多保存脱敏后的最终错误类型、尝试次数、
+HTTP 状态、业务错误码和请求 ID；不会保存响应正文、错误原文或密钥。
 
 `data/config.json` 里的任意字符串值都可以通过 `${VAR_NAME}` 引用环境变量。这适合用于 `ai.base_url`、私有 RSS 链接、Webhook 地址或自定义请求头模板等字段。
 

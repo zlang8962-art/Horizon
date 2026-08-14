@@ -6,7 +6,15 @@ from types import SimpleNamespace
 import pytest
 from rich.console import Console
 
-from src.models import AIConfig, Config, ContentItem, FilteringConfig, SourceType, SourcesConfig
+from src.models import (
+    AIAnalysisFailureDiagnostic,
+    AIConfig,
+    Config,
+    ContentItem,
+    FilteringConfig,
+    SourceType,
+    SourcesConfig,
+)
 from src.orchestrator import HorizonOrchestrator, TimeWindow
 from src.storage.manager import StorageManager
 
@@ -90,6 +98,58 @@ def test_candidate_audit_omits_bodies_and_url_queries(tmp_path) -> None:
     assert candidates["below-threshold"]["reason"] == "below_threshold"
 
 
+def test_candidate_audit_records_safe_analysis_failure_details(tmp_path) -> None:
+    filtering = FilteringConfig(candidate_audit_enabled=True)
+    storage = StorageManager(data_dir=str(tmp_path / "data"))
+    orchestrator = HorizonOrchestrator.__new__(HorizonOrchestrator)
+    orchestrator.config = SimpleNamespace(filtering=filtering)
+    orchestrator.storage = storage
+    orchestrator.console = Console(record=True)
+    orchestrator.last_fetch_report = None
+    published_at = datetime(2026, 7, 27, 8, 0, tzinfo=timezone.utc)
+    failed = make_item("failed", published_at)
+    failed.ai_analysis_error = "AI analysis failed (RateLimitError; attempts=3)"
+    failed.ai_analysis_failure = AIAnalysisFailureDiagnostic(
+        error_type="RateLimitError",
+        attempts=3,
+        retryable=True,
+        http_status=429,
+        provider_error_code="1302",
+        request_id="req_safe-123",
+    )
+    window = TimeWindow(
+        since=datetime(2026, 7, 26, 16, 0, tzinfo=timezone.utc),
+        until=datetime(2026, 7, 27, 16, 0, tzinfo=timezone.utc),
+        report_date="2026-07-28",
+        content_date="2026-07-27",
+        mode="previous_calendar_day",
+        timezone_name="Asia/Shanghai",
+    )
+
+    path = orchestrator._save_candidate_audit(
+        window,
+        state="failed",
+        fetched_items=[failed],
+        in_window_items=[failed],
+        merged_items=[failed],
+        analyzed_items=[failed],
+    )
+
+    serialized = path.read_text(encoding="utf-8")
+    payload = json.loads(serialized)
+    assert payload["audit_version"] == 3
+    assert payload["candidates"][0]["ai_analysis_failure"] == {
+        "error_type": "RateLimitError",
+        "attempts": 3,
+        "retryable": True,
+        "http_status": 429,
+        "provider_error_code": "1302",
+        "request_id": "req_safe-123",
+    }
+    assert "PRIVATE ARTICLE BODY" not in serialized
+    assert "do-not-store" not in serialized
+
+
 def test_candidate_audit_records_pre_analysis_title_duplicates(tmp_path) -> None:
     filtering = FilteringConfig(
         ai_score_threshold=7.0,
@@ -160,7 +220,7 @@ def test_candidate_audit_records_pre_analysis_title_duplicates(tmp_path) -> None
 
     payload = json.loads(path.read_text(encoding="utf-8"))
     candidates = {candidate["id"]: candidate for candidate in payload["candidates"]}
-    assert payload["audit_version"] == 2
+    assert payload["audit_version"] == 3
     assert payload["pre_analysis"] == {
         "enabled": True,
         "strategy": "google_news_exact_headline",

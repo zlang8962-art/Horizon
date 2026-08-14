@@ -522,7 +522,10 @@ one 0-10 score:
 - `candidate_audit_enabled`: Save a JSON decision record under `data/audits/`.
   It contains titles, query-free URLs, scores, and exclusion reasons, but not
   article bodies. The audit also records the failed-analysis count, observed
-  ratio, configured maximum, and failure state.
+  ratio, configured maximum, and failure state. A failed AI analysis may also
+  include only sanitized final-error metadata: error type, attempts, HTTP
+  status, provider error code, and request ID when available. It never stores
+  a provider response body, error message, or credential.
 - `pre_analysis_title_dedup_enabled`: Before AI scoring, compact only Google
   News entries with exactly matching normalized headlines after removing each
   entry's own publisher suffix. The richest entry represents the cluster; when

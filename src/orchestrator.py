@@ -749,6 +749,11 @@ class HorizonOrchestrator:
                 "ai_score": item.ai_score,
                 "ai_scores": dict(item.ai_scores),
                 "ai_analysis_error": item.ai_analysis_error,
+                "ai_analysis_failure": (
+                    item.ai_analysis_failure.model_dump()
+                    if item.ai_analysis_failure is not None
+                    else None
+                ),
                 "decision": decision,
                 "reason": reason,
             }
@@ -778,7 +783,7 @@ class HorizonOrchestrator:
             }
 
         payload: Dict[str, Any] = {
-            "audit_version": 2,
+            "audit_version": 3,
             "generated_at": datetime.now(timezone.utc)
             .isoformat()
             .replace("+00:00", "Z"),
@@ -1260,6 +1265,7 @@ class HorizonOrchestrator:
                     item.ai_analysis_error = evaluation.error
                 continue
             item.ai_analysis_error = None
+            item.ai_analysis_failure = None
             item.ai_score = evaluation.aggregate_score
             if evaluation.passed:
                 threshold_items.append(item)

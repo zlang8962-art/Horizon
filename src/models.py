@@ -46,6 +46,46 @@ SOURCE_REGISTRY = {
 }
 
 
+_DIAGNOSTIC_TOKEN_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
+_DIAGNOSTIC_SECRET_PREFIXES = (
+    "sk-",
+    "sk_",
+    "aiza",
+    "gsk_",
+    "hf_",
+    "xai-",
+    "bearer",
+)
+
+
+class AIAnalysisFailureDiagnostic(BaseModel):
+    """Safe, structured metadata for a failed AI analysis request."""
+
+    error_type: str = Field(
+        min_length=1,
+        max_length=128,
+        pattern=r"^[A-Za-z_][A-Za-z0-9_]*$",
+    )
+    attempts: int = Field(ge=1)
+    retryable: bool
+    http_status: Optional[int] = Field(default=None, ge=100, le=599)
+    provider_error_code: Optional[str] = None
+    request_id: Optional[str] = None
+
+    @field_validator("provider_error_code", "request_id")
+    @classmethod
+    def validate_safe_token(cls, value: Optional[str]) -> Optional[str]:
+        """Reject diagnostic values that could contain a credential or payload."""
+
+        if value is None:
+            return None
+        if value.lower().startswith(_DIAGNOSTIC_SECRET_PREFIXES):
+            raise ValueError("diagnostic value must not look like a secret")
+        if not _DIAGNOSTIC_TOKEN_RE.fullmatch(value):
+            raise ValueError("diagnostic value must be a short safe token")
+        return value
+
+
 class ContentItem(BaseModel):
     """Unified content item model from any source."""
 
@@ -66,6 +106,7 @@ class ContentItem(BaseModel):
     ai_summary: Optional[str] = None
     ai_tags: List[str] = Field(default_factory=list)
     ai_analysis_error: Optional[str] = None
+    ai_analysis_failure: Optional[AIAnalysisFailureDiagnostic] = None
 
 
 class AIProvider(str, Enum):
