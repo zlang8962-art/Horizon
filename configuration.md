@@ -186,6 +186,10 @@ If your model has a strict per-minute request cap, you can slow the scorer down 
 - `throttle_sec`: Pause between scored items in seconds. Default is `0`.
 - `4.5` is a reasonable starting point for free-tier models capped around 15 requests per minute.
 - Set it back to `0` if you have enough throughput headroom and want maximum speed.
+- If the provider returns an account-level rate-limit error (for example, Zhipu
+  code `1302`), use `analysis_concurrency: 1` and start with at least `6`
+  seconds. With more than one analysis worker, each worker sleeps independently,
+  so `throttle_sec` is not a global request-per-minute limit.
 
 ### AI Concurrency
 
@@ -206,6 +210,10 @@ By default, AI scoring and enrichment run one item at a time. If your API endpoi
 - Preserve the existing retry behavior per item.
 - Result ordering is preserved regardless of concurrency.
 - If you also use `throttle_sec`, each concurrent task sleeps independently after finishing an item.
+- For known rate-limit responses, Horizon retries analysis requests with jittered,
+  code-aware backoff: account-level `1302` starts at 30 seconds, platform-overload
+  `1305` starts at 15 seconds, and other HTTP 429 responses start at 10 seconds.
+  A valid `Retry-After` header still takes precedence.
 
 **Custom Base URL** (for proxies):
 

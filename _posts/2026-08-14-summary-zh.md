@@ -8,236 +8,222 @@ lang: zh
 
 > 报道范围：2026-08-13（Asia/Shanghai 自然日）
 
-> 从 100 条内容中筛选出 12 条重要资讯。
+> 从 84 条内容中筛选出 12 条重要资讯。
 
 ---
 
-1. [DeepSeek V4 Pro 0813 模型权重在 Hugging Face 上发布](#item-1) ⭐️ 10.0/10
-2. [ggml-org/llama.cpp released b10410](#item-2) ⭐️ 9.0/10
-3. [llama.cpp b10405：HIP 浮点精度修复与跨平台二进制文件](#item-3) ⭐️ 9.0/10
-4. [ollama/ollama released v0.32.10](#item-4) ⭐️ 9.0/10
-5. [DeepSeek Harness：AI 智能体框架开发者预览版](#item-5) ⭐️ 9.0/10
-6. [Spaghettifying DRAM：利用内存子系统漏洞的新型攻击](#item-6) ⭐️ 9.0/10
-7. [Simon Willison 发布 alchemy-utils 0.1a1](#item-7) ⭐️ 9.0/10
-8. [Cloudflare 证书透明度监控现已正式发布](#item-8) ⭐️ 9.0/10
-9. [City2Graph：用于城市异构图分析的 Python 库](#item-9) ⭐️ 9.0/10
-10. [DeepMind 推出手语转文字模型 SL2T，首次落地 Pixel 11 键盘与实时字幕](#item-10) ⭐️ 9.0/10
-11. [DeepSeek-V4-Pro 正式版上线，API 将实行峰谷定价](#item-11) ⭐️ 9.0/10
-12. [长江存储首次跻身全球第三大市场份额](#item-12) ⭐️ 9.0/10
+1. [ggml-org/llama.cpp released b10410](#item-1) ⭐️ 10.0/10
+2. [City2Graph：用于城市异构图分析的 Python 库](#item-2) ⭐️ 10.0/10
+3. [ollama/ollama released v0.32.10](#item-3) ⭐️ 9.0/10
+4. [DeepSeek Harness：AI 智能体编排框架预览](#item-4) ⭐️ 9.0/10
+5. [新型 DRAM 攻击利用硬件漏洞](#item-5) ⭐️ 9.0/10
+6. [Oxide 上的 Kubernetes：客户需求如何塑造了集成方案](#item-6) ⭐️ 9.0/10
+7. [DeepSeek V4 Pro 0813 模型发布，开放权重](#item-7) ⭐️ 9.0/10
+8. [alchemy-utils 0.1a0](#item-8) ⭐️ 9.0/10
+9. [你的贡献者现在已经是 AI 优先了。你的项目也是吗？](#item-9) ⭐️ 9.0/10
+10. [Chessformer\_lens 演示：移除棋类 Transformer 的 128 个注意力头之一会导致模型无法发现莫菲的弃后](#item-10) ⭐️ 9.0/10
+11. [长江存储市占率首次跻身全球第三](#item-11) ⭐️ 9.0/10
+12. [长鑫科技超越腾讯控股 成为 A 股+港股市值最大上市公司](#item-12) ⭐️ 9.0/10
 
 ---
 
 <a id="item-1"></a>
-## [DeepSeek V4 Pro 0813 模型权重在 Hugging Face 上发布](https://simonwillison.net/2026/Aug/12/deepseek-v4-pro-0813/) ⭐️ 10.0/10
+## [ggml-org/llama.cpp released b10410](https://github.com/ggml-org/llama.cpp/releases/tag/b10410) ⭐️ 10.0/10
 
-DeepSeek V4 Pro 0813 模型权重现已可在 Hugging Face 上获取，此前它仅通过 OpenRouter 以 API 形式发布。 此次发布允许开发者在本地运行该模型，促进了除 API 访问之外的更广泛采用和实验。 该模型包含 1.7 万亿参数，需要 893 GB 存储空间，且在不同推理级别下视觉输出存在显著差异。
+llama.cpp release b10410 adds SYCL optimizations and provides pre-built binaries for macOS, iOS, and Linux.
 
-rss · Simon Willison · 8月13日 07:59
+github · github-actions\[bot\] · 8月13日 23:52
 
-**背景**: DeepSeek 是一家以低成本、开源权重大语言模型（如 DeepSeek-R1）闻名的中国 AI 公司。该公司此前已以开源许可证发布了多个模型，支持社区驱动开发。
-
-<details><summary>参考链接</summary>
-<ul>
-<li><a href="https://openrouter.ai/docs/quickstart">OpenRouter Quickstart Guide</a></li>
-<li><a href="https://openrouter.ai/openrouter">OpenRouter API and Models | OpenRouter</a></li>
-<li><a href="https://en.wikipedia.org/wiki/DeepSeek">DeepSeek</a></li>
-
-</ul>
-</details>
-
-**标签**: `#AI`, `#DeepSeek`, `#Model Release`, `#Weights`, `#API`
+**标签**: `#llama.cpp`, `#AI-inference`, `#SYCL`, `#Open-Source`, `#GPU-optimization`
 
 ---
 
 <a id="item-2"></a>
-## [ggml-org/llama.cpp released b10410](https://github.com/ggml-org/llama.cpp/releases/tag/b10410) ⭐️ 9.0/10
+## [City2Graph：用于城市异构图分析的 Python 库](https://www.reddit.com/r/MachineLearning/comments/1vn8oya/city2graph_a_python_library_for_heterogeneous/) ⭐️ 10.0/10
 
-llama.cpp release b10410 adds SYCL fp16 promotion and provides binaries for macOS, iOS, and Linux.
+City2Graph 是一个新发布的 Python 库，它将地理空间数据转换为异构图，用于空间分析和图神经网络，其相关论文最近已发表。 该库通过使用异构图解决了扁平特征表的局限性，更好地捕捉复杂的城市关系，并支持先进的 GeoAI 应用。 它支持多种数据源，如 OpenStreetMap、Overture Maps、GTFS 和 GBFS，与 PyTorch Geometric 集成，并处理 GeoDataFrames、NetworkX、rustworkx 和 PyG 之间的转换。
 
-github · github-actions\[bot\] · 8月13日 23:52
+reddit · r/MachineLearning · /u/Tough\_Ad\_6598 · 8月13日 19:59
 
-**标签**: `#llama.cpp`, `#open-source`, `#AI-inference`, `#SYCL`, `#GPU-acceleration`
+**背景**: 异构图神经网络（HetGNN）处理具有多种节点和边类型的图，捕捉不同的关系语义，而 PyTorch Geometric（PyG）是一个流行的基于 PyTorch 构建图神经网络的库。
+
+<details><summary>参考链接</summary>
+<ul>
+<li><a href="https://www.emergentmind.com/topics/heterogeneous-graph-neural-networks-gnns">Heterogeneous Graph Neural Networks</a></li>
+<li><a href="https://grokipedia.com/page/PyTorch_Geometric">PyTorch Geometric</a></li>
+<li><a href="https://github.com/tobilg/duckdb-gtfs">GitHub - tobilg/duckdb-gtfs: Loading and analyzing GTFS Schedule data with DuckDB · GitHub</a></li>
+
+</ul>
+</details>
+
+**标签**: `#GeoAI`, `#Graph Neural Networks`, `#Python`, `#Urban Systems`, `#Spatial Analysis`
 
 ---
 
 <a id="item-3"></a>
-## [llama.cpp b10405：HIP 浮点精度修复与跨平台二进制文件](https://github.com/ggml-org/llama.cpp/releases/tag/b10405) ⭐️ 9.0/10
+## [ollama/ollama released v0.32.10](https://github.com/ollama/ollama/releases/tag/v0.32.10) ⭐️ 9.0/10
 
-llama.cpp 版本 b10405 移除了 HIP 构建中的不安全浮点优化，以确保符合 IEEE 754 标准，并引入了为 macOS、iOS、Linux、Android 和 Windows 提供的预编译二进制文件。 此版本对使用 AMD GPU 的开发者至关重要，因为符合 IEEE 标准的修复可以防止在 RDNA3.5 硬件上进行推测解码时的行为不一致，确保跨平台的可重现和数值安全的推理。 此次更新禁用了 macOS Apple Silicon 和 ROCm 7.14 构建的 KleidiAI 支持，同时为 Linux 和 Windows 提供了包括 Vulkan、OpenVINO、SYCL 和 CUDA 12/13 在内的广泛选项。
+Ollama v0.32.10 introduces performance optimizations for AI models, faster prefill for MLX hardware, and a security fix for blob verification.
 
-github · github-actions\[bot\] · 8月13日 15:32
+github · github-actions\[bot\] · 8月13日 06:36
 
-**背景**: llama.cpp 是一个在消费级硬件上运行大语言模型（LLM）的高性能 C++ 库。HIP 是 AMD 的 GPU 编程 API，而 IEEE 754 是确保不同硬件间数值结果一致的浮点运算标准。
-
-<details><summary>参考链接</summary>
-<ul>
-<li><a href="https://rocm.docs.amd.com/projects/HIP/en/latest/reference/low_fp_types.html">Low precision floating point types — HIP 7.14.60850 Documentation</a></li>
-
-</ul>
-</details>
-
-**标签**: `#AI`, `#llama.cpp`, `#GPU`, `#macOS`, `#Linux`
+**标签**: `#AI`, `#Machine Learning`, `#Software Engineering`, `#Hardware Optimization`, `#Open Source`
 
 ---
 
 <a id="item-4"></a>
-## [ollama/ollama released v0.32.10](https://github.com/ollama/ollama/releases/tag/v0.32.10) ⭐️ 9.0/10
+## [DeepSeek Harness：AI 智能体编排框架预览](https://deepseek.com/harness/en/) ⭐️ 9.0/10
 
-Ollama v0.32.10 release includes performance optimizations, bug fixes, and a new contributor.
+DeepSeek Harness 是一个具有可追踪执行和插件功能的 AI 智能体编排框架的早期开发者预览版，目前以 MIT 许可证发布。 该框架对软件开发和 AI 基础设施具有重要意义，因为它提供了一种管理复杂 AI 智能体交互的结构化方式，可能提高生产力和模型可靠性。 该框架具有用于可追踪性的追加式会话日志、支持热重载的插件系统，并使用 Cordis v4 进行动态插件管理，无需重启进程。
 
-github · github-actions\[bot\] · 8月13日 06:36
+hackernews · bjin · 8月13日 20:58 · [社区讨论](https://news.ycombinator.com/item?id=49285244)
 
-**标签**: `#ollama`, `#machine-learning`, `#software-release`, `#performance`, `#bug-fix`
+**背景**: AI 智能体编排框架协调多个 AI 智能体执行复杂任务，类似于数字交响乐，其中编排器管理交互。DeepSeek 是一家成立于 2023 年的中国 AI 公司，以其聊天机器人和 DeepSeek-R1 模型而闻名。
+
+<details><summary>参考链接</summary>
+<ul>
+<li><a href="https://www.ibm.com/think/topics/ai-agent-orchestration">What is AI Agent Orchestration? | IBM</a></li>
+<li><a href="https://www.augmentcode.com/tools/open-source-agent-orchestrators">9 Open-Source Agent Orchestrators for AI Coding (2026) | Augment Code</a></li>
+<li><a href="https://www.langchain.com/resources/ai-agent-frameworks">The best AI agent frameworks in 2026</a></li>
+
+</ul>
+</details>
+
+**社区讨论**: 用户赞扬了可追踪性功能，指出它允许检查模型交互，这与美国模型不同。一些人表达了对插件的疲劳，而其他人则强调了该框架在高级用例中的潜力。
+
+**标签**: `#AI`, `#Developer Tools`, `#Agent Framework`, `#Open Source`, `#DeepSeek`
 
 ---
 
 <a id="item-5"></a>
-## [DeepSeek Harness：AI 智能体框架开发者预览版](https://deepseek.com/harness/en/) ⭐️ 9.0/10
+## [新型 DRAM 攻击利用硬件漏洞](https://github.com/xoreaxeaxeax/skitter-creek-bath-salts) ⭐️ 9.0/10
 
-DeepSeek Harness 现已作为开发者预览版发布，这是一个开源的 AI 智能体框架，支持可追踪的模型执行和动态插件功能。 该框架通过提供模型训练、推理和智能体工作流所需的工具，满足了 AI 计算和软件开发的关键需求，并通过可追踪性和热重载等功能提供了实用价值。 该框架采用“万物皆插件”的架构，支持仅追加的会话日志以记录所有模型交互，目前以 MIT 许可证发布，预计存在一些不完善之处。
+发布了一个名为“Spaghettifying DRAM”的新攻击，展示了如何利用硬件漏洞获得系统级访问权限。 该攻击揭示了现代 DRAM 架构中的关键安全风险，可能影响各种平台的系统完整性和用户隐私。 该攻击针对 DRAM 行缓冲区并利用行锤漏洞，已确认对 2013 年的 AMD Jaguar 架构有效。
 
-hackernews · bjin · 8月13日 20:58 · [社区讨论](https://news.ycombinator.com/item?id=49285244)
+hackernews · matt\_d · 8月13日 22:17 · [社区讨论](https://news.ycombinator.com/item?id=49286341)
 
-**背景**: AI 智能体框架是帮助开发者构建能够执行复杂任务的自主 AI 系统的工具。DeepSeek Harness 是开源 AI 开发工具的更广泛趋势的一部分，专注于提高智能体工作流中的透明度和灵活性。
+**背景**: 行锤是一种已知的安全漏洞，通过重复内存访问导致邻近行的位翻转，从而引发数据损坏。DRAM 行缓冲区充当缓存，行缓冲区冲突会显著增加访问延迟。
 
-**社区讨论**: 开发者预览版因其可追踪功能获得了积极反馈，用户指出它允许检查所有模型交互，而某些美国模型则对追踪信息进行加密。一些用户对插件疲劳表示担忧，而另一些人则强调了其使用 Cordis v4 系统进行动态插件管理的特点。
+<details><summary>参考链接</summary>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Row_hammer">Row hammer - Wikipedia</a></li>
+<li><a href="https://arxiv.org/pdf/2211.07613">Fundamentally Understanding and Solving RowHammer</a></li>
+<li><a href="https://www.mdpi.com/1424-8220/24/2/592">Rowhammer Attacks in Dynamic Random-Access Memory and ... - MDPI</a></li>
 
-**标签**: `#AI`, `#Agent Framework`, `#Developer Tools`, `#Open Source`, `#DeepSeek`
+</ul>
+</details>
+
+**社区讨论**: 社区对配套的 Black Hat 演讲感到兴奋，评论表达了对 Christopher Domas 工作的钦佩，以及对该攻击对 Xbox 和 PlayStation 等游戏主机影响的担忧。
+
+**标签**: `#DRAM`, `#Hardware Security`, `#Memory Attacks`, `#Systems Security`, `#Hardware Exploits`
 
 ---
 
 <a id="item-6"></a>
-## [Spaghettifying DRAM：利用内存子系统漏洞的新型攻击](https://github.com/xoreaxeaxeax/skitter-creek-bath-salts) ⭐️ 9.0/10
+## [Oxide 上的 Kubernetes：客户需求如何塑造了集成方案](https://oxide.computer/blog/kubernetes-on-oxide) ⭐️ 9.0/10
 
-研究人员推出了一种名为“Spaghettifying DRAM”的新型 DRAM 攻击，利用内存子系统中的漏洞获得对系统内存的显著控制权。 这种攻击展示了 DRAM 控制器和内存子系统之间的高度互联性，揭示了现代计算硬件的关键安全影响。 该攻击针对 2013 年的 AMD Jaguar 架构，需要 ring-0 访问权限，且关于其对 Zen 3 等较新 CPU 家族的适用性信息有限。
+Oxide 详细介绍了客户需求如何影响其软硬件基础设施中 Kubernetes 的设计和集成，包括 \`oxide-cloud-controller-manager\` 和 \`karpenter-provider-oxide\` 的开发。 这种集成凸显了向更实用、硬件感知的 Kubernetes 解决方案转变的趋势，这些方案能更好地满足企业需求，可能会影响云原生平台的建设和管理方式。 文章强调 Oxide 的 Kubernetes 集成是由现实世界的客户用例驱动的，而不是理论设计，从而产生了一个与其定制硬件深度集成的系统。
 
-hackernews · matt\_d · 8月13日 22:17 · [社区讨论](https://news.ycombinator.com/item?id=49286341)
+hackernews · stevehipwell · 8月13日 22:26 · [社区讨论](https://news.ycombinator.com/item?id=49286485)
 
-**背景**: DRAM（动态随机存取存储器）是一种用于计算机临时存储数据的易失性存储器类型。内存子系统包括 DRAM 控制器，负责管理 CPU 和内存之间的数据传输，由于专有固件和刷新要求，其复杂性往往很高。
+**背景**: Oxide 是一家为数据中心构建完整软硬件系统的公司，专注于开源原则，并提供了传统云提供商的替代方案。Kubernetes 是一个流行的开源平台，用于自动化容器化应用的部署、扩展和管理。\`oxide-cloud-controller-manager\` 是一个将 Kubernetes 与 Oxide 基础设施集成的自定义组件。
 
-**社区讨论**: 社区成员对 Christopher Domas 的配套 Black Hat 演讲表示兴奋，而其他人则讨论了 DRAM 复杂性的增加以及对 Xbox 和 PlayStation 等游戏主机的潜在影响。
+**社区讨论**: 社区成员特别关注 \`oxide-cloud-controller-manager\` 的现代设计及其与内置控制器的比较，而其他人则强烈希望 Oxide 开源其文档系统。
 
-**标签**: `#DRAM`, `#security`, `#hardware`, `#attack`, `#AMD`
+**标签**: `#kubernetes`, `#devops`, `#hardware`, `#cloud-native`, `#engineering`
 
 ---
 
 <a id="item-7"></a>
-## [Simon Willison 发布 alchemy-utils 0.1a1](https://simonwillison.net/2026/Aug/13/alchemy-utils/) ⭐️ 9.0/10
+## [DeepSeek V4 Pro 0813 模型发布，开放权重](https://simonwillison.net/2026/Aug/12/deepseek-v4-pro-0813/) ⭐️ 9.0/10
 
-Simon Willison 发布了 alchemy-utils 0.1a1，这是一个 Python 库，为 DuckDB 导出和 CSV 导入提供了性能优化。 此次发布对处理大型数据集的数据专业人士和开发者具有重要意义，因为它提高了常见数据操作任务的效率。 该库专注于优化 DuckDB 导出和 CSV 导入的性能，这是数据工作流中的关键操作。
+DeepSeek V4 Pro 0813 现已通过 OpenRouter 的 API 和 Hugging Face 开放权重发布，拥有 1.7T 参数。 此次发布为开发者提供了一个强大且开源的模型选择，可能加速 AI 创新，并民主化地普及先进的推理能力。 该模型支持三种推理级别（低、中、高），并包含一个新的 DeepSeek Harness 应用程序，采用 MIT 许可证下的模块化插件架构。
 
-rss · Simon Willison · 8月13日 11:03
+rss · Simon Willison · 8月13日 07:59
 
-**背景**: DuckDB 是一个用于分析工作负载的进程内 SQL OLAP 数据库管理系统，而 CSV（逗号分隔值）是一种用于存储表格数据的广泛使用的文件格式。Python 的内置 csv 模块提供了读取和写入 CSV 文件的基本功能，但对于大型数据集，性能可能会成为瓶颈。
+**背景**: DeepSeek 是一家以开发大型语言模型而闻名的中国 AI 公司。OpenRouter 是一个聚合各种 AI 模型以实现便捷 API 访问的平台。Hugging Face 是一个流行的机器学习模型和数据集共享中心。
 
-<details><summary>参考链接</summary>
-<ul>
-<li><a href="https://duckdb.org/docs/current/guides/performance/overview">Performance Guide – DuckDB</a></li>
-<li><a href="https://duckdb.org/docs/lts/guides/performance/how_to_tune_workloads">Tuning Workloads – DuckDB</a></li>
-
-</ul>
-</details>
-
-**标签**: `#python`, `#duckdb`, `#csv`, `#performance`, `#open-source`
+**标签**: `#DeepSeek`, `#AI Model`, `#Open Weights`, `#Hugging Face`, `#API`
 
 ---
 
 <a id="item-8"></a>
-## [Cloudflare 证书透明度监控现已正式发布](https://blog.cloudflare.com/certificate-transparency-monitoring-ga/) ⭐️ 9.0/10
+## [alchemy-utils 0.1a0](https://simonwillison.net/2026/Aug/12/alchemy-utils/) ⭐️ 9.0/10
 
-Cloudflare 宣布证书透明度监控现已正式发布，该功能移除了关于为您的域名颁发的证书的例行邮件。 这一变化简化了安全警报管理，确保只有非例行的证书事件才会触发通知，帮助管理员专注于真正的威胁。 该功能是一个可选工具，允许域名所有者双重检查为其域名颁发的 SSL/TLS 证书，在不过度使用户被噪音淹没的情况下提高安全监督。
+Simon Willison 宣布发布 alchemy-utils 0.1a0，这是一个新的 Python 库和 CLI 工具，旨在为多种数据库引擎提供数据库无关的 API，并借助 AI 的帮助构建而成。
 
-rss · Cloudflare Blog · 8月13日 21:00
+rss · Simon Willison · 8月13日 03:51
 
-**背景**: 证书透明度（CT）是一项互联网安全标准，要求证书颁发机构将新颁发的证书提交到公开的、防篡改的日志中，使域名所有者能够监控和审计证书的颁发。
-
-<details><summary>参考链接</summary>
-<ul>
-<li><a href="https://certificate.transparency.dev/">Certificate Transparency : Certificate Transparency</a></li>
-<li><a href="https://cloudflare-docs-7ou.pages.dev/ssl/edge-certificates/additional-options/certificate-transparency-monitoring/">Certificate Transparency Monitoring · Cloudflare SSL/TLS docs</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Certificate_Transparency">Certificate Transparency - Wikipedia</a></li>
-
-</ul>
-</details>
-
-**标签**: `#security`, `#certificate-transparency`, `#tls`, `#monitoring`, `#cloudflare`
+**标签**: `#python`, `#open-source`, `#database`, `#sqlalchemy`, `#developer-tools`
 
 ---
 
 <a id="item-9"></a>
-## [City2Graph：用于城市异构图分析的 Python 库](https://www.reddit.com/r/MachineLearning/comments/1vn8oya/city2graph_a_python_library_for_heterogeneous/) ⭐️ 9.0/10
+## [你的贡献者现在已经是 AI 优先了。你的项目也是吗？](https://github.blog/open-source/maintainers/your-contributors-are-ai-first-now-is-your-project/) ⭐️ 9.0/10
 
-City2Graph 是一个新发布的 Python 库，用于将地理空间数据转换为可直接分析的异构图，以支持 GeoAI 和城市空间分析，相关论文已发表在《计算机、环境与城市系统》期刊上。 该库填补了城市数据与图神经网络之间的空白，使得更复杂的空间分析和 GeoAI 应用得以实现，这些应用以前难以构建。 它支持从 OpenStreetMap/Overture Maps 获取形态图，通过 DuckDB 加载交通数据，处理流动数据，并提供多种邻近性指标，并能无缝集成到 PyTorch Geometric 中。
+GitHub 发布了一篇题为“你的贡献者现在已经是 AI 优先了。你的项目也是吗？”的博客文章，讨论了 AI 代理如何成为贡献者，并为维护者提供了控制它们的方法。 这条新闻意义重大，因为它解决了 AI 代理参与开源项目的这一新兴现实，这可能会从根本上改变软件的构建和维护方式。 这篇文章分享了 AutoGPT 维护者 Nicholas Tindle 关于如何设置仓库指令、门禁和边界以保持对 AI 贡献者控制的具体说明。
 
-reddit · r/MachineLearning · /u/Tough\_Ad\_6598 · 8月13日 19:59
+rss · GitHub Blog · 8月13日 02:00
 
-**背景**: 异构图是指具有多种节点和边类型的网络，常用于推荐系统和社交网络。PyTorch Geometric 是一个流行的构建图神经网络的库。Delaunay 三角剖分是一种从点数据创建网格的几何技术，常用于城市分析。
+**背景**: AI 代理是能够通过交互系统和 API 执行任务的自主软件程序，例如编写代码。随着这些代理变得越来越强大，它们越来越多地被用于为开源项目做出贡献，这引发了关于维护者应如何管理它们的问题。
 
-<details><summary>参考链接</summary>
-<ul>
-<li><a href="https://github.com/tobilg/duckdb-gtfs">GitHub - tobilg/ duckdb - gtfs : Loading and analyzing GTFS Schedule...</a></li>
-<li><a href="https://pytorch-geometric.readthedocs.io/en/latest/notes/heterogeneous.html">Heterogeneous Graph Learning — pytorch_geometric documentation</a></li>
-<li><a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0218877">A formal model of neighborhood representation and applications in urban building aggregation supported by Delaunay triangulation | PLOS One</a></li>
-
-</ul>
-</details>
-
-**标签**: `#GeoAI`, `#Graph Neural Networks`, `#Python Library`, `#Urban Systems`, `#Spatial Analysis`
+**标签**: `#AI`, `#Open Source`, `#Contributor Management`, `#GitHub`, `#AI Agents`
 
 ---
 
 <a id="item-10"></a>
-## [DeepMind 推出手语转文字模型 SL2T，首次落地 Pixel 11 键盘与实时字幕](https://deepmind.google/blog/putting-sign-language-ai-into-users-hands/) ⭐️ 9.0/10
+## [Chessformer\_lens 演示：移除棋类 Transformer 的 128 个注意力头之一会导致模型无法发现莫菲的弃后](https://www.reddit.com/r/MachineLearning/comments/1vmvl4w/chessformer_lens_demo_ablating_1_of_a_chess/) ⭐️ 9.0/10
 
-DeepMind 发布了大规模多语言手语转文字模型 SL2T，并将其集成到 Pixel 11 设备的 Gboard 和 Live Transcribe 中，以实现实时美国手语（ASL）翻译。 这一突破性进展通过实现实时交流，解决了听障人士的重大无障碍鸿沟，标志着手语 AI 首次进入主流消费级硬件。 SL2T 在 50 多种手语数据上训练超过 10 万小时，在 FLEURS-ASL 基准上达到 70 BLEURT 分数，并采用隐私优先的姿态估计技术，仅处理手部和身体关键点而不读取原始视频。
+该演示展示了如何通过移除棋类 Transformer 中的一个注意力头，破坏其发现莫菲弃后招法的能力。
 
-telegram · zaihuapd · 8月13日 16:55
+reddit · r/MachineLearning · /u/Weird-Asparagus4136 · 8月13日 08:29
 
-**背景**: 虽然语音 AI 工具如语音转文字和翻译已成为主流，但全球 70 万听障人士使用的 200 多种手语长期以来在技术上一直被忽视。
-
-<details><summary>参考链接</summary>
-<ul>
-<li><a href="https://deepmind.google/blog/putting-sign-language-ai-into-users-hands/">Putting sign language AI into users’ hands — Google DeepMind</a></li>
-<li><a href="https://en.cryptonomist.ch/2026/08/13/sign-language-ai-translation-slt2/">Sign Language AI Translation: Google&#x27;s Breakthrough with SL2T ...</a></li>
-<li><a href="https://www.unite.ai/google-deepmind-brings-sign-language-translation-to-phones-with-sl2t/">Google DeepMind Brings Sign Language Translation to Phones ...</a></li>
-
-</ul>
-</details>
-
-**标签**: `#AI`, `#Sign Language`, `#Privacy`, `#Mobile`, `#DeepMind`
+**标签**: `#AI interpretability`, `#Transformer models`, `#Chess AI`, `#Attention mechanisms`, `#Model debugging`
 
 ---
 
 <a id="item-11"></a>
-## [DeepSeek-V4-Pro 正式版上线，API 将实行峰谷定价](https://api-docs.deepseek.com/zh-cn/updates) ⭐️ 9.0/10
+## [长江存储市占率首次跻身全球第三](https://news.google.com/rss/articles/CBMickFVX3lxTE1IRTNLRE42azI1TWFaWDdEbTRudEtHd1RaMFBxZlp2QXpGUGloeTZ0U2tvcFpRRXo2MGpzWmdnQ0NMSEtxVEtjZkF4RzdIRU4xSjVXbngzVkJ2OUdySmRTUkZjamZFbFNwNS1WYlZSd2pvdw?oc=5) ⭐️ 9.0/10
 
-DeepSeek-V4-Pro 正式版已同步上线 APP、网页端和 API，模型增强 Agent 能力并原生支持 Responses API 格式。API 将实行峰谷定价，新价格于 2026 年 8 月 17 日 0 时生效，闲时价格为高峰时段一半。 此次发布对 AI 开发者影响重大，通过提供成本效益高的定价模型和先进的 Agent 能力，可能加速软件开发生态中代理工作流的采用。 模型支持低、高、高三档思考模式，并兼容 Codex。DeepSeek 还发布了 Harness，这是一个采用 MIT 协议开源的代理框架，由 Cordis 元框架驱动，采用插件式架构。
+长江存储（YMTC）取得了历史性突破，出货量首次超越铠侠，成为全球第三大 NAND 闪存制造商。 这一突破标志着全球半导体格局的重大转变，展示了中国日益增强的技术自主能力，并挑战了三星和 SK 海力士等传统巨头的统治地位。 长江存储的成就得益于其先进的 Xtacking™技术，该技术能够实现更高密度和更高效的 3D NAND 芯片生产，尽管其全球营收排名仍位居第五。
 
-telegram · zaihuapd · 8月13日 19:12
+google\_news · 央广网 · 8月13日 18:57
 
-**背景**: DeepSeek 是一家以开发大型语言模型而闻名的 AI 研究公司。Cordis 框架是一种用于构建模块化代理系统的时空组合性元框架。Responses API 是 AI 代理交互的标准格式。
+**背景**: NAND 闪存是一种非易失性存储技术，因其高存储密度和快速数据传输速度，被广泛应用于智能手机、固态硬盘（SSD）和 AI 基础设施中。长江存储成立于 2016 年，已从技术追随者迅速发展为该领域的创新者。
 
 <details><summary>参考链接</summary>
 <ul>
-<li><a href="https://github.com/deepseek-ai/deepseek-harness">GitHub - deepseek -ai/ deepseek - harness : DeepSeek Harness ...</a></li>
-<li><a href="https://pasqualepillitteri.it/en/news/11027/deepseek-harness-mit-claude-code-rival">DeepSeek Harness v0.1: Open-Source MIT Rival to Claude Code</a></li>
+<li><a href="https://www.linkedin.com/pulse/yangtze-memory-technologies-debut-new-3d-nand-deliver-matthew-martin">Yangtze Memory Technologies to Debut New 3 D NAND Architecture...</a></li>
+<li><a href="https://www.hugdiy.com/news/the-rise-of-yangtze-memory-lurking-accumulating-breaking-through/">The Rise of Yangtze Memory : Lurking, Accumulating, Breaking Through</a></li>
+<li><a href="https://www.ibm.com/think/topics/nand-flash">What is NAND flash memory? - IBM</a></li>
 
 </ul>
 </details>
 
-**标签**: `#AI`, `#DeepSeek`, `#API`, `#Pricing`, `#Model Release`
+**社区讨论**: 这一消息引发了关于中国半导体战略长期影响的讨论，一些分析师认为长江存储的崛起是减少对外国技术依赖的关键一步。
+
+**标签**: `#semiconductors`, `#memory`, `#AI infrastructure`, `#China semiconductor`, `#market share`
 
 ---
 
 <a id="item-12"></a>
-## [长江存储首次跻身全球第三大市场份额](https://news.google.com/rss/articles/CBMickFVX3lxTE1IRTNLRE42azI1TWFaWDdEbTRudEtHd1RaMFBxZlp2QXpGUGloeTZ0U2tvcFpRRXo2MGpzWmdnQ0NMSEtxVEtjZkF4RzdIRU4xSjVXbngzVkJ2OUdySmRTUkZjamZFbFNwNS1WYlZSd2pvdw?oc=5) ⭐️ 9.0/10
+## [长鑫科技超越腾讯控股 成为 A 股+港股市值最大上市公司](https://news.google.com/rss/articles/CBMiZEFVX3lxTE1zbERfUXAtOGtFeWU1N1RlQmhaZ2xITXE3QWxNalpUam9VcGZSRDk1alBSMXRDeG9EVnZMWDEyWjctUGpHVTJKMFVjUW4tMjRBR195b2tiNUpXVHNGakpzT1UwbTk?oc=5) ⭐️ 9.0/10
 
-长江存储（YMTC）首次跻身全球 NAND 闪存市场份额第三名，实现了历史性突破。 这一成就标志着中国半导体自主战略的重要一步，减少了对国外供应商的依赖，并强化了国内供应链。 该公司的成功凸显了中国内存制造商在全球市场的竞争力日益增强。
+长鑫科技（CXMT）已超越腾讯控股，成为 A 股和港股市值最大的上市公司。 这一里程碑突显了中国国内半导体行业的崛起，以及内存芯片在全球 AI 基础设施生态系统中的重要性日益增长。 长鑫科技在科创板上市后股价飙升超过 500%，反映了投资者对其增长潜力的强烈信心。
 
-google\_news · 央广网 · 8月13日 18:57
+google\_news · 新京报 · 8月13日 17:59
 
-**背景**: 长江存储是中国领先的半导体公司，专注于 NAND 闪存的生产。全球 NAND 闪存市场长期以来由韩国和日本公司主导，但近年来中国公司正在迅速抢占市场份额。
+**背景**: 长鑫科技是一家领先的半导体制造商，专注于 DRAM 内存的生产。截至 2026 年，它是中国最大的、也是全球第四大 DRAM 制造商，与三星、SK 海力士和美光等全球巨头竞争。
 
-**标签**: `#semiconductors`, `#memory`, `#China`, `#AI hardware`, `#industry analysis`
+<details><summary>参考链接</summary>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/CXMT">CXMT</a></li>
+<li><a href="https://www.bloomberg.com/news/articles/2026-08-03/cxmt-s-1-trillion-target-gap-flags-high-stakes-in-chip-battle">CXMT Price Targets Are $1 Trillion Apart as Analysts Differ - Bloomberg</a></li>
+<li><a href="https://news.google.com/stories/CAAqNggKIjBDQklTSGpvSmMzUnZjbmt0TXpZd1NoRUtEd2lOcWRqWEVSR3FjbWFRYV94alVpZ0FQAQ?hl=pt-BR&amp;gl=BR&amp;ceid=BR:pt-419">Google Notícias - CXMT estreia na Bolsa de Xangai com forte alta...</a></li>
+
+</ul>
+</details>
+
+**标签**: `#semiconductors`, `#memory`, `#AI infrastructure`, `#market cap`, `#CXMT`
 
 ---

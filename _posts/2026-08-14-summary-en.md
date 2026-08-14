@@ -8,236 +8,222 @@ lang: en
 
 > Coverage: 2026-08-13 (Asia/Shanghai calendar day)
 
-> From 100 items, 12 important content pieces were selected
+> From 84 items, 12 important content pieces were selected
 
 ---
 
-1. [DeepSeek V4 Pro 0813 Model Weights Released on Hugging Face](#item-1) ⭐️ 10.0/10
-2. [ggml-org/llama.cpp released b10410](#item-2) ⭐️ 9.0/10
-3. [llama.cpp b10405: HIP FP Fixes and Cross-Platform Binaries](#item-3) ⭐️ 9.0/10
-4. [ollama/ollama released v0.32.10](#item-4) ⭐️ 9.0/10
-5. [DeepSeek Harness: Developer Preview of AI Agent Framework](#item-5) ⭐️ 9.0/10
-6. [Spaghettifying DRAM: Novel Memory Subsystem Attack](#item-6) ⭐️ 9.0/10
-7. [Simon Willison releases alchemy-utils 0.1a1](#item-7) ⭐️ 9.0/10
-8. [Cloudflare Certificate Transparency Monitoring Now Generally Available](#item-8) ⭐️ 9.0/10
-9. [City2Graph: Python Library for Urban Heterogeneous Graphs](#item-9) ⭐️ 9.0/10
-10. [DeepMind&\#x27;s SL2T Model Brings Sign Language Translation to Pixel 11 Keyboard](#item-10) ⭐️ 9.0/10
-11. [DeepSeek-V4-Pro Officially Released with Peak/Off-Peak API Pricing](#item-11) ⭐️ 9.0/10
-12. [Yangtze Memory Ranks Third Globally in Market Share](#item-12) ⭐️ 9.0/10
+1. [ggml-org/llama.cpp released b10410](#item-1) ⭐️ 10.0/10
+2. [City2Graph: Python Library for Urban Heterogeneous Graphs](#item-2) ⭐️ 10.0/10
+3. [ollama/ollama released v0.32.10](#item-3) ⭐️ 9.0/10
+4. [DeepSeek Harness: AI Agent Orchestration Framework Preview](#item-4) ⭐️ 9.0/10
+5. [Novel DRAM Attack Exploits Hardware Vulnerabilities](#item-5) ⭐️ 9.0/10
+6. [Kubernetes on Oxide: Customer Needs Shaped Integrations](#item-6) ⭐️ 9.0/10
+7. [DeepSeek V4 Pro 0813 Model Released with Open Weights](#item-7) ⭐️ 9.0/10
+8. [alchemy-utils 0.1a0](#item-8) ⭐️ 9.0/10
+9. [Your contributors are AI-first now. Is your project?](#item-9) ⭐️ 9.0/10
+10. [chessformer\_lens demo: ablating 1 of a chess transformer&\#x27;s 128 attention heads makes the model stop finding Morphy&\#x27;s queen sacrifice \[P\]](#item-10) ⭐️ 9.0/10
+11. [Yangtze Memory Technologies Rises to Third Globally in NAND Market Share](#item-11) ⭐️ 9.0/10
+12. [ChangXin Memory Technologies Surpasses Tencent as Largest Listed Company](#item-12) ⭐️ 9.0/10
 
 ---
 
 <a id="item-1"></a>
-## [DeepSeek V4 Pro 0813 Model Weights Released on Hugging Face](https://simonwillison.net/2026/Aug/12/deepseek-v4-pro-0813/) ⭐️ 10.0/10
+## [ggml-org/llama.cpp released b10410](https://github.com/ggml-org/llama.cpp/releases/tag/b10410) ⭐️ 10.0/10
 
-DeepSeek V4 Pro 0813 model weights are now available on Hugging Face, following its initial API-only release via OpenRouter. This release allows developers to run the model locally, fostering broader adoption and experimentation beyond API access. The model contains 1.7T parameters and requires 893 GB of storage, with notable differences in visual outputs across reasoning levels.
+llama.cpp release b10410 adds SYCL optimizations and provides pre-built binaries for macOS, iOS, and Linux.
 
-rss · Simon Willison · Aug 13, 07:59
+github · github-actions\[bot\] · Aug 13, 23:52
 
-**Background**: DeepSeek is a Chinese AI company known for cost-effective, open-weight large language models like DeepSeek-R1. The company has previously released models under open-source licenses, enabling community-driven development.
-
-<details><summary>References</summary>
-<ul>
-<li><a href="https://openrouter.ai/docs/quickstart">OpenRouter Quickstart Guide</a></li>
-<li><a href="https://openrouter.ai/openrouter">OpenRouter API and Models | OpenRouter</a></li>
-<li><a href="https://en.wikipedia.org/wiki/DeepSeek">DeepSeek</a></li>
-
-</ul>
-</details>
-
-**Tags**: `#AI`, `#DeepSeek`, `#Model Release`, `#Weights`, `#API`
+**Tags**: `#llama.cpp`, `#AI-inference`, `#SYCL`, `#Open-Source`, `#GPU-optimization`
 
 ---
 
 <a id="item-2"></a>
-## [ggml-org/llama.cpp released b10410](https://github.com/ggml-org/llama.cpp/releases/tag/b10410) ⭐️ 9.0/10
+## [City2Graph: Python Library for Urban Heterogeneous Graphs](https://www.reddit.com/r/MachineLearning/comments/1vn8oya/city2graph_a_python_library_for_heterogeneous/) ⭐️ 10.0/10
 
-llama.cpp release b10410 adds SYCL fp16 promotion and provides binaries for macOS, iOS, and Linux.
+City2Graph is a new Python library that converts geospatial data into heterogeneous graphs for spatial analysis and Graph Neural Networks, with its paper recently published. This library addresses the limitations of flat feature tables by enabling the use of heterogeneous graphs, which better capture complex urban relationships and support advanced GeoAI applications. It supports multiple data sources like OpenStreetMap, Overture Maps, GTFS, and GBFS, integrates with PyTorch Geometric, and handles conversions between GeoDataFrames, NetworkX, rustworkx, and PyG.
 
-github · github-actions\[bot\] · Aug 13, 23:52
+reddit · r/MachineLearning · /u/Tough\_Ad\_6598 · Aug 13, 19:59
 
-**Tags**: `#llama.cpp`, `#open-source`, `#AI-inference`, `#SYCL`, `#GPU-acceleration`
+**Background**: Heterogeneous Graph Neural Networks \(HetGNNs\) process graphs with multiple node and edge types, capturing diverse relational semantics, while PyTorch Geometric \(PyG\) is a popular library for building GNNs on top of PyTorch.
+
+<details><summary>References</summary>
+<ul>
+<li><a href="https://www.emergentmind.com/topics/heterogeneous-graph-neural-networks-gnns">Heterogeneous Graph Neural Networks</a></li>
+<li><a href="https://grokipedia.com/page/PyTorch_Geometric">PyTorch Geometric</a></li>
+<li><a href="https://github.com/tobilg/duckdb-gtfs">GitHub - tobilg/duckdb-gtfs: Loading and analyzing GTFS Schedule data with DuckDB · GitHub</a></li>
+
+</ul>
+</details>
+
+**Tags**: `#GeoAI`, `#Graph Neural Networks`, `#Python`, `#Urban Systems`, `#Spatial Analysis`
 
 ---
 
 <a id="item-3"></a>
-## [llama.cpp b10405: HIP FP Fixes and Cross-Platform Binaries](https://github.com/ggml-org/llama.cpp/releases/tag/b10405) ⭐️ 9.0/10
+## [ollama/ollama released v0.32.10](https://github.com/ollama/ollama/releases/tag/v0.32.10) ⭐️ 9.0/10
 
-llama.cpp version b10405 removes unsafe floating-point optimizations for HIP builds to ensure IEEE 754 compliance and introduces pre-compiled binaries for macOS, iOS, Linux, Android, and Windows. This release is critical for developers using AMD GPUs, as the IEEE-conformant fixes prevent divergent behavior in speculative decoding on RDNA3.5 hardware, ensuring reproducible and numerically safe inference across platforms. The update disables KleidiAI support for macOS Apple Silicon and ROCm 7.14 builds, while offering extensive options including Vulkan, OpenVINO, SYCL, and CUDA 12/13 for Linux and Windows.
+Ollama v0.32.10 introduces performance optimizations for AI models, faster prefill for MLX hardware, and a security fix for blob verification.
 
-github · github-actions\[bot\] · Aug 13, 15:32
+github · github-actions\[bot\] · Aug 13, 06:36
 
-**Background**: llama.cpp is a high-performance C++ library for running Large Language Models \(LLMs\) on consumer hardware. HIP is AMD&\#x27;s API for GPU programming, and IEEE 754 is the standard for floating-point arithmetic that ensures consistent numerical results across different hardware.
-
-<details><summary>References</summary>
-<ul>
-<li><a href="https://rocm.docs.amd.com/projects/HIP/en/latest/reference/low_fp_types.html">Low precision floating point types — HIP 7.14.60850 Documentation</a></li>
-
-</ul>
-</details>
-
-**Tags**: `#AI`, `#llama.cpp`, `#GPU`, `#macOS`, `#Linux`
+**Tags**: `#AI`, `#Machine Learning`, `#Software Engineering`, `#Hardware Optimization`, `#Open Source`
 
 ---
 
 <a id="item-4"></a>
-## [ollama/ollama released v0.32.10](https://github.com/ollama/ollama/releases/tag/v0.32.10) ⭐️ 9.0/10
+## [DeepSeek Harness: AI Agent Orchestration Framework Preview](https://deepseek.com/harness/en/) ⭐️ 9.0/10
 
-Ollama v0.32.10 release includes performance optimizations, bug fixes, and a new contributor.
+DeepSeek Harness is an early developer preview of an AI agent orchestration framework with traceable execution and plugin capabilities, currently released under the MIT license. This framework is significant for software development and AI infrastructure as it provides a structured way to manage complex AI agent interactions, potentially improving productivity and model reliability. The framework features an append-only session log for traceability, a plugin system with hot-reload capabilities, and uses Cordis v4 for dynamic plugin management without process restarts.
 
-github · github-actions\[bot\] · Aug 13, 06:36
+hackernews · bjin · Aug 13, 20:58 · [Discussion](https://news.ycombinator.com/item?id=49285244)
 
-**Tags**: `#ollama`, `#machine-learning`, `#software-release`, `#performance`, `#bug-fix`
+**Background**: AI agent orchestration frameworks coordinate multiple AI agents to perform complex tasks, similar to a digital symphony where an orchestrator manages interactions. DeepSeek is a Chinese AI company founded in 2023, known for its chatbot and DeepSeek-R1 model.
+
+<details><summary>References</summary>
+<ul>
+<li><a href="https://www.ibm.com/think/topics/ai-agent-orchestration">What is AI Agent Orchestration? | IBM</a></li>
+<li><a href="https://www.augmentcode.com/tools/open-source-agent-orchestrators">9 Open-Source Agent Orchestrators for AI Coding (2026) | Augment Code</a></li>
+<li><a href="https://www.langchain.com/resources/ai-agent-frameworks">The best AI agent frameworks in 2026</a></li>
+
+</ul>
+</details>
+
+**Discussion**: Users praise the traceability feature, noting it allows inspection of model interactions unlike US models. Some express plugin fatigue, while others highlight the framework&\#x27;s potential for advanced use cases.
+
+**Tags**: `#AI`, `#Developer Tools`, `#Agent Framework`, `#Open Source`, `#DeepSeek`
 
 ---
 
 <a id="item-5"></a>
-## [DeepSeek Harness: Developer Preview of AI Agent Framework](https://deepseek.com/harness/en/) ⭐️ 9.0/10
+## [Novel DRAM Attack Exploits Hardware Vulnerabilities](https://github.com/xoreaxeaxeax/skitter-creek-bath-salts) ⭐️ 9.0/10
 
-DeepSeek Harness is now available as a developer preview, an open-source AI agent framework that enables traceable model execution and dynamic plugin capabilities. This framework addresses critical needs in AI compute and software building by providing tools for model training, inference, and agent workflows, offering practical value through features like traceability and hot-reload. The framework uses an architecture where everything is a plugin, supports an append-only session log for recording all model interactions, and is currently released under the MIT license with expected rough edges.
+A new attack named &\#x27;Spaghettifying DRAM&\#x27; has been released, demonstrating how hardware vulnerabilities can be exploited to gain system-level access. This attack highlights a critical security risk in modern DRAM architectures, potentially affecting system integrity and user privacy across various platforms. The attack targets DRAM row buffers and exploits row hammer vulnerabilities, with confirmed effectiveness on AMD Jaguar architecture from 2013.
 
-hackernews · bjin · Aug 13, 20:58 · [Discussion](https://news.ycombinator.com/item?id=49285244)
+hackernews · matt\_d · Aug 13, 22:17 · [Discussion](https://news.ycombinator.com/item?id=49286341)
 
-**Background**: AI agent frameworks are tools that help developers build autonomous AI systems capable of executing complex tasks. DeepSeek Harness is part of the broader trend of open-source tools for AI development, focusing on improving transparency and flexibility in agent workflows.
+**Background**: Row hammer is a known security exploit where repeated memory access causes bit flips in nearby rows, leading to data corruption. DRAM row buffers act as a cache, and row buffer conflicts can significantly increase access latency.
 
-**Discussion**: The developer preview has received positive feedback for its traceability features, with users noting that it allows inspection of all model interactions, unlike some US models that encrypt traces. Some users expressed concerns about plugin fatigue, while others highlighted its use of the Cordis v4 system for dynamic plugin management.
+<details><summary>References</summary>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Row_hammer">Row hammer - Wikipedia</a></li>
+<li><a href="https://arxiv.org/pdf/2211.07613">Fundamentally Understanding and Solving RowHammer</a></li>
+<li><a href="https://www.mdpi.com/1424-8220/24/2/592">Rowhammer Attacks in Dynamic Random-Access Memory and ... - MDPI</a></li>
 
-**Tags**: `#AI`, `#Agent Framework`, `#Developer Tools`, `#Open Source`, `#DeepSeek`
+</ul>
+</details>
+
+**Discussion**: The community is excited about the accompanying Black Hat talk, with comments expressing admiration for Christopher Domas&\#x27;s work and concerns about the attack&\#x27;s impact on gaming consoles like Xbox and PlayStation.
+
+**Tags**: `#DRAM`, `#Hardware Security`, `#Memory Attacks`, `#Systems Security`, `#Hardware Exploits`
 
 ---
 
 <a id="item-6"></a>
-## [Spaghettifying DRAM: Novel Memory Subsystem Attack](https://github.com/xoreaxeaxeax/skitter-creek-bath-salts) ⭐️ 9.0/10
+## [Kubernetes on Oxide: Customer Needs Shaped Integrations](https://oxide.computer/blog/kubernetes-on-oxide) ⭐️ 9.0/10
 
-Researchers have introduced a novel DRAM attack called &\#x27;Spaghettifying DRAM&\#x27; that exploits vulnerabilities in the memory subsystem to gain significant control over system memory. This attack demonstrates how deeply interconnected DRAM controllers and memory subsystems are, revealing critical security implications for modern computing hardware. The attack targets AMD Jaguar architecture from 2013 and requires ring-0 access, with limited information on its applicability to newer CPU families like Zen 3.
+Oxide has detailed how customer requirements influenced the design and integration of Kubernetes within their hardware and software infrastructure, including the development of the \`oxide-cloud-controller-manager\` and \`karpenter-provider-oxide\`. This integration highlights a shift towards more practical, hardware-aware Kubernetes solutions that can better serve enterprise needs, potentially influencing how cloud-native platforms are built and managed. The post emphasizes that Oxide&\#x27;s Kubernetes integration is driven by real-world customer use cases rather than theoretical design, resulting in a system that is deeply integrated with their custom hardware.
 
-hackernews · matt\_d · Aug 13, 22:17 · [Discussion](https://news.ycombinator.com/item?id=49286341)
+hackernews · stevehipwell · Aug 13, 22:26 · [Discussion](https://news.ycombinator.com/item?id=49286485)
 
-**Background**: DRAM \(Dynamic Random Access Memory\) is a volatile memory type used in computers for storing data temporarily. The memory subsystem includes the DRAM controller, which manages data transfer between the CPU and memory, and is often complex due to proprietary firmware and refresh requirements.
+**Background**: Oxide is a company that builds complete hardware and software systems for data centers, focusing on open-source principles and providing an alternative to traditional cloud providers. Kubernetes is a popular open-source platform for automating deployment, scaling, and management of containerized applications. The \`oxide-cloud-controller-manager\` is a custom component that integrates Kubernetes with Oxide&\#x27;s infrastructure.
 
-**Discussion**: Community members express excitement about the accompanying Black Hat talk by Christopher Domas, while others discuss the increasing complexity of DRAM and the potential impact on gaming consoles like Xbox and PlayStation.
+**Discussion**: Community members are particularly interested in the modern design of the \`oxide-cloud-controller-manager\` and its comparison to in-tree controllers, while others express strong desire for Oxide to open source their documentation system.
 
-**Tags**: `#DRAM`, `#security`, `#hardware`, `#attack`, `#AMD`
+**Tags**: `#kubernetes`, `#devops`, `#hardware`, `#cloud-native`, `#engineering`
 
 ---
 
 <a id="item-7"></a>
-## [Simon Willison releases alchemy-utils 0.1a1](https://simonwillison.net/2026/Aug/13/alchemy-utils/) ⭐️ 9.0/10
+## [DeepSeek V4 Pro 0813 Model Released with Open Weights](https://simonwillison.net/2026/Aug/12/deepseek-v4-pro-0813/) ⭐️ 9.0/10
 
-Simon Willison has released alchemy-utils 0.1a1, a Python library that provides performance optimizations for DuckDB exports and CSV imports. This release is significant for data professionals and developers who work with large datasets, as it improves the efficiency of common data manipulation tasks. The library focuses on optimizing the performance of DuckDB exports and CSV imports, which are critical operations in data workflows.
+DeepSeek V4 Pro 0813 is now available via API on OpenRouter and as open weights on Hugging Face, featuring 1.7T parameters. This release provides developers with a powerful, open-source model option, potentially accelerating AI innovation and democratizing access to advanced reasoning capabilities. The model supports three reasoning levels \(low, medium, high\) and includes a new DeepSeek Harness application with a modular plugin architecture under the MIT license.
 
-rss · Simon Willison · Aug 13, 11:03
+rss · Simon Willison · Aug 13, 07:59
 
-**Background**: DuckDB is an in-process SQL OLAP database management system designed for analytical workloads, while CSV \(Comma Separated Values\) is a widely used file format for storing tabular data. Python&\#x27;s built-in csv module provides basic functionality for reading and writing CSV files, but performance can be a bottleneck for large datasets.
+**Background**: DeepSeek is a Chinese AI company known for developing large language models. OpenRouter is a platform that aggregates various AI models for easy API access. Hugging Face is a popular hub for sharing machine learning models and datasets.
 
-<details><summary>References</summary>
-<ul>
-<li><a href="https://duckdb.org/docs/current/guides/performance/overview">Performance Guide – DuckDB</a></li>
-<li><a href="https://duckdb.org/docs/lts/guides/performance/how_to_tune_workloads">Tuning Workloads – DuckDB</a></li>
-
-</ul>
-</details>
-
-**Tags**: `#python`, `#duckdb`, `#csv`, `#performance`, `#open-source`
+**Tags**: `#DeepSeek`, `#AI Model`, `#Open Weights`, `#Hugging Face`, `#API`
 
 ---
 
 <a id="item-8"></a>
-## [Cloudflare Certificate Transparency Monitoring Now Generally Available](https://blog.cloudflare.com/certificate-transparency-monitoring-ga/) ⭐️ 9.0/10
+## [alchemy-utils 0.1a0](https://simonwillison.net/2026/Aug/12/alchemy-utils/) ⭐️ 9.0/10
 
-Cloudflare has announced the general availability of Certificate Transparency Monitoring, which removes routine emails about certificates issued for your domain. This change simplifies security alert management by ensuring that only non-routine certificate events trigger notifications, helping administrators focus on genuine threats. The feature is an opt-in tool that allows domain owners to double-check SSL/TLS certificates issued for their domains, improving security oversight without overwhelming users with noise.
+Simon Willison announces the release of alchemy-utils 0.1a0, a new Python library and CLI tool designed to provide a database-agnostic API for multiple database engines, built with the help of AI.
 
-rss · Cloudflare Blog · Aug 13, 21:00
+rss · Simon Willison · Aug 13, 03:51
 
-**Background**: Certificate Transparency \(CT\) is an Internet security standard that requires Certificate Authorities to submit newly issued certificates to public, tamper-evident logs, enabling domain owners to monitor and audit certificate issuance.
-
-<details><summary>References</summary>
-<ul>
-<li><a href="https://certificate.transparency.dev/">Certificate Transparency : Certificate Transparency</a></li>
-<li><a href="https://cloudflare-docs-7ou.pages.dev/ssl/edge-certificates/additional-options/certificate-transparency-monitoring/">Certificate Transparency Monitoring · Cloudflare SSL/TLS docs</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Certificate_Transparency">Certificate Transparency - Wikipedia</a></li>
-
-</ul>
-</details>
-
-**Tags**: `#security`, `#certificate-transparency`, `#tls`, `#monitoring`, `#cloudflare`
+**Tags**: `#python`, `#open-source`, `#database`, `#sqlalchemy`, `#developer-tools`
 
 ---
 
 <a id="item-9"></a>
-## [City2Graph: Python Library for Urban Heterogeneous Graphs](https://www.reddit.com/r/MachineLearning/comments/1vn8oya/city2graph_a_python_library_for_heterogeneous/) ⭐️ 9.0/10
+## [Your contributors are AI-first now. Is your project?](https://github.blog/open-source/maintainers/your-contributors-are-ai-first-now-is-your-project/) ⭐️ 9.0/10
 
-City2Graph is a new Python library that converts geospatial data into analysis-ready heterogeneous graphs for GeoAI and urban spatial analysis, with a paper published in Computers, Environment and Urban Systems. This library bridges the gap between urban data and graph neural networks, enabling more sophisticated spatial analysis and GeoAI applications that were previously difficult to implement. It supports morphological graphs from OpenStreetMap/Overture Maps, transit data via DuckDB, mobility flows, and various proximity metrics, with seamless integration into PyTorch Geometric.
+GitHub published a blog post titled &\#x27;Your contributors are AI-first now. Is your project?&\#x27; which discusses how AI agents are becoming contributors and provides instructions for maintainers to control them. This news is significant because it addresses the emerging reality of AI agents participating in open-source projects, which could fundamentally change how software is built and maintained. The post shares specific instructions from AutoGPT maintainer Nicholas Tindle on how to set up repo instructions, gates, and boundaries to maintain control over AI contributors.
 
-reddit · r/MachineLearning · /u/Tough\_Ad\_6598 · Aug 13, 19:59
+rss · GitHub Blog · Aug 13, 02:00
 
-**Background**: Heterogeneous graphs are networks with multiple node and edge types, commonly used in recommendation systems and social networks. PyTorch Geometric is a popular library for building graph neural networks. Delaunay triangulation is a geometric technique used to create meshes from point data, often applied in urban analysis.
+**Background**: AI agents are autonomous software programs that can perform tasks, such as writing code, by interacting with systems and APIs. As these agents become more capable, they are increasingly being used to contribute to open-source projects, raising questions about how maintainers should manage them.
 
-<details><summary>References</summary>
-<ul>
-<li><a href="https://github.com/tobilg/duckdb-gtfs">GitHub - tobilg/ duckdb - gtfs : Loading and analyzing GTFS Schedule...</a></li>
-<li><a href="https://pytorch-geometric.readthedocs.io/en/latest/notes/heterogeneous.html">Heterogeneous Graph Learning — pytorch_geometric documentation</a></li>
-<li><a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0218877">A formal model of neighborhood representation and applications in urban building aggregation supported by Delaunay triangulation | PLOS One</a></li>
-
-</ul>
-</details>
-
-**Tags**: `#GeoAI`, `#Graph Neural Networks`, `#Python Library`, `#Urban Systems`, `#Spatial Analysis`
+**Tags**: `#AI`, `#Open Source`, `#Contributor Management`, `#GitHub`, `#AI Agents`
 
 ---
 
 <a id="item-10"></a>
-## [DeepMind&\#x27;s SL2T Model Brings Sign Language Translation to Pixel 11 Keyboard](https://deepmind.google/blog/putting-sign-language-ai-into-users-hands/) ⭐️ 9.0/10
+## [chessformer\_lens demo: ablating 1 of a chess transformer&\#x27;s 128 attention heads makes the model stop finding Morphy&\#x27;s queen sacrifice \[P\]](https://www.reddit.com/r/MachineLearning/comments/1vmvl4w/chessformer_lens_demo_ablating_1_of_a_chess/) ⭐️ 9.0/10
 
-DeepMind has released the SL2T model, a large-scale multilingual sign language-to-text system, and integrated it into Pixel 11 devices via Gboard and Live Transcribe for real-time American Sign Language \(ASL\) translation. This breakthrough addresses a significant accessibility gap by enabling real-time communication for the Deaf and hard of hearing community, marking the first time sign language AI has reached mainstream consumer hardware. Trained on over 100,000 hours of data from 50+ sign languages, SL2T achieves a 70 BLEURT score on the FLEURS-ASL benchmark and uses privacy-focused pose estimation to process only hand and body keypoints without raw video.
+A demo showing how ablating one attention head in a chess transformer disrupts its ability to find Morphy&\#x27;s queen sacrifice.
 
-telegram · zaihuapd · Aug 13, 16:55
+reddit · r/MachineLearning · /u/Weird-Asparagus4136 · Aug 13, 08:29
 
-**Background**: While spoken language AI tools like dictation and translation have become mainstream, the world&\#x27;s 200+ sign languages used by 70 million people have been largely underserved by technology until now.
-
-<details><summary>References</summary>
-<ul>
-<li><a href="https://deepmind.google/blog/putting-sign-language-ai-into-users-hands/">Putting sign language AI into users’ hands — Google DeepMind</a></li>
-<li><a href="https://en.cryptonomist.ch/2026/08/13/sign-language-ai-translation-slt2/">Sign Language AI Translation: Google&#x27;s Breakthrough with SL2T ...</a></li>
-<li><a href="https://www.unite.ai/google-deepmind-brings-sign-language-translation-to-phones-with-sl2t/">Google DeepMind Brings Sign Language Translation to Phones ...</a></li>
-
-</ul>
-</details>
-
-**Tags**: `#AI`, `#Sign Language`, `#Privacy`, `#Mobile`, `#DeepMind`
+**Tags**: `#AI interpretability`, `#Transformer models`, `#Chess AI`, `#Attention mechanisms`, `#Model debugging`
 
 ---
 
 <a id="item-11"></a>
-## [DeepSeek-V4-Pro Officially Released with Peak/Off-Peak API Pricing](https://api-docs.deepseek.com/zh-cn/updates) ⭐️ 9.0/10
+## [Yangtze Memory Technologies Rises to Third Globally in NAND Market Share](https://news.google.com/rss/articles/CBMickFVX3lxTE1IRTNLRE42azI1TWFaWDdEbTRudEtHd1RaMFBxZlp2QXpGUGloeTZ0U2tvcFpRRXo2MGpzWmdnQ0NMSEtxVEtjZkF4RzdIRU4xSjVXbngzVkJ2OUdySmRTUkZjamZFbFNwNS1WYlZSd2pvdw?oc=5) ⭐️ 9.0/10
 
-DeepSeek-V4-Pro is officially released for APP, web, and API with enhanced agent capabilities and native Responses API support. The API introduces peak/off-peak pricing effective August 17, 2026, with off-peak rates at half the peak price. This release significantly impacts AI developers by offering cost-efficient pricing models and advanced agent capabilities, potentially accelerating the adoption of agentic workflows in software development. The model supports three thinking modes \(low, high, max\) and is compatible with Codex. DeepSeek also released Harness, an MIT-licensed open-source agent framework with plugin-based architecture driven by the Cordis meta-framework.
+Yangtze Memory Technologies \(YMTC\) has achieved a historic milestone by surpassing Kioxia to become the third-largest NAND flash memory manufacturer in the world by shipment volume. This breakthrough marks a significant shift in the global semiconductor landscape, demonstrating China&\#x27;s growing technological independence and challenging the dominance of established players like Samsung and SK Hynix. YMTC&\#x27;s achievement is driven by its advanced Xtacking™ technology, which enables higher density and more efficient production of 3D NAND chips, though its revenue ranking remains fifth globally.
 
-telegram · zaihuapd · Aug 13, 19:12
+google\_news · 央广网 · Aug 13, 18:57
 
-**Background**: DeepSeek is an AI research company known for developing large language models. The Cordis framework is a meta-framework for spatiotemporal composability used to build modular agent systems. The Responses API is a standard format for AI agent interactions.
+**Background**: NAND flash memory is a non-volatile memory technology widely used in smartphones, SSDs, and AI infrastructure due to its high storage density and fast data transfer speeds. Yangtze Memory Technologies, founded in 2016, has rapidly evolved from a follower to an innovator in this field.
 
 <details><summary>References</summary>
 <ul>
-<li><a href="https://github.com/deepseek-ai/deepseek-harness">GitHub - deepseek -ai/ deepseek - harness : DeepSeek Harness ...</a></li>
-<li><a href="https://pasqualepillitteri.it/en/news/11027/deepseek-harness-mit-claude-code-rival">DeepSeek Harness v0.1: Open-Source MIT Rival to Claude Code</a></li>
+<li><a href="https://www.linkedin.com/pulse/yangtze-memory-technologies-debut-new-3d-nand-deliver-matthew-martin">Yangtze Memory Technologies to Debut New 3 D NAND Architecture...</a></li>
+<li><a href="https://www.hugdiy.com/news/the-rise-of-yangtze-memory-lurking-accumulating-breaking-through/">The Rise of Yangtze Memory : Lurking, Accumulating, Breaking Through</a></li>
+<li><a href="https://www.ibm.com/think/topics/nand-flash">What is NAND flash memory? - IBM</a></li>
 
 </ul>
 </details>
 
-**Tags**: `#AI`, `#DeepSeek`, `#API`, `#Pricing`, `#Model Release`
+**Discussion**: The news has sparked discussions about the long-term impact of China&\#x27;s semiconductor strategy, with some analysts viewing YMTC&\#x27;s rise as a critical step toward reducing reliance on foreign technology.
+
+**Tags**: `#semiconductors`, `#memory`, `#AI infrastructure`, `#China semiconductor`, `#market share`
 
 ---
 
 <a id="item-12"></a>
-## [Yangtze Memory Ranks Third Globally in Market Share](https://news.google.com/rss/articles/CBMickFVX3lxTE1IRTNLRE42azI1TWFaWDdEbTRudEtHd1RaMFBxZlp2QXpGUGloeTZ0U2tvcFpRRXo2MGpzWmdnQ0NMSEtxVEtjZkF4RzdIRU4xSjVXbngzVkJ2OUdySmRTUkZjamZFbFNwNS1WYlZSd2pvdw?oc=5) ⭐️ 9.0/10
+## [ChangXin Memory Technologies Surpasses Tencent as Largest Listed Company](https://news.google.com/rss/articles/CBMiZEFVX3lxTE1zbERfUXAtOGtFeWU1N1RlQmhaZ2xITXE3QWxNalpUam9VcGZSRDk1alBSMXRDeG9EVnZMWDEyWjctUGpHVTJKMFVjUW4tMjRBR195b2tiNUpXVHNGakpzT1UwbTk?oc=5) ⭐️ 9.0/10
 
-Yangtze Memory Technologies has achieved a historic milestone by securing the third position in global market share for NAND flash memory. This achievement marks a significant step in China&\#x27;s semiconductor self-reliance strategy, reducing dependency on foreign suppliers and strengthening the domestic supply chain. The company&\#x27;s success highlights the growing competitiveness of Chinese memory manufacturers in the global market.
+ChangXin Memory Technologies \(CXMT\) has surpassed Tencent Holdings to become the largest listed company by market capitalization in A-shares and Hong Kong. This milestone highlights the rising prominence of China&\#x27;s domestic semiconductor industry and the growing importance of memory chips in the global AI infrastructure ecosystem. CXMT achieved this ranking after its stock price surged over 500% upon listing on the STAR Market, reflecting strong investor confidence in its growth potential.
 
-google\_news · 央广网 · Aug 13, 18:57
+google\_news · 新京报 · Aug 13, 17:59
 
-**Background**: Yangtze Memory Technologies is a leading Chinese semiconductor company specializing in NAND flash memory production. The global NAND flash market is dominated by South Korean and Japanese firms, but Chinese companies have been rapidly gaining ground in recent years.
+**Background**: CXMT is a leading Chinese semiconductor manufacturer specializing in DRAM memory production. As of 2026, it is China&\#x27;s largest and the world&\#x27;s fourth-largest DRAM maker, competing with global giants like Samsung, SK Hynix, and Micron.
 
-**Tags**: `#semiconductors`, `#memory`, `#China`, `#AI hardware`, `#industry analysis`
+<details><summary>References</summary>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/CXMT">CXMT</a></li>
+<li><a href="https://www.bloomberg.com/news/articles/2026-08-03/cxmt-s-1-trillion-target-gap-flags-high-stakes-in-chip-battle">CXMT Price Targets Are $1 Trillion Apart as Analysts Differ - Bloomberg</a></li>
+<li><a href="https://news.google.com/stories/CAAqNggKIjBDQklTSGpvSmMzUnZjbmt0TXpZd1NoRUtEd2lOcWRqWEVSR3FjbWFRYV94alVpZ0FQAQ?hl=pt-BR&amp;gl=BR&amp;ceid=BR:pt-419">Google Notícias - CXMT estreia na Bolsa de Xangai com forte alta...</a></li>
+
+</ul>
+</details>
+
+**Tags**: `#semiconductors`, `#memory`, `#AI infrastructure`, `#market cap`, `#CXMT`
 
 ---
