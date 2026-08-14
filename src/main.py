@@ -131,7 +131,8 @@ def print_config_template():
     "category_groups": {},
     "default_group": "other",
     "default_group_limit": null,
-    "candidate_audit_enabled": false
+    "candidate_audit_enabled": false,
+    "pre_analysis_title_dedup_enabled": false
   }
 }
 

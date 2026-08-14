@@ -332,14 +332,18 @@ To make a July 28 report cover exactly July 27 00:00-23:59 in Shanghai time:
   "filtering": {
     "time_window_mode": "previous_calendar_day",
     "time_window_timezone": "Asia/Shanghai",
-    "candidate_audit_enabled": true
+    "candidate_audit_enabled": true,
+    "pre_analysis_title_dedup_enabled": true
   }
 }
 ```
 
 An explicit `--hours` option still selects a rolling-hours window. Candidate
 audits are saved under `data/audits/` without article bodies or URL query
-strings.
+strings. With `pre_analysis_title_dedup_enabled`, Horizon also collapses only
+Google News entries whose normalized headlines exactly match after removing
+each entry's own publisher suffix. The audit records the dropped entry's
+representative ID, so the compaction can be reviewed or turned back off.
 
 `api_key_env` must be the name of an environment variable, not the API key
 itself. Put the real secret in `.env`:

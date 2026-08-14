@@ -549,6 +549,7 @@ class FilteringConfig(BaseModel):
     default_group: str = "other"
     default_group_limit: Optional[int] = Field(default=None, gt=0)
     candidate_audit_enabled: bool = False
+    pre_analysis_title_dedup_enabled: bool = False
 
     @field_validator("ai_score_threshold", mode="before")
     @classmethod

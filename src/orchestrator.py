@@ -6,12 +6,13 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional
+import unicodedata
 from urllib.parse import unquote_plus, urlsplit
 import httpx
 from dateutil.tz import gettz
 from rich.console import Console
 
-from .models import Config, ContentItem
+from .models import Config, ContentItem, SourceType
 from .storage.manager import StorageManager, safe_output_path
 from .services.email import EmailManager
 from .services.webhook import WebhookNotifier
@@ -127,6 +128,17 @@ class FilteringPipelineResult:
 
 
 @dataclass
+class PreAnalysisDeduplicationResult:
+    """Candidates retained by the conservative pre-analysis compaction step."""
+
+    items: List[ContentItem]
+    enabled: bool = False
+    strategy: str = "disabled"
+    excluded_duplicate_of: Dict[str, str] = field(default_factory=dict)
+    cluster_sizes: Dict[str, int] = field(default_factory=dict)
+
+
+@dataclass
 class SourceFetchOutcome:
     """Result of fetching one configured source."""
 
@@ -233,6 +245,7 @@ class HorizonOrchestrator:
         all_items: List[ContentItem] = []
         in_window_items: List[ContentItem] = []
         merged_items: List[ContentItem] = []
+        pre_analysis_result: Optional[PreAnalysisDeduplicationResult] = None
         analyzed_items: List[ContentItem] = []
         filtering_result: Optional[FilteringPipelineResult] = None
         post_expansion_result: Optional[FilteringPipelineResult] = None
@@ -293,8 +306,20 @@ class HorizonOrchestrator:
                     f"→ {len(merged_items)} unique items\n"
                 )
 
-            # 4. Analyze with AI
-            analyzed_items = await self._analyze_content(merged_items)
+            # 4. Compact conservative Google News headline duplicates before AI.
+            # The candidate audit retains every original item and links dropped
+            # entries to their representative, so this is not a silent loss.
+            pre_analysis_result = self.compact_pre_analysis_candidates(merged_items)
+            pre_analysis_items = pre_analysis_result.items
+            if len(pre_analysis_items) < len(merged_items):
+                self.console.print(
+                    f"🗂️ Compacted {len(merged_items) - len(pre_analysis_items)} "
+                    "Google News headline duplicates before AI "
+                    f"→ {len(pre_analysis_items)} candidates\n"
+                )
+
+            # 5. Analyze with AI
+            analyzed_items = await self._analyze_content(pre_analysis_items)
             self.console.print(f"🤖 Analyzed {len(analyzed_items)} items with AI\n")
 
             failed_analyses = sum(
@@ -351,6 +376,7 @@ class HorizonOrchestrator:
                 fetched_items=all_items,
                 in_window_items=in_window_items,
                 merged_items=merged_items,
+                pre_analysis_result=pre_analysis_result,
                 analyzed_items=analyzed_items,
                 filtering_result=filtering_result,
                 post_expansion_result=post_expansion_result,
@@ -449,6 +475,7 @@ class HorizonOrchestrator:
                 fetched_items=all_items,
                 in_window_items=in_window_items,
                 merged_items=merged_items,
+                pre_analysis_result=pre_analysis_result,
                 analyzed_items=analyzed_items,
                 filtering_result=filtering_result,
                 post_expansion_result=post_expansion_result,
@@ -493,6 +520,7 @@ class HorizonOrchestrator:
                     fetched_items=all_items,
                     in_window_items=in_window_items,
                     merged_items=merged_items,
+                    pre_analysis_result=pre_analysis_result,
                     analyzed_items=analyzed_items,
                     filtering_result=filtering_result,
                     post_expansion_result=post_expansion_result,
@@ -611,6 +639,7 @@ class HorizonOrchestrator:
         fetched_items: List[ContentItem],
         in_window_items: List[ContentItem],
         merged_items: Optional[List[ContentItem]] = None,
+        pre_analysis_result: Optional[PreAnalysisDeduplicationResult] = None,
         analyzed_items: Optional[List[ContentItem]] = None,
         filtering_result: Optional[FilteringPipelineResult] = None,
         post_expansion_result: Optional[FilteringPipelineResult] = None,
@@ -623,6 +652,11 @@ class HorizonOrchestrator:
             return None
 
         merged_items = merged_items or []
+        if pre_analysis_result is None:
+            pre_analysis_result = PreAnalysisDeduplicationResult(
+                items=merged_items,
+            )
+        pre_analysis_items = pre_analysis_result.items
         analyzed_items = analyzed_items or []
         analysis_failed_count = sum(
             item.ai_analysis_error is not None for item in analyzed_items
@@ -634,6 +668,7 @@ class HorizonOrchestrator:
         )
         in_window_ids = {item.id for item in in_window_items}
         merged_ids = {item.id for item in merged_items}
+        pre_analysis_ids = {item.id for item in pre_analysis_items}
         analyzed_by_id = {item.id: item for item in analyzed_items}
         filtered_ids = (
             {item.id for item in filtering_result.items}
@@ -668,6 +703,9 @@ class HorizonOrchestrator:
             elif fetched_item.id not in merged_ids and merged_items:
                 decision = "excluded"
                 reason = "cross_source_duplicate"
+            elif fetched_item.id not in pre_analysis_ids:
+                decision = "excluded"
+                reason = "pre_analysis_title_duplicate"
             elif item.ai_analysis_error is not None:
                 decision = "excluded"
                 reason = "analysis_failed"
@@ -698,24 +736,31 @@ class HorizonOrchestrator:
                     decision = "eligible"
                     reason = "eligible"
 
-            candidates.append(
-                {
-                    "id": fetched_item.id,
-                    "source_type": fetched_item.source_type.value,
-                    "sub_source": self._sub_source_label(fetched_item),
-                    "title": fetched_item.title,
-                    "url": self._audit_url(str(fetched_item.url)),
-                    "published_at": self._as_utc(
-                        fetched_item.published_at
-                    ).isoformat().replace("+00:00", "Z"),
-                    "category": fetched_item.metadata.get("category"),
-                    "ai_score": item.ai_score,
-                    "ai_scores": dict(item.ai_scores),
-                    "ai_analysis_error": item.ai_analysis_error,
-                    "decision": decision,
-                    "reason": reason,
-                }
+            candidate = {
+                "id": fetched_item.id,
+                "source_type": fetched_item.source_type.value,
+                "sub_source": self._sub_source_label(fetched_item),
+                "title": fetched_item.title,
+                "url": self._audit_url(str(fetched_item.url)),
+                "published_at": self._as_utc(
+                    fetched_item.published_at
+                ).isoformat().replace("+00:00", "Z"),
+                "category": fetched_item.metadata.get("category"),
+                "ai_score": item.ai_score,
+                "ai_scores": dict(item.ai_scores),
+                "ai_analysis_error": item.ai_analysis_error,
+                "decision": decision,
+                "reason": reason,
+            }
+            duplicate_of = pre_analysis_result.excluded_duplicate_of.get(
+                fetched_item.id
             )
+            if duplicate_of is not None:
+                candidate["duplicate_of"] = duplicate_of
+            cluster_size = pre_analysis_result.cluster_sizes.get(fetched_item.id)
+            if cluster_size is not None:
+                candidate["pre_analysis_cluster_size"] = cluster_size
+            candidates.append(candidate)
 
         fetch_report: Optional[Dict[str, object]] = None
         if self.last_fetch_report is not None:
@@ -733,7 +778,7 @@ class HorizonOrchestrator:
             }
 
         payload: Dict[str, Any] = {
-            "audit_version": 1,
+            "audit_version": 2,
             "generated_at": datetime.now(timezone.utc)
             .isoformat()
             .replace("+00:00", "Z"),
@@ -743,6 +788,10 @@ class HorizonOrchestrator:
                 "fetched": len(fetched_items),
                 "in_window": len(in_window_items),
                 "merged": len(merged_items),
+                "pre_analysis_candidates": len(pre_analysis_items),
+                "pre_analysis_duplicates_removed": (
+                    len(merged_items) - len(pre_analysis_items)
+                ),
                 "analyzed": len(analyzed_items),
                 "analysis_failed": analysis_failed_count,
                 "threshold_and_topic_unique": (
@@ -768,6 +817,10 @@ class HorizonOrchestrator:
                     "max_analysis_failure_ratio",
                     None,
                 ),
+            },
+            "pre_analysis": {
+                "enabled": pre_analysis_result.enabled,
+                "strategy": pre_analysis_result.strategy,
             },
             "fetch_report": fetch_report,
             "balance": {
@@ -1007,6 +1060,99 @@ class HorizonOrchestrator:
             merged.append(primary)
 
         return merged
+
+    @staticmethod
+    def _normalize_title_for_deduplication(value: str) -> str:
+        """Normalize harmless title presentation differences without fuzziness."""
+        normalized = unicodedata.normalize("NFKC", value).casefold()
+        return " ".join(normalized.split())
+
+    def _google_news_headline_key(self, item: ContentItem) -> str:
+        """Return a Google News headline key after its own publisher suffix.
+
+        Google News commonly emits ``Headline - Publisher`` while separately
+        exposing that publisher in ``metadata.source_name``. We remove a suffix
+        only when it exactly matches that metadata value; arbitrary final title
+        segments are deliberately kept to avoid fuzzy event matching.
+        """
+        title = self._normalize_title_for_deduplication(item.title)
+        source_name = item.metadata.get("source_name")
+        if not isinstance(source_name, str) or not source_name.strip():
+            return title
+
+        publisher = self._normalize_title_for_deduplication(source_name)
+        for separator in (" - ", " – ", " — "):
+            suffix = f"{separator}{publisher}"
+            if title.endswith(suffix):
+                headline = title[: -len(suffix)].strip()
+                if headline:
+                    return headline
+        return title
+
+    def compact_pre_analysis_candidates(
+        self,
+        items: List[ContentItem],
+    ) -> PreAnalysisDeduplicationResult:
+        """Compact exact Google News headline variants before sending AI input.
+
+        This intentionally handles only Google News and only exact normalized
+        headline matches after stripping each entry's own publisher suffix.
+        It keeps the richest representative, preserves original ordering by
+        cluster, and returns the dropped-to-kept mapping for the candidate
+        audit. It does not use semantic or fuzzy similarity matching.
+        """
+        enabled = bool(
+            getattr(
+                self.config.filtering,
+                "pre_analysis_title_dedup_enabled",
+                False,
+            )
+        )
+        if not enabled:
+            return PreAnalysisDeduplicationResult(items=items)
+
+        title_groups: Dict[str, List[tuple[int, ContentItem]]] = defaultdict(list)
+        for index, item in enumerate(items):
+            if item.source_type != SourceType.GOOGLE_NEWS:
+                continue
+            key = self._google_news_headline_key(item)
+            if key:
+                title_groups[key].append((index, item))
+
+        retained: List[ContentItem] = []
+        excluded_duplicate_of: Dict[str, str] = {}
+        cluster_sizes: Dict[str, int] = {}
+        for index, item in enumerate(items):
+            if item.source_type != SourceType.GOOGLE_NEWS:
+                retained.append(item.model_copy(deep=True))
+                continue
+
+            group = title_groups.get(self._google_news_headline_key(item), [])
+            if len(group) <= 1:
+                retained.append(item.model_copy(deep=True))
+                continue
+
+            first_index = group[0][0]
+            if index != first_index:
+                continue
+
+            _, primary = max(
+                group,
+                key=lambda entry: (len(entry[1].content or ""), -entry[0]),
+            )
+            retained.append(primary.model_copy(deep=True))
+            cluster_sizes[primary.id] = len(group)
+            for _, duplicate in group:
+                if duplicate.id != primary.id:
+                    excluded_duplicate_of[duplicate.id] = primary.id
+
+        return PreAnalysisDeduplicationResult(
+            items=retained,
+            enabled=True,
+            strategy="google_news_exact_headline",
+            excluded_duplicate_of=excluded_duplicate_of,
+            cluster_sizes=cluster_sizes,
+        )
 
     async def merge_topic_duplicates(
         self,

@@ -341,7 +341,8 @@
     },
     "default_group": "other",
     "default_group_limit": 2,
-    "candidate_audit_enabled": true
+    "candidate_audit_enabled": true,
+    "pre_analysis_title_dedup_enabled": true
   },
   "webhook": {
     "enabled": false,

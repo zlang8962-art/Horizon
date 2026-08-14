@@ -302,6 +302,9 @@ class HorizonPipelineService:
                 "candidate_audit_enabled": (
                     ctx.config.filtering.candidate_audit_enabled
                 ),
+                "pre_analysis_title_dedup_enabled": (
+                    ctx.config.filtering.pre_analysis_title_dedup_enabled
+                ),
             },
             "enabled_sources": get_enabled_sources(ctx.config),
             "selected_sources": selected_sources,

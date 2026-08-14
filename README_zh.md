@@ -308,13 +308,17 @@ cp data/config.example.json data/config.json  # 自定义信息源
   "filtering": {
     "time_window_mode": "previous_calendar_day",
     "time_window_timezone": "Asia/Shanghai",
-    "candidate_audit_enabled": true
+    "candidate_audit_enabled": true,
+    "pre_analysis_title_dedup_enabled": true
   }
 }
 ```
 
 显式使用 `--hours` 时仍会改为滚动小时窗口。启用候选审计后，Horizon 会在
-`data/audits/` 保存不含文章正文和 URL 查询参数的筛选记录。
+`data/audits/` 保存不含文章正文和 URL 查询参数的筛选记录。启用
+`pre_analysis_title_dedup_enabled` 后，系统会在 AI 打分前只压缩 Google News 中
+“去掉各自媒体名后标题完全一致”的条目；审计记录会保留被压缩条目及其代表条目 ID，
+方便复核或随时关闭该规则。
 
 `data/config.json` 里的任意字符串值都可以通过 `${VAR_NAME}` 引用环境变量。这适合用于 `ai.base_url`、私有 RSS 链接、Webhook 地址或自定义请求头模板等字段。
 

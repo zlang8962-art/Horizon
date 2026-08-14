@@ -58,6 +58,7 @@ def test_validate_config_smoke(tmp_path: Path) -> None:
     assert result["filtering"]["max_items_per_sub_source"] is None
     assert result["filtering"]["max_analysis_failure_ratio"] is None
     assert result["filtering"]["candidate_audit_enabled"] is False
+    assert result["filtering"]["pre_analysis_title_dedup_enabled"] is False
 
 
 def test_get_effective_config_can_filter_sources(tmp_path: Path) -> None:
