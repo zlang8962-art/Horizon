@@ -484,7 +484,8 @@ one 0-10 score:
     },
     "default_group": "other",
     "default_group_limit": 3,
-    "candidate_audit_enabled": false
+    "candidate_audit_enabled": false,
+    "pre_analysis_title_dedup_enabled": false
   }
 }
 ```
@@ -521,7 +522,16 @@ one 0-10 score:
 - `candidate_audit_enabled`: Save a JSON decision record under `data/audits/`.
   It contains titles, query-free URLs, scores, and exclusion reasons, but not
   article bodies. The audit also records the failed-analysis count, observed
-  ratio, configured maximum, and failure state.
+  ratio, configured maximum, and failure state. A failed AI analysis may also
+  include only sanitized final-error metadata: error type, attempts, HTTP
+  status, provider error code, and request ID when available. It never stores
+  a provider response body, error message, or credential.
+- `pre_analysis_title_dedup_enabled`: Before AI scoring, compact only Google
+  News entries with exactly matching normalized headlines after removing each
+  entry's own publisher suffix. The richest entry represents the cluster; when
+  candidate auditing is enabled, every dropped entry is retained in the audit
+  with `pre_analysis_title_duplicate` and its representative ID. Default:
+  `false`.
 
 `previous_calendar_day` uses an inclusive start and exclusive end. For example,
 on 2026-07-28 with `Asia/Shanghai`, it covers 2026-07-27 00:00 through the start
