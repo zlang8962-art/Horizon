@@ -5,8 +5,9 @@ import hashlib
 import logging
 import os
 import re
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List, Literal, Optional
 from email.utils import parsedate_to_datetime
 import httpx
 import feedparser
@@ -16,6 +17,34 @@ from ..extractors import ExtractorRegistry
 from ..models import ContentItem, SourceType, RSSSourceConfig
 
 logger = logging.getLogger(__name__)
+
+RSS_REQUEST_HEADERS = {
+    "User-Agent": "Horizon/0.1 (+https://github.com/zlang8962-art/Horizon)",
+    "Accept": "application/atom+xml, application/rss+xml, application/xml, text/xml, */*;q=0.1",
+}
+
+
+@dataclass(frozen=True)
+class RSSFeedFetchOutcome:
+    """Payload-free health result for one configured RSS feed."""
+
+    source_name: str
+    status: Literal["success", "empty", "failure"]
+    item_count: int
+    error_type: Optional[str] = None
+    http_status: Optional[int] = None
+
+    def to_dict(self) -> dict[str, object]:
+        result: dict[str, object] = {
+            "source": self.source_name,
+            "status": self.status,
+            "item_count": self.item_count,
+        }
+        if self.error_type is not None:
+            result["error_type"] = self.error_type
+        if self.http_status is not None:
+            result["http_status"] = self.http_status
+        return result
 
 
 class RSSScraper(BaseScraper):
@@ -36,6 +65,7 @@ class RSSScraper(BaseScraper):
         """
         super().__init__({"sources": sources}, http_client)
         self._extractors = extractors
+        self.last_fetch_outcomes: List[RSSFeedFetchOutcome] = []
 
     async def fetch(self, since: datetime) -> List[ContentItem]:
         """Fetch RSS feed items.
@@ -47,20 +77,23 @@ class RSSScraper(BaseScraper):
             List[ContentItem]: Fetched content items
         """
         items = []
+        outcomes: List[RSSFeedFetchOutcome] = []
         sources = self.config["sources"]
 
         for source in sources:
             if not source.enabled:
                 continue
 
-            feed_items = await self._fetch_feed(source, since)
+            feed_items, outcome = await self._fetch_feed(source, since)
             items.extend(feed_items)
+            outcomes.append(outcome)
 
+        self.last_fetch_outcomes = outcomes
         return items
 
     async def _fetch_feed(
         self, source: RSSSourceConfig, since: datetime
-    ) -> List[ContentItem]:
+    ) -> tuple[List[ContentItem], RSSFeedFetchOutcome]:
         """Fetch items from a single RSS feed.
 
         Args:
@@ -68,7 +101,7 @@ class RSSScraper(BaseScraper):
             since: Only fetch items after this time
 
         Returns:
-            List[ContentItem]: Feed content items
+            The feed items and a safe health outcome.
         """
         items = []
 
@@ -81,7 +114,11 @@ class RSSScraper(BaseScraper):
             )
 
             # Fetch feed content
-            response = await self.client.get(feed_url, follow_redirects=True)
+            response = await self.client.get(
+                feed_url,
+                follow_redirects=True,
+                headers=RSS_REQUEST_HEADERS,
+            )
             response.raise_for_status()
 
             # Parse feed
@@ -128,12 +165,42 @@ class RSSScraper(BaseScraper):
                 )
                 items.append(item)
 
-        except httpx.HTTPError as e:
-            logger.warning("Error fetching RSS feed %s: %s", source.name, e)
-        except Exception as e:
-            logger.warning("Error parsing RSS feed %s: %s", source.name, e)
+        except httpx.HTTPError as error:
+            response = getattr(error, "response", None)
+            status = getattr(response, "status_code", None)
+            if isinstance(status, bool) or not isinstance(status, int):
+                status = None
+            logger.warning(
+                "RSS feed fetch failed source=%s type=%s status=%s",
+                source.name,
+                type(error).__name__,
+                status,
+            )
+            return [], RSSFeedFetchOutcome(
+                source_name=source.name,
+                status="failure",
+                item_count=0,
+                error_type=type(error).__name__,
+                http_status=status,
+            )
+        except Exception as error:
+            logger.warning(
+                "RSS feed processing failed source=%s type=%s",
+                source.name,
+                type(error).__name__,
+            )
+            return [], RSSFeedFetchOutcome(
+                source_name=source.name,
+                status="failure",
+                item_count=0,
+                error_type=type(error).__name__,
+            )
 
-        return items
+        return items, RSSFeedFetchOutcome(
+            source_name=source.name,
+            status="success" if items else "empty",
+            item_count=len(items),
+        )
 
     def _parse_date(self, entry: dict) -> Optional[datetime]:
         """Parse publication date from feed entry.

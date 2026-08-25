@@ -8,6 +8,7 @@ from rich.console import Console
 
 from src.models import (
     AIAnalysisFailureDiagnostic,
+    AIEnrichmentFailureDiagnostic,
     AIConfig,
     Config,
     ContentItem,
@@ -15,7 +16,7 @@ from src.models import (
     SourceType,
     SourcesConfig,
 )
-from src.orchestrator import HorizonOrchestrator, TimeWindow
+from src.orchestrator import FetchReport, HorizonOrchestrator, SourceFetchOutcome, TimeWindow
 from src.storage.manager import StorageManager
 
 
@@ -115,6 +116,7 @@ def test_candidate_audit_records_safe_analysis_failure_details(tmp_path) -> None
         retryable=True,
         http_status=429,
         provider_error_code="1302",
+        provider_error_category="account_rate_limited",
         request_id="req_safe-123",
     )
     window = TimeWindow(
@@ -137,17 +139,118 @@ def test_candidate_audit_records_safe_analysis_failure_details(tmp_path) -> None
 
     serialized = path.read_text(encoding="utf-8")
     payload = json.loads(serialized)
-    assert payload["audit_version"] == 3
+    assert payload["audit_version"] == 4
     assert payload["candidates"][0]["ai_analysis_failure"] == {
         "error_type": "RateLimitError",
         "attempts": 3,
         "retryable": True,
         "http_status": 429,
         "provider_error_code": "1302",
+        "provider_error_category": "account_rate_limited",
         "request_id": "req_safe-123",
     }
     assert "PRIVATE ARTICLE BODY" not in serialized
     assert "do-not-store" not in serialized
+
+
+def test_candidate_audit_records_safe_enrichment_and_source_health(tmp_path) -> None:
+    filtering = FilteringConfig(candidate_audit_enabled=True)
+    storage = StorageManager(data_dir=str(tmp_path / "data"))
+    orchestrator = HorizonOrchestrator.__new__(HorizonOrchestrator)
+    orchestrator.config = SimpleNamespace(filtering=filtering)
+    orchestrator.storage = storage
+    orchestrator.console = Console(record=True)
+    published_at = datetime(2026, 7, 27, 8, 0, tzinfo=timezone.utc)
+    selected = make_item("selected", published_at, score=9.0)
+    selected.ai_enrichment_failure = AIEnrichmentFailureDiagnostic(
+        error_type="BadRequestError",
+        attempts=1,
+        retryable=False,
+        http_status=400,
+        provider_error_code="1301",
+        provider_error_category="content_safety",
+        request_id="req_safe-456",
+        stage="enrichment",
+        fallback="content_safety_notice",
+    )
+    selected.metadata["zh_output_incomplete"] = True
+    orchestrator.last_fetch_report = FetchReport(
+        [
+            SourceFetchOutcome(
+                "RSS Feeds",
+                "success",
+                [selected],
+                error="RuntimeError: https://secret.example/?token=do-not-store",
+                sub_sources=[
+                    {
+                        "source": "MIIT - Industry Updates",
+                        "status": "failure",
+                        "item_count": 0,
+                        "error_type": "HTTPStatusError",
+                        "http_status": 403,
+                        "error": "token=do-not-store",
+                    },
+                    {
+                        "source": "https://should-not-be-saved.example/feed",
+                        "status": "failure",
+                        "item_count": 0,
+                    },
+                ],
+            )
+        ]
+    )
+    window = TimeWindow(
+        since=datetime(2026, 7, 26, 16, 0, tzinfo=timezone.utc),
+        until=datetime(2026, 7, 27, 16, 0, tzinfo=timezone.utc),
+        report_date="2026-07-28",
+        content_date="2026-07-27",
+        mode="previous_calendar_day",
+        timezone_name="Asia/Shanghai",
+    )
+
+    path = orchestrator._save_candidate_audit(
+        window,
+        state="completed",
+        fetched_items=[selected],
+        in_window_items=[selected],
+        merged_items=[selected],
+        analyzed_items=[selected],
+    )
+
+    assert path is not None
+    serialized = path.read_text(encoding="utf-8")
+    payload = json.loads(serialized)
+    assert payload["audit_version"] == 4
+    assert payload["candidates"][0]["ai_enrichment_failure"] == {
+        "error_type": "BadRequestError",
+        "attempts": 1,
+        "retryable": False,
+        "http_status": 400,
+        "provider_error_code": "1301",
+        "provider_error_category": "content_safety",
+        "request_id": "req_safe-456",
+        "stage": "enrichment",
+        "fallback": "content_safety_notice",
+    }
+    assert payload["candidates"][0]["zh_output_incomplete"] is True
+    assert payload["fetch_report"]["sources"] == [
+        {
+            "source": "RSS Feeds",
+            "status": "success",
+            "item_count": 1,
+            "sub_sources": [
+                {
+                    "source": "MIIT - Industry Updates",
+                    "status": "failure",
+                    "item_count": 0,
+                    "error_type": "HTTPStatusError",
+                    "http_status": 403,
+                }
+            ],
+        }
+    ]
+    assert "do-not-store" not in serialized
+    assert "should-not-be-saved" not in serialized
 
 
 def test_candidate_audit_records_pre_analysis_title_duplicates(tmp_path) -> None:
@@ -220,7 +323,7 @@ def test_candidate_audit_records_pre_analysis_title_duplicates(tmp_path) -> None
 
     payload = json.loads(path.read_text(encoding="utf-8"))
     candidates = {candidate["id"]: candidate for candidate in payload["candidates"]}
-    assert payload["audit_version"] == 3
+    assert payload["audit_version"] == 4
     assert payload["pre_analysis"] == {
         "enabled": True,
         "strategy": "google_news_exact_headline",

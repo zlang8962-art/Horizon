@@ -5,8 +5,10 @@ from datetime import datetime, timezone
 from unittest.mock import AsyncMock
 from unittest.mock import MagicMock
 
+import httpx
+
 from src.models import RSSSourceConfig
-from src.scrapers.rss import RSSScraper
+from src.scrapers.rss import RSS_REQUEST_HEADERS, RSSScraper
 
 _FEED = """<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0"><channel><title>Test</title>
@@ -115,3 +117,53 @@ def test_unknown_extractor_name_ignored() -> None:
 
     assert len(items) == 1
     assert items[0].content == "Short summary from feed."
+
+
+def test_rss_records_safe_per_feed_health_and_uses_transparent_headers() -> None:
+    response = MagicMock()
+    response.text = _FEED
+    response.raise_for_status.return_value = None
+    client = AsyncMock()
+    received_headers = []
+
+    async def get(url, *, follow_redirects, headers):  # type: ignore[no-untyped-def]
+        assert follow_redirects is True
+        received_headers.append(headers)
+        if "blocked" in str(url):
+            request = httpx.Request("GET", str(url))
+            error_response = httpx.Response(403, request=request)
+            raise httpx.HTTPStatusError(
+                "response body token=do-not-store",
+                request=request,
+                response=error_response,
+            )
+        return response
+
+    client.get.side_effect = get
+    scraper = RSSScraper(
+        [
+            RSSSourceConfig(name="Healthy Feed", url="https://example.com/feed.xml"),
+            RSSSourceConfig(
+                name="Blocked Feed",
+                url="https://example.com/blocked.xml?token=do-not-store",
+            ),
+        ],
+        client,
+    )
+
+    items = asyncio.run(scraper.fetch(_SINCE))
+
+    assert len(items) == 1
+    assert received_headers == [RSS_REQUEST_HEADERS, RSS_REQUEST_HEADERS]
+    health = [outcome.to_dict() for outcome in scraper.last_fetch_outcomes]
+    assert health == [
+        {"source": "Healthy Feed", "status": "success", "item_count": 1},
+        {
+            "source": "Blocked Feed",
+            "status": "failure",
+            "item_count": 0,
+            "error_type": "HTTPStatusError",
+            "http_status": 403,
+        },
+    ]
+    assert "do-not-store" not in str(health)

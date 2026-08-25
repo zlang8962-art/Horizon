@@ -243,18 +243,25 @@ class DailySummarizer:
         score = item.ai_score or "?"
         meta = item.metadata
 
-        summary = (
-            meta.get(f"detailed_summary_{language}")
-            or meta.get("detailed_summary")
-            or item.ai_summary
-            or ""
-        )
-        background = meta.get(f"background_{language}") or meta.get("background") or ""
-        discussion = (
-            meta.get(f"community_discussion_{language}")
-            or meta.get("community_discussion")
-            or ""
-        )
+        if language == "zh" and meta.get("zh_output_incomplete"):
+            # A bounded Chinese fallback intentionally has no English secondary
+            # fields. Do not silently fall through to the English defaults.
+            summary = meta.get("detailed_summary_zh") or ""
+            background = meta.get("background_zh") or ""
+            discussion = meta.get("community_discussion_zh") or ""
+        else:
+            summary = (
+                meta.get(f"detailed_summary_{language}")
+                or meta.get("detailed_summary")
+                or item.ai_summary
+                or ""
+            )
+            background = meta.get(f"background_{language}") or meta.get("background") or ""
+            discussion = (
+                meta.get(f"community_discussion_{language}")
+                or meta.get("community_discussion")
+                or ""
+            )
 
         summary = _escape_markdown(summary)
         background = _escape_markdown(background)

@@ -146,6 +146,7 @@ class SourceFetchOutcome:
     status: Literal["success", "empty", "failure"]
     items: List[ContentItem] = field(default_factory=list)
     error: Optional[str] = None
+    sub_sources: List[Dict[str, object]] = field(default_factory=list)
 
     def to_dict(self) -> Dict[str, object]:
         result: Dict[str, object] = {
@@ -155,7 +156,62 @@ class SourceFetchOutcome:
         }
         if self.error is not None:
             result["error"] = self.error
+        if self.sub_sources:
+            result["sub_sources"] = self._safe_sub_source_health()
         return result
+
+    def to_audit_dict(self) -> Dict[str, object]:
+        """Return source health suitable for the persistent candidate audit."""
+
+        result: Dict[str, object] = {
+            "source": self.source_name,
+            "status": self.status,
+            "item_count": len(self.items),
+        }
+        if self.sub_sources:
+            result["sub_sources"] = self._safe_sub_source_health()
+        return result
+
+    def _safe_sub_source_health(self) -> List[Dict[str, object]]:
+        """Project nested feed health into a fixed, payload-free schema."""
+
+        safe_entries: List[Dict[str, object]] = []
+        for entry in self.sub_sources:
+            source = entry.get("source")
+            status = entry.get("status")
+            item_count = entry.get("item_count")
+            if (
+                not isinstance(source, str)
+                or not source
+                or len(source) > 128
+                or "://" in source
+                or status not in {"success", "empty", "failure"}
+                or isinstance(item_count, bool)
+                or not isinstance(item_count, int)
+                or item_count < 0
+            ):
+                continue
+            safe: Dict[str, object] = {
+                "source": source,
+                "status": status,
+                "item_count": item_count,
+            }
+            error_type = entry.get("error_type")
+            if (
+                isinstance(error_type, str)
+                and error_type.isidentifier()
+                and len(error_type) <= 128
+            ):
+                safe["error_type"] = error_type
+            http_status = entry.get("http_status")
+            if (
+                not isinstance(http_status, bool)
+                and isinstance(http_status, int)
+                and 100 <= http_status <= 599
+            ):
+                safe["http_status"] = http_status
+            safe_entries.append(safe)
+        return safe_entries
 
 
 @dataclass
@@ -199,6 +255,19 @@ class FetchReport:
             "failed": self.failed_count,
             "item_count": sum(len(outcome.items) for outcome in self.outcomes),
             "sources": [outcome.to_dict() for outcome in self.outcomes],
+        }
+
+    def to_audit_dict(self) -> Dict[str, object]:
+        """Return a persisted health summary that omits raw exception text."""
+
+        return {
+            "status": self.status,
+            "attempted": len(self.outcomes),
+            "successful": len(self.outcomes) - self.failed_count,
+            "empty": sum(outcome.status == "empty" for outcome in self.outcomes),
+            "failed": self.failed_count,
+            "item_count": sum(len(outcome.items) for outcome in self.outcomes),
+            "sources": [outcome.to_audit_dict() for outcome in self.outcomes],
         }
 
 
@@ -754,6 +823,14 @@ class HorizonOrchestrator:
                     if item.ai_analysis_failure is not None
                     else None
                 ),
+                "ai_enrichment_failure": (
+                    item.ai_enrichment_failure.model_dump()
+                    if item.ai_enrichment_failure is not None
+                    else None
+                ),
+                "zh_output_incomplete": bool(
+                    item.metadata.get("zh_output_incomplete")
+                ),
                 "decision": decision,
                 "reason": reason,
             }
@@ -769,21 +846,10 @@ class HorizonOrchestrator:
 
         fetch_report: Optional[Dict[str, object]] = None
         if self.last_fetch_report is not None:
-            report = self.last_fetch_report.to_dict()
-            fetch_report = {
-                key: report[key]
-                for key in (
-                    "status",
-                    "attempted",
-                    "successful",
-                    "empty",
-                    "failed",
-                    "item_count",
-                )
-            }
+            fetch_report = self.last_fetch_report.to_audit_dict()
 
         payload: Dict[str, Any] = {
-            "audit_version": 3,
+            "audit_version": 4,
             "generated_at": datetime.now(timezone.utc)
             .isoformat()
             .replace("+00:00", "Z"),
@@ -984,10 +1050,26 @@ class HorizonOrchestrator:
             for sub, count in sorted(sub_counts.items()):
                 self.console.print(f"      • {sub}: {count}")
 
+        raw_sub_sources = getattr(scraper, "last_fetch_outcomes", []) or []
+        sub_sources = [
+            outcome.to_dict()
+            for outcome in raw_sub_sources
+            if callable(getattr(outcome, "to_dict", None))
+        ]
+        failed_sub_sources = [
+            entry for entry in sub_sources if entry.get("status") == "failure"
+        ]
+        if failed_sub_sources:
+            self.console.print(
+                f"[yellow]   {len(failed_sub_sources)} sub-source(s) degraded; "
+                "recorded in candidate audit[/yellow]"
+            )
+
         return SourceFetchOutcome(
             source_name=name,
             status="success" if items else "empty",
             items=items,
+            sub_sources=sub_sources,
         )
 
     @staticmethod

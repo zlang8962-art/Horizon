@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 import src.ai.analyzer as analyzer_module
+import src.ai.failure_policy as failure_policy
 from tenacity import RetryError, retry, stop_after_attempt, wait_none
 from src.ai.analyzer import ContentAnalyzer
 from src.models import ContentItem, SourceType
@@ -122,6 +123,7 @@ def test_analyze_batch_provider_failure_stays_unscored(monkeypatch):
         "retryable": False,
         "http_status": None,
         "provider_error_code": None,
+        "provider_error_category": None,
         "request_id": None,
     }
 
@@ -164,6 +166,7 @@ def test_analysis_failure_diagnostic_unwraps_retry_error_without_payloads():
         "retryable": True,
         "http_status": 429,
         "provider_error_code": "1302",
+        "provider_error_category": "account_rate_limited",
         "request_id": "req_safe-123",
     }
     serialized = json.dumps(diagnostic.model_dump())
@@ -173,7 +176,7 @@ def test_analysis_failure_diagnostic_unwraps_retry_error_without_payloads():
 
 
 def test_analysis_retry_policy_retries_only_transient_errors(monkeypatch):
-    monkeypatch.setattr(analyzer_module.random, "uniform", lambda *_: 1.0)
+    monkeypatch.setattr(failure_policy.random, "uniform", lambda *_: 1.0)
     rate_limited = _ProviderStatusError(429)
     account_rate_limited = _ProviderStatusError(429, body={"code": 1302})
     platform_overloaded = _ProviderStatusError(429, body={"code": 1305})

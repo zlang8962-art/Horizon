@@ -58,8 +58,8 @@ _DIAGNOSTIC_SECRET_PREFIXES = (
 )
 
 
-class AIAnalysisFailureDiagnostic(BaseModel):
-    """Safe, structured metadata for a failed AI analysis request."""
+class AIRequestFailureDiagnostic(BaseModel):
+    """Safe, structured metadata for a failed AI provider request."""
 
     error_type: str = Field(
         min_length=1,
@@ -70,6 +70,15 @@ class AIAnalysisFailureDiagnostic(BaseModel):
     retryable: bool
     http_status: Optional[int] = Field(default=None, ge=100, le=599)
     provider_error_code: Optional[str] = None
+    provider_error_category: Optional[
+        Literal[
+            "content_safety",
+            "account_rate_limited",
+            "provider_overloaded",
+            "quota_exhausted",
+            "fair_use_limited",
+        ]
+    ] = None
     request_id: Optional[str] = None
 
     @field_validator("provider_error_code", "request_id")
@@ -84,6 +93,17 @@ class AIAnalysisFailureDiagnostic(BaseModel):
         if not _DIAGNOSTIC_TOKEN_RE.fullmatch(value):
             raise ValueError("diagnostic value must be a short safe token")
         return value
+
+
+class AIAnalysisFailureDiagnostic(AIRequestFailureDiagnostic):
+    """Safe, structured metadata for a failed AI analysis request."""
+
+
+class AIEnrichmentFailureDiagnostic(AIRequestFailureDiagnostic):
+    """Safe metadata for a degraded enrichment or Chinese fallback."""
+
+    stage: Literal["enrichment", "translation"]
+    fallback: Literal["translated", "zh_notice", "content_safety_notice"]
 
 
 class ContentItem(BaseModel):
@@ -107,6 +127,7 @@ class ContentItem(BaseModel):
     ai_tags: List[str] = Field(default_factory=list)
     ai_analysis_error: Optional[str] = None
     ai_analysis_failure: Optional[AIAnalysisFailureDiagnostic] = None
+    ai_enrichment_failure: Optional[AIEnrichmentFailureDiagnostic] = None
 
 
 class AIProvider(str, Enum):

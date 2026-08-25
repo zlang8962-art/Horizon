@@ -2,14 +2,10 @@
 
 import asyncio
 from math import isfinite
-import random
-import re
 from typing import List, Optional
-import httpx
 from pydantic import BaseModel, ValidationError, field_validator
 from tenacity import (
     RetryCallState,
-    RetryError,
     retry,
     retry_if_exception,
     stop_after_attempt,
@@ -17,6 +13,18 @@ from tenacity import (
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, MofNCompleteColumn
 
 from .client import AIClient
+from .failure_policy import (
+    ai_retry_wait,
+    build_failure_diagnostic,
+    format_failure,
+    http_status,
+    is_retryable_ai_exception,
+    provider_error_code,
+    request_id,
+    retry_after_seconds,
+    safe_diagnostic_token,
+    unwrap_retry_error,
+)
 from .prompts import build_content_analysis_system, build_content_analysis_user
 from .utils import parse_json_response
 from ..models import (
@@ -28,155 +36,22 @@ from ..models import (
 from ..scoring import aggregate_custom_score
 
 DEFAULT_THROTTLE_SEC = 0.0
-_RETRYABLE_HTTP_STATUS_CODES = {408, 409, 429}
-_SAFE_DIAGNOSTIC_TOKEN_RE = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
-_SENSITIVE_DIAGNOSTIC_PREFIXES = (
-    "sk-",
-    "sk_",
-    "aiza",
-    "gsk_",
-    "hf_",
-    "xai-",
-    "bearer",
-)
 
 
-def _unwrap_retry_error(error: BaseException) -> tuple[BaseException, int]:
-    """Return the final provider error and the caller-managed attempt count."""
-
-    if not isinstance(error, RetryError):
-        return error, 1
-
-    last_attempt = error.last_attempt
-    attempts = max(int(getattr(last_attempt, "attempt_number", 1)), 1)
-    try:
-        cause = last_attempt.exception()
-    except BaseException:
-        cause = None
-    if isinstance(cause, BaseException):
-        return cause, attempts
-    return error, attempts
-
-
-def _http_status(error: BaseException) -> Optional[int]:
-    """Read only a valid HTTP status code from a provider exception."""
-
-    status = getattr(error, "status_code", None)
-    if isinstance(status, bool) or not isinstance(status, int):
-        return None
-    return status if 100 <= status <= 599 else None
-
-
-def _safe_diagnostic_token(value: object) -> Optional[str]:
-    """Keep a small allowlisted diagnostic token without response text."""
-
-    if isinstance(value, bool) or not isinstance(value, (int, str)):
-        return None
-    token = str(value).strip()
-    if token.lower().startswith(_SENSITIVE_DIAGNOSTIC_PREFIXES):
-        return None
-    if not _SAFE_DIAGNOSTIC_TOKEN_RE.fullmatch(token):
-        return None
-    return token
-
-
-def _provider_error_code(error: BaseException) -> Optional[str]:
-    """Extract only a provider business code, never its message or response body."""
-
-    candidates = [getattr(error, "code", None)]
-    body = getattr(error, "body", None)
-    if isinstance(body, dict):
-        candidates.append(body.get("code"))
-        nested_error = body.get("error")
-        if isinstance(nested_error, dict):
-            candidates.append(nested_error.get("code"))
-    for value in candidates:
-        token = _safe_diagnostic_token(value)
-        if token is not None:
-            return token
-    return None
-
-
-def _request_id(error: BaseException) -> Optional[str]:
-    """Extract a safe request identifier when the provider exposed one."""
-
-    for attribute in ("request_id", "_request_id"):
-        token = _safe_diagnostic_token(getattr(error, attribute, None))
-        if token is not None:
-            return token
-    return None
-
-
-def _retry_after_seconds(error: BaseException) -> Optional[float]:
-    """Read a bounded numeric Retry-After value without retaining headers."""
-
-    response = getattr(error, "response", None)
-    headers = getattr(response, "headers", None)
-    if headers is None:
-        return None
-
-    for header_name, multiplier in (("retry-after-ms", 0.001), ("retry-after", 1.0)):
-        try:
-            raw_value = headers.get(header_name)
-            seconds = float(raw_value) * multiplier
-        except (AttributeError, TypeError, ValueError):
-            continue
-        if 0 < seconds <= 60:
-            return seconds
-    return None
-
-
-def _is_retryable_analysis_exception(error: BaseException) -> bool:
-    """Retry only transient transport and documented retryable HTTP failures."""
-
-    root_error, _ = _unwrap_retry_error(error)
-    status = _http_status(root_error)
-    if status in _RETRYABLE_HTTP_STATUS_CODES:
-        return True
-    if status is not None and status >= 500:
-        return True
-    if isinstance(
-        root_error,
-        (
-            ConnectionError,
-            TimeoutError,
-            httpx.NetworkError,
-            httpx.TimeoutException,
-        ),
-    ):
-        return True
-    return type(root_error).__name__ in {
-        "APIConnectionError",
-        "APITimeoutError",
-    }
+# Keep these private aliases for existing integrations and focused regression tests.
+_unwrap_retry_error = unwrap_retry_error
+_http_status = http_status
+_safe_diagnostic_token = safe_diagnostic_token
+_provider_error_code = provider_error_code
+_request_id = request_id
+_retry_after_seconds = retry_after_seconds
+_is_retryable_analysis_exception = is_retryable_ai_exception
 
 
 def _analysis_retry_wait(retry_state: RetryCallState) -> float:
-    """Use code-aware, jittered waits for provider rate limits and failures."""
+    """Use the shared code-aware retry policy for analysis requests."""
 
-    error = (
-        retry_state.outcome.exception()
-        if retry_state.outcome is not None
-        else None
-    )
-    root_error, _ = _unwrap_retry_error(error) if error else (Exception(), 1)
-    retry_after = _retry_after_seconds(root_error)
-    if retry_after is not None:
-        return retry_after
-
-    provider_error_code = _provider_error_code(root_error)
-    if provider_error_code == "1302":
-        # Account-level rate limit: let the provider's rolling window recover.
-        base_delay, max_delay = 30.0, 60.0
-    elif provider_error_code == "1305":
-        # Platform overload: back off, but do not assume the account is capped.
-        base_delay, max_delay = 15.0, 60.0
-    elif _http_status(root_error) == 429:
-        base_delay, max_delay = 10.0, 60.0
-    else:
-        base_delay, max_delay = 2.0, 20.0
-    delay = min(base_delay * (2 ** (retry_state.attempt_number - 1)), max_delay)
-    return min(max_delay, delay * random.uniform(0.75, 1.25))
+    return ai_retry_wait(retry_state)
 
 
 def _build_analysis_failure_diagnostic(
@@ -184,15 +59,7 @@ def _build_analysis_failure_diagnostic(
 ) -> AIAnalysisFailureDiagnostic:
     """Create an audit-safe description of the final failed analysis attempt."""
 
-    root_error, attempts = _unwrap_retry_error(error)
-    return AIAnalysisFailureDiagnostic(
-        error_type=type(root_error).__name__,
-        attempts=attempts,
-        retryable=_is_retryable_analysis_exception(root_error),
-        http_status=_http_status(root_error),
-        provider_error_code=_provider_error_code(root_error),
-        request_id=_request_id(root_error),
-    )
+    return AIAnalysisFailureDiagnostic(**build_failure_diagnostic(error).model_dump())
 
 
 def _format_analysis_failure(
@@ -200,14 +67,7 @@ def _format_analysis_failure(
 ) -> str:
     """Render safe diagnostic fields for the terminal without provider payloads."""
 
-    details = [diagnostic.error_type, f"attempts={diagnostic.attempts}"]
-    if diagnostic.http_status is not None:
-        details.append(f"status={diagnostic.http_status}")
-    if diagnostic.provider_error_code is not None:
-        details.append(f"code={diagnostic.provider_error_code}")
-    if diagnostic.request_id is not None:
-        details.append(f"request_id={diagnostic.request_id}")
-    return "AI analysis failed (" + "; ".join(details) + ")"
+    return format_failure(diagnostic, operation="AI analysis")
 
 
 def _validated_score(value: object, *, field_name: str) -> float:

@@ -124,6 +124,34 @@ def test_generate_summary_zh_uses_localized_selection_header_and_numeric_date():
     assert "Apr 25, 08:00" not in result
 
 
+def test_generate_summary_zh_keeps_degraded_item_from_falling_back_to_english():
+    summarizer = DailySummarizer()
+    item = _make_item(1)
+    item.metadata.update(
+        {
+            "detailed_summary": "English residual summary must not be published.",
+            "background": "English background must not be published.",
+            "community_discussion": "English discussion must not be published.",
+            "detailed_summary_zh": "该条资讯的中文内容暂不可用；请查看原文链接获取详情。",
+            "zh_output_incomplete": True,
+        }
+    )
+
+    result = _run_async(
+        summarizer.generate_summary(
+            [item],
+            date="2026-04-25",
+            total_fetched=1,
+            language="zh",
+        )
+    )
+
+    assert "该条资讯的中文内容暂不可用" in result
+    assert "English residual" not in result
+    assert "English background" not in result
+    assert "English discussion" not in result
+
+
 def test_calendar_report_shows_coverage_and_local_item_time() -> None:
     summarizer = DailySummarizer()
     item = _make_item(1)
